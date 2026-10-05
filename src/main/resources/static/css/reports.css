@@ -1,0 +1,94 @@
+/* ============================================================
+   PartsHub Pro – reports.css
+   Styles specific to the Reports page: filter panel, table.
+   ============================================================ */
+
+/* ── Filter Panel ─────────────────────────────────────────── */
+.ph-filter-panel {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+}
+.ph-filter-panel__title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.ph-filter-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr) repeat(2, auto);
+    gap: 0.875rem;
+    align-items: end;
+}
+.ph-filter-group label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.ph-filter-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-end;
+}
+
+/* ── Export buttons ───────────────────────────────────────── */
+.ph-export-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.ph-export-group {
+    display: flex;
+    gap: 0.5rem;
+}
+.btn-ph-danger {
+    background-color: var(--danger);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 0.45rem 1rem;
+    font-size: 0.825rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.btn-ph-danger:hover { opacity: 0.88; }
+
+/* ── Report metadata header ───────────────────────────────── */
+.ph-report-meta {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    flex-wrap: wrap;
+}
+.ph-report-meta strong { color: var(--text-secondary); }
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 1100px) {
+    .ph-filter-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .ph-filter-actions { grid-column: 1 / -1; }
+}
+@media (max-width: 600px) {
+    .ph-filter-grid { grid-template-columns: 1fr; }
+    .ph-export-bar  { flex-direction: column; align-items: flex-start; }
+}

@@ -1,0 +1,2031 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard & Reports | PartsHub Enterprise</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <!-- Chart.js via CDN for High-Performance Dark Analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --bg-canvas: #0D0F12;
+      --bg-panel: #161A20;
+      --bg-card: #1D222E;
+      --bg-card-hover: #232A39;
+      --bg-input: #12151B;
+      --border-subtle: #2A3243;
+      --border-light: #374151;
+      --border-accent: rgba(245, 158, 11, 0.4);
+
+      --accent-amber: #F59E0B;
+      --accent-amber-glow: rgba(245, 158, 11, 0.25);
+      --accent-amber-hover: #D97706;
+      
+      --color-positive: #10B981;
+      --color-positive-bg: rgba(16, 185, 129, 0.12);
+      --color-positive-border: rgba(16, 185, 129, 0.3);
+      
+      --color-negative: #EF4444;
+      --color-negative-bg: rgba(239, 68, 68, 0.12);
+      --color-negative-border: rgba(239, 68, 68, 0.3);
+      
+      --color-info: #3B82F6;
+      --color-info-bg: rgba(59, 130, 246, 0.12);
+      --color-info-border: rgba(59, 130, 246, 0.3);
+      
+      --color-purple: #8B5CF6;
+      --color-purple-bg: rgba(139, 92, 246, 0.12);
+
+      --text-main: #F1F5F9;
+      --text-muted: #94A3B8;
+      --text-dim: #64748B;
+      --text-highlight: #FFFFFF;
+
+      --sidebar-width: 270px;
+      --topbar-height: 70px;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --radius-pill: 9999px;
+      --shadow-elevation: 0 10px 30px -5px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-subtle);
+      --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-canvas); color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14px; line-height: 1.5; overflow-x: hidden; min-height: 100vh; display: flex;
+    }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-canvas); }
+    ::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: var(--radius-pill); }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-width); background-color: var(--bg-panel);
+      border-right: 1px solid var(--border-subtle); position: fixed; top: 0; bottom: 0; left: 0;
+      display: flex; flex-direction: column; z-index: 100;
+    }
+    .brand-container {
+      height: var(--topbar-height); display: flex; align-items: center; padding: 0 22px;
+      border-bottom: 1px solid var(--border-subtle); gap: 12px;
+    }
+    .brand-icon-box {
+      width: 38px; height: 38px; border-radius: var(--radius-md);
+      background: linear-gradient(135deg, #F59E0B 0%, #B45309 100%);
+      display: flex; align-items: center; justify-content: center; color: #0D0F12; font-size: 18px;
+    }
+    .brand-title { font-size: 17px; font-weight: 700; color: var(--text-highlight); display: flex; align-items: center; gap: 6px; }
+    .brand-version { font-size: 10px; padding: 1px 6px; background-color: rgba(245, 158, 11, 0.15); color: var(--accent-amber); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius-pill); font-weight: 600; }
+    .brand-subtitle { font-size: 11px; color: var(--text-dim); }
+
+    .sidebar-menu-wrapper { flex: 1; padding: 20px 14px; overflow-y: auto; }
+    .nav-category-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-dim); padding: 0 12px 10px 12px; display: block; }
+    .sidebar-menu { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+    .nav-link {
+      display: flex; align-items: center; gap: 13px; padding: 11px 14px; color: var(--text-muted);
+      text-decoration: none; border-radius: var(--radius-md); font-weight: 500; font-size: 13.5px; transition: var(--transition-smooth);
+    }
+    .nav-link i { font-size: 15px; width: 20px; text-align: center; color: var(--text-dim); }
+    .nav-link:hover { background-color: var(--bg-card); color: var(--text-highlight); }
+    .nav-item.active .nav-link {
+      background: linear-gradient(90deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.03) 100%);
+      color: var(--accent-amber); font-weight: 600; border-left: 3px solid var(--accent-amber); border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    }
+    .nav-item.active .nav-link i { color: var(--accent-amber); filter: drop-shadow(0 0 8px var(--accent-amber-glow)); }
+    .nav-badge { margin-left: auto; font-size: 10.5px; font-weight: 600; padding: 2px 7px; border-radius: var(--radius-pill); background: var(--bg-canvas); color: var(--text-dim); border: 1px solid var(--border-subtle); }
+    .nav-item.active .nav-badge { background: rgba(245, 158, 11, 0.2); color: var(--accent-amber); border-color: rgba(245, 158, 11, 0.4); }
+
+    .sidebar-footer { padding: 16px; border-top: 1px solid var(--border-subtle); background-color: rgba(18, 21, 27, 0.6); }
+    .system-status-card { background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 11px 12px; display: flex; flex-direction: column; gap: 6px; }
+    .status-row { display: flex; align-items: center; justify-content: space-between; font-size: 11px; }
+    .pulse-dot { width: 7px; height: 7px; border-radius: 50%; background-color: var(--color-positive); box-shadow: 0 0 8px var(--color-positive); }
+
+    /* MAIN */
+    .app-main { margin-left: var(--sidebar-width); flex: 1; min-width: 0; display: flex; flex-direction: column; min-height: 100vh; }
+    .top-bar {
+      height: var(--topbar-height); background-color: var(--bg-panel); border-bottom: 1px solid var(--border-subtle);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 30px; position: sticky; top: 0; z-index: 90;
+    }
+    .breadcrumbs { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--text-muted); }
+    .breadcrumbs a { color: var(--text-dim); text-decoration: none; }
+    .breadcrumbs .crumb-sep { color: var(--text-dim); font-size: 10px; }
+    .breadcrumbs .current { color: var(--text-highlight); font-weight: 600; }
+    .top-bar-actions { display: flex; align-items: center; gap: 18px; }
+    .session-badge { display: flex; align-items: center; gap: 8px; padding: 5px 12px; background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-pill); font-size: 11.5px; color: var(--text-muted); }
+    .icon-button { width: 38px; height: 38px; border-radius: var(--radius-md); background-color: var(--bg-card); border: 1px solid var(--border-subtle); color: var(--text-muted); display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
+    .badge-counter { position: absolute; top: -3px; right: -3px; width: 17px; height: 17px; border-radius: 50%; background-color: var(--accent-amber); color: #0D0F12; font-size: 9.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .user-profile-widget { display: flex; align-items: center; gap: 12px; padding-left: 12px; border-left: 1px solid var(--border-subtle); }
+    .user-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #1E293B 0%, #334155 100%); border: 2px solid var(--accent-amber); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--accent-amber); font-weight: 700; }
+
+    /* CONTENT */
+    .content-canvas { padding: 30px; flex: 1; display: flex; flex-direction: column; gap: 28px; max-width: 1600px; width: 100%; margin: 0 auto; }
+    .page-header {
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+      background: linear-gradient(180deg, rgba(22, 26, 32, 0.6) 0%, rgba(22, 26, 32, 0.2) 100%);
+      border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 24px 28px;
+    }
+    .page-header-pretitle { font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--accent-amber); display: flex; align-items: center; gap: 7px; }
+    .page-header-title { font-size: 26px; font-weight: 800; color: var(--text-highlight); }
+    .page-header-subtitle { font-size: 13.5px; color: var(--text-muted); max-width: 650px; }
+    
+    .header-actions-group { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .btn-export {
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: #0D0F12; border: none; padding: 10px 18px;
+      border-radius: var(--radius-md); font-size: 13.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: var(--transition-smooth);
+    }
+    .btn-export:hover { background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%); }
+
+    /* KPI CARDS */
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+    .kpi-card {
+      background-color: var(--bg-panel); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
+      padding: 20px 22px; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow-elevation); transition: var(--transition-smooth);
+    }
+    .kpi-card:hover { transform: translateY(-3px); border-color: var(--border-light); }
+    .kpi-header { display: flex; align-items: center; justify-content: space-between; }
+    .kpi-title { font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--text-dim); }
+    .kpi-icon-box { width: 36px; height: 36px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .kpi-icon-green { background: var(--color-positive-bg); color: var(--color-positive); border: 1px solid var(--color-positive-border); }
+    .kpi-icon-amber { background: rgba(245, 158, 11, 0.12); color: var(--accent-amber); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .kpi-icon-blue { background: var(--color-info-bg); color: var(--color-info); border: 1px solid var(--color-info-border); }
+    .kpi-icon-purple { background: var(--color-purple-bg); color: var(--color-purple); border: 1px solid rgba(139, 92, 246, 0.3); }
+    .kpi-value { font-size: 26px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--text-highlight); }
+    .kpi-meta { font-size: 11.5px; color: var(--text-dim); }
+
+    /* CHARTS 2x2 GRID */
+    .charts-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 20px; }
+    .chart-panel {
+      background-color: var(--bg-panel); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
+      padding: 22px; display: flex; flex-direction: column; gap: 16px; box-shadow: var(--shadow-elevation);
+    }
+    .chart-header { display: flex; align-items: center; justify-content: space-between; }
+    .chart-title-group { display: flex; flex-direction: column; gap: 2px; }
+    .chart-title { font-size: 15px; font-weight: 700; color: var(--text-highlight); display: flex; align-items: center; gap: 8px; }
+    .chart-subtitle { font-size: 11.5px; color: var(--text-dim); }
+    .chart-container-box { position: relative; height: 260px; width: 100%; }
+
+    /* RECENT ACTIVITY TABLE */
+    .table-container-card {
+      background-color: var(--bg-panel); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-elevation); overflow: hidden; display: flex; flex-direction: column;
+    }
+    .table-responsive { overflow-x: auto; width: 100%; }
+    .data-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+    .data-table thead { background-color: #12151B; border-bottom: 1px solid var(--border-subtle); }
+    .data-table th { padding: 13px 18px; font-weight: 600; color: var(--text-dim); font-size: 11px; text-transform: uppercase; white-space: nowrap; }
+    .data-table th.th-numeric { text-align: right; }
+    .data-table tbody tr { border-bottom: 1px solid rgba(42, 50, 67, 0.45); transition: var(--transition-smooth); }
+    .data-table tbody tr:hover { background-color: var(--bg-card); }
+    .data-table td { padding: 14px 18px; vertical-align: middle; color: var(--text-main); }
+    .data-table td.td-numeric { text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+
+    .module-badge {
+      display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: var(--radius-pill);
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+    }
+    .module-sales { background: var(--color-positive-bg); color: var(--color-positive); border: 1px solid var(--color-positive-border); }
+    .module-purchase { background: var(--color-info-bg); color: var(--color-info); border: 1px solid var(--color-info-border); }
+    .module-inventory { background: rgba(245, 158, 11, 0.12); color: var(--accent-amber); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .module-returns { background: var(--color-negative-bg); color: var(--color-negative); border: 1px solid var(--color-negative-border); }
+
+    /* PROMOTIONAL CAMPAIGNS PANEL & MODALS */
+    .panel-header {
+      padding: 20px 24px; border-bottom: 1px solid var(--border-subtle);
+      display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    }
+    .panel-title-group { display: flex; flex-direction: column; gap: 3px; }
+    .panel-title {
+      font-size: 16px; font-weight: 800; color: var(--text-highlight);
+      display: flex; align-items: center; gap: 9px; letter-spacing: -0.2px;
+    }
+    .panel-subtitle { font-size: 12.5px; color: var(--text-muted); }
+
+    .btn-new-campaign {
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+      color: #0D0F12; border: none; padding: 9px 18px; border-radius: var(--radius-md);
+      font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;
+      cursor: pointer; transition: var(--transition-smooth); box-shadow: 0 4px 14px var(--accent-amber-glow);
+    }
+    .btn-new-campaign:hover {
+      background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%);
+      transform: translateY(-1px); box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+    }
+
+    .filter-toolbar {
+      background-color: var(--bg-panel); border-bottom: 1px solid var(--border-subtle);
+      padding: 14px 22px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+    }
+    .search-box-wrapper { position: relative; flex: 1; min-width: 240px; max-width: 400px; }
+    .search-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--text-dim); font-size: 13px; }
+    .input-search {
+      width: 100%; background-color: var(--bg-input); border: 1px solid var(--border-subtle); color: var(--text-main);
+      padding: 8px 12px 8px 36px; border-radius: var(--radius-md); font-size: 13px; outline: none; transition: var(--transition-smooth);
+    }
+    .input-search:focus { border-color: var(--accent-amber); box-shadow: 0 0 0 3px var(--accent-amber-glow); }
+    .controls-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .filter-label-text { font-size: 11.5px; color: var(--text-dim); font-weight: 600; text-transform: uppercase; }
+    .select-dropdown {
+      background-color: var(--bg-input); border: 1px solid var(--border-subtle); color: var(--text-main);
+      padding: 7px 32px 7px 12px; border-radius: var(--radius-md); font-size: 12.5px; outline: none; cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394A3B8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 10px center; background-size: 13px; transition: var(--transition-smooth);
+    }
+    .select-dropdown:focus { border-color: var(--accent-amber); }
+    .active-count-indicator {
+      font-size: 11.5px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;
+      padding: 5px 10px; background-color: var(--bg-card); border-radius: var(--radius-pill); border: 1px solid var(--border-subtle);
+    }
+
+    /* Product Chip List */
+    .chip-list { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; max-width: 320px; }
+    .part-chip {
+      display: inline-flex; align-items: center; gap: 5px; padding: 2px 7px; border-radius: var(--radius-sm);
+      background-color: var(--bg-card); border: 1px solid var(--border-subtle); font-size: 11.5px; color: var(--text-main);
+      white-space: nowrap; max-width: 170px; overflow: hidden; text-overflow: ellipsis;
+    }
+    .part-chip i { font-size: 10px; color: var(--accent-amber); }
+    .part-chip-more {
+      display: inline-flex; align-items: center; padding: 2px 6px; border-radius: var(--radius-pill);
+      background-color: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3);
+      font-size: 10.5px; font-weight: 700; color: var(--accent-amber);
+    }
+
+    /* Discount Badge */
+    .discount-pill {
+      font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 800; color: var(--accent-amber);
+      background: rgba(245, 158, 11, 0.12); padding: 3px 8px; border-radius: var(--radius-sm); border: 1px solid rgba(245, 158, 11, 0.3);
+      display: inline-block;
+    }
+
+    /* Status Pills */
+    .status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: var(--radius-pill); font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+    .status-pill.active { background-color: var(--color-positive-bg); color: var(--color-positive); border: 1px solid var(--color-positive-border); }
+    .status-pill.upcoming { background-color: var(--color-info-bg); color: var(--color-info); border: 1px solid var(--color-info-border); }
+    .status-pill.expired { background-color: rgba(148, 163, 184, 0.12); color: var(--text-dim); border: 1px solid rgba(148, 163, 184, 0.25); }
+    .status-dot-sm { width: 6px; height: 6px; border-radius: 50%; background-color: currentColor; }
+    .status-pill.active .status-dot-sm { box-shadow: 0 0 6px var(--color-positive); }
+
+    /* Performance Stat */
+    .perf-pill {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .perf-pill strong { color: var(--text-highlight); font-weight: 700; }
+    .perf-pill i { color: var(--color-positive); font-size: 11px; }
+
+    /* Action Buttons */
+    .table-actions-group { display: flex; align-items: center; gap: 6px; }
+    .btn-table-action {
+      background-color: var(--bg-card); border: 1px solid var(--border-subtle); color: var(--text-muted);
+      padding: 5px 10px; border-radius: var(--radius-md); font-size: 11.5px; font-weight: 600; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 5px; transition: var(--transition-smooth);
+    }
+    .btn-table-action:hover { border-color: var(--border-light); color: var(--text-highlight); }
+    .btn-table-action.btn-edit:hover { border-color: var(--accent-amber); color: var(--accent-amber); background: rgba(245, 158, 11, 0.08); }
+    .btn-table-action.btn-delete:hover { border-color: var(--color-negative); color: var(--color-negative); background: rgba(239, 68, 68, 0.08); }
+    .read-only-badge {
+      font-size: 11px; color: var(--text-dim); display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 8px; border-radius: var(--radius-pill); background: rgba(100, 116, 139, 0.12); border: 1px solid rgba(100, 116, 139, 0.2);
+    }
+
+    /* MODALS */
+    .modal-backdrop {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(13, 15, 18, 0.85);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 1000;
+      display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none;
+      transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1); padding: 20px;
+    }
+    .modal-backdrop.open { opacity: 1; pointer-events: auto; }
+    .modal-dialog {
+      background-color: var(--bg-panel); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
+      width: 100%; max-width: 680px; box-shadow: var(--shadow-elevation); transform: scale(0.95) translateY(10px);
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; flex-direction: column;
+      overflow: hidden; border-top: 3px solid var(--accent-amber);
+    }
+    .modal-backdrop.open .modal-dialog { transform: scale(1) translateY(0); }
+    .modal-header {
+      padding: 18px 24px; border-bottom: 1px solid var(--border-subtle);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-title-group { display: flex; align-items: center; gap: 11px; }
+    .modal-title-icon {
+      width: 36px; height: 36px; border-radius: var(--radius-md);
+      background-color: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3);
+      color: var(--accent-amber); display: flex; align-items: center; justify-content: center; font-size: 16px;
+    }
+    .modal-title { font-size: 16.5px; font-weight: 700; color: var(--text-highlight); }
+    .modal-title-sub { font-size: 11px; color: var(--text-dim); }
+    .btn-modal-close {
+      background: none; border: none; color: var(--text-dim); font-size: 18px; cursor: pointer;
+      width: 32px; height: 32px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center;
+      transition: var(--transition-smooth);
+    }
+    .btn-modal-close:hover { background-color: var(--bg-card); color: var(--text-highlight); }
+
+    .modal-body { padding: 22px 24px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; max-height: calc(85vh - 130px); }
+    .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; position: relative; }
+    .form-label { font-size: 12.5px; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; justify-content: space-between; }
+    .form-label-hint { font-size: 11px; color: var(--text-dim); font-weight: 400; }
+    .form-control {
+      background-color: var(--bg-input); border: 1px solid var(--border-subtle); color: var(--text-main);
+      padding: 9px 13px; border-radius: var(--radius-md); font-size: 13px; outline: none; transition: var(--transition-smooth); width: 100%;
+    }
+    .form-control:focus { border-color: var(--accent-amber); box-shadow: 0 0 0 3px var(--accent-amber-glow); }
+    .form-control[readonly] { background-color: rgba(18, 21, 27, 0.6); color: var(--text-muted); cursor: not-allowed; }
+
+    /* Discount toggle */
+    .toggle-group { display: flex; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; background-color: var(--bg-input); }
+    .toggle-btn {
+      flex: 1; padding: 8px 12px; font-size: 12.5px; font-weight: 600; color: var(--text-muted);
+      border: none; background: transparent; cursor: pointer; transition: var(--transition-smooth);
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .toggle-btn.active {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(245, 158, 11, 0.08) 100%);
+      color: var(--accent-amber); border-bottom: 2px solid var(--accent-amber); font-weight: 700;
+    }
+    .input-with-suffix { position: relative; }
+    .input-suffix { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-dim); font-size: 12px; font-weight: 700; font-family: 'JetBrains Mono', monospace; pointer-events: none; }
+
+    /* Multi-select product picker */
+    .multi-select-container { position: relative; }
+    .multi-select-trigger {
+      background-color: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);
+      padding: 8px 12px; min-height: 42px; display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; transition: var(--transition-smooth); user-select: none;
+    }
+    .multi-select-trigger:hover, .multi-select-trigger.active { border-color: var(--accent-amber); }
+    .multi-select-tags { display: flex; flex-wrap: wrap; gap: 5px; flex: 1; margin-right: 8px; }
+    .multi-select-placeholder { color: var(--text-dim); font-size: 12.5px; }
+    .selected-tag {
+      background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm);
+      padding: 2px 7px; font-size: 11.5px; color: var(--text-main); display: inline-flex; align-items: center; gap: 5px;
+    }
+    .selected-tag-remove { color: var(--text-dim); cursor: pointer; font-size: 11px; }
+    .selected-tag-remove:hover { color: var(--color-negative); }
+
+    .multi-select-dropdown {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 1050;
+      background-color: var(--bg-panel); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);
+      box-shadow: 0 14px 35px rgba(0,0,0,0.8); display: none; flex-direction: column; overflow: hidden;
+    }
+    .multi-select-dropdown.open { display: flex; }
+    .dropdown-search-box { padding: 10px 12px; border-bottom: 1px solid var(--border-subtle); background-color: var(--bg-input); }
+    .dropdown-search-input {
+      width: 100%; background: transparent; border: none; outline: none; color: var(--text-main); font-size: 12.5px;
+    }
+    .dropdown-options-list { max-height: 200px; overflow-y: auto; padding: 6px; display: flex; flex-direction: column; gap: 2px; }
+    .dropdown-option {
+      padding: 8px 10px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; cursor: pointer; transition: var(--transition-smooth); font-size: 12.5px;
+    }
+    .dropdown-option:hover { background-color: var(--bg-card); }
+    .dropdown-option.selected { background-color: rgba(245, 158, 11, 0.12); }
+    .option-info { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+    .option-checkbox { accent-color: var(--accent-amber); cursor: pointer; width: 14px; height: 14px; }
+    .option-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-highlight); }
+    .option-price { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted); font-weight: 600; white-space: nowrap; }
+
+    /* Live status preview */
+    .status-preview-box {
+      padding: 10px 14px; border-radius: var(--radius-md); background-color: var(--bg-input); border: 1px solid var(--border-subtle);
+      display: flex; align-items: center; justify-content: space-between; font-size: 12px;
+    }
+
+    .modal-footer {
+      padding: 14px 24px; border-top: 1px solid var(--border-subtle); background-color: #12151B;
+      display: flex; align-items: center; justify-content: flex-end; gap: 10px;
+    }
+    .btn-secondary {
+      background-color: transparent; border: 1px solid var(--border-subtle); color: var(--text-muted);
+      padding: 9px 16px; border-radius: var(--radius-md); font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: var(--transition-smooth);
+    }
+    .btn-secondary:hover { border-color: var(--border-light); color: var(--text-highlight); background-color: var(--bg-card); }
+    .btn-save-action {
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); border: none; color: #0D0F12;
+      padding: 9px 20px; border-radius: var(--radius-md); font-size: 13px; font-weight: 700; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px var(--accent-amber-glow);
+      transition: var(--transition-smooth);
+    }
+    .btn-save-action:hover { background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%); transform: translateY(-1px); }
+
+    /* Delete Confirmation Modal */
+    .confirm-dialog { max-width: 440px; border-top: 3px solid var(--color-negative); }
+    .confirm-body { padding: 24px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; }
+    .confirm-icon-box {
+      width: 50px; height: 50px; border-radius: 50%; background: var(--color-negative-bg);
+      border: 1px solid var(--color-negative-border); color: var(--color-negative); display: flex;
+      align-items: center; justify-content: center; font-size: 22px;
+    }
+    .confirm-title { font-size: 17px; font-weight: 800; color: var(--text-highlight); }
+    .confirm-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+    .btn-delete-confirm {
+      background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); border: none; color: #FFFFFF;
+      padding: 9px 20px; border-radius: var(--radius-md); font-size: 13px; font-weight: 700; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 7px; transition: var(--transition-smooth);
+    }
+    .btn-delete-confirm:hover { background: linear-gradient(135deg, #F87171 0%, #EF4444 100%); }
+
+    .toast-notification {
+      position: fixed; bottom: 24px; right: 24px; background-color: var(--bg-panel); border: 1px solid var(--color-positive);
+      border-radius: var(--radius-md); padding: 14px 20px; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+      z-index: 2000; transform: translateY(100px); opacity: 0; transition: all 0.3s;
+    }
+    .toast-notification.show { transform: translateY(0); opacity: 1; }
+
+    @media (max-width: 1200px) { .charts-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 900px) {
+      .sidebar { width: 70px; }
+      .brand-title, .brand-subtitle, .nav-text, .nav-badge, .nav-category-label, .sidebar-footer { display: none; }
+      .app-main { margin-left: 70px; }
+    }
+    @media (max-width: 640px) { .kpi-grid { grid-template-columns: 1fr; } .form-grid-2 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <a th:href="@{/}" href="/" class="brand-container" style="text-decoration: none; color: inherit;" title="Return to PartsHub Storefront Home">
+      <div class="brand-icon-box"><i class="fa-solid fa-microchip"></i></div>
+      <div class="brand-text">
+        <div class="brand-title">PartsHub <span class="brand-version">v2.4</span></div>
+        <span class="brand-subtitle">Spare Parts ERP System</span>
+      </div>
+    </a>
+    <div class="sidebar-menu-wrapper">
+      <span class="nav-category-label">Core Modules</span>
+      <ul class="sidebar-menu" id="sidebar-menu-dynamic">
+        <!-- Dynamic nav items injected by auth.js -->
+      </ul>
+    </div>
+    <div class="sidebar-footer">
+      <div class="system-status-card">
+        <div class="status-row"><div style="display: flex; align-items: center; gap: 6px;"><span class="pulse-dot"></span><span>Spring Boot MVC</span></div><span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-dim);">v3.2.3</span></div>
+        <div class="status-row"><span style="color: var(--text-dim); font-size: 10.5px;">MS SQL Server 2022</span><span style="color: var(--color-positive); font-weight: 600; font-size: 10.5px;">ONLINE</span></div>
+      </div>
+      <button type="button" class="sidebar-logout-btn" id="btn-sidebar-logout" title="Sign Out of Session">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        <span>Sign Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="app-main">
+    <header class="top-bar">
+      <nav class="breadcrumbs">
+        <a th:href="@{/}" href="/" title="Go to Storefront Home"><i class="fa-solid fa-house" style="font-size: 11px;"></i> Home</a>
+        <i class="fa-solid fa-chevron-right crumb-sep"></i>
+        <a href="dashboard.html">Analytics</a>
+        <i class="fa-solid fa-chevron-right crumb-sep"></i>
+        <span class="current">Executive Dashboard & Reports</span>
+      </nav>
+      <div class="top-bar-actions">
+        <div class="session-badge"><span class="pulse-dot" style="width:6px;height:6px;"></span><span id="topbar-session-label">Loading...</span></div>
+        <button class="icon-button" title="Alerts"><i class="fa-regular fa-bell"></i><span class="badge-counter">5</span></button>
+        <div class="user-profile-widget">
+          <div class="user-avatar"><span id="topbar-user-initials">--</span></div>
+          <div style="display: flex; flex-direction: column;">
+            <span id="topbar-user-name" style="font-size:12.5px;font-weight:600;color:var(--text-highlight);">Loading...</span>
+            <span id="topbar-user-role" style="font-size:11px;color:var(--text-muted);">Loading...</span>
+          </div>
+        </div>
+        <button type="button" class="btn-topbar-logout" id="btn-logout" title="Sign Out of Session">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="content-canvas">
+      <!-- 1. Header -->
+      <section class="page-header">
+        <div>
+          <div class="page-header-pretitle"><i class="fa-solid fa-chart-simple"></i> Executive Telemetry</div>
+          <h1 class="page-header-title">Dashboard & Reports</h1>
+          <p class="page-header-subtitle">Comprehensive business overview and analytics across procurement, sales, and inventory powered by MS SQL Server analytics procedures.</p>
+        </div>
+        <div class="header-actions-group">
+          <select id="dateFilter" class="form-control" style="width: 170px; background-color: var(--bg-input); border: 1px solid var(--border-subtle); color: var(--text-main); font-size: 12.5px;" onchange="updateChartsPeriod(this.value)">
+            <option value="6M">Last 6 Months</option>
+            <option value="3M">Q3 FY2026</option>
+            <option value="1Y">Full Fiscal Year 2026</option>
+          </select>
+          <button type="button" class="btn-export" onclick="downloadDashboardReport('pdf')" title="Export Executive Telemetry as PDF"><i class="fa-solid fa-file-pdf"></i> Export PDF</button>
+          <button type="button" class="btn-export" onclick="downloadDashboardReport('excel')" style="background: rgba(16, 185, 129, 0.12); color: #10B981; border-color: rgba(16, 185, 129, 0.3);" title="Export Executive Telemetry as Excel"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
+        </div>
+      </section>
+
+
+      <!-- 2. KPI Cards (4) -->
+      <section class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-header"><span class="kpi-title">Total Revenue (FY26)</span><div class="kpi-icon-box kpi-icon-green"><i class="fa-solid fa-money-bill-trend-up"></i></div></div>
+          <div class="kpi-value" id="kpiTotalRevenue" style="color: var(--color-positive);">LKR 84.20M</div>
+          <span class="kpi-meta"><i class="fa-solid fa-arrow-up" style="color: var(--color-positive);"></i> +18.4% YoY Growth</span>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-header"><span class="kpi-title">Total Inventory Valuation</span><div class="kpi-icon-box kpi-icon-amber"><i class="fa-solid fa-boxes-stacked"></i></div></div>
+          <div class="kpi-value" id="kpiInventoryValuation">LKR 42.85M</div>
+          <span class="kpi-meta"><i class="fa-solid fa-warehouse" style="color: var(--accent-amber);"></i> <span id="kpiInventorySkuMeta">1,420 Active SKUs</span> across warehouses</span>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-header"><span class="kpi-title">Active Hardware Suppliers</span><div class="kpi-icon-box kpi-icon-blue"><i class="fa-solid fa-handshake"></i></div></div>
+          <div class="kpi-value" id="kpiSuppliersCount" style="color: var(--color-info);">24</div>
+          <span class="kpi-meta"><i class="fa-solid fa-shield-check" style="color: var(--color-info);"></i> 96.2% On-Time Delivery Rate</span>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-header"><span class="kpi-title">Pending Orders Pipeline</span><div class="kpi-icon-box kpi-icon-purple"><i class="fa-solid fa-truck-fast"></i></div></div>
+          <div class="kpi-value" id="kpiPendingOrders" style="color: var(--color-purple);">13</div>
+          <span class="kpi-meta"><i class="fa-solid fa-cart-shopping" style="color: var(--color-purple);"></i> Inbound POs & Customer Invoices</span>
+        </div>
+      </section>
+
+      <!-- 3. Charts Section (2x2 Grid) -->
+      <section class="charts-grid">
+        <!-- Chart 1: Revenue & Procurement Trend -->
+        <div class="chart-panel">
+          <div class="chart-header">
+            <div class="chart-title-group">
+              <div class="chart-title"><i class="fa-solid fa-chart-line" style="color: var(--color-positive);"></i> Revenue vs. Procurement Trend</div>
+              <div class="chart-subtitle">Monthly sales revenue vs. inbound purchasing expenditure (in Millions LKR)</div>
+            </div>
+          </div>
+          <div class="chart-container-box">
+            <canvas id="revenueTrendChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 2: Inventory Valuation by Category -->
+        <div class="chart-panel">
+          <div class="chart-header">
+            <div class="chart-title-group">
+              <div class="chart-title"><i class="fa-solid fa-chart-pie" style="color: var(--accent-amber);"></i> Inventory Breakdown by Category</div>
+              <div class="chart-subtitle">Asset allocation across core hardware components</div>
+            </div>
+          </div>
+          <div class="chart-container-box">
+            <canvas id="categoryDonutChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 3: Top Selling Parts -->
+        <div class="chart-panel">
+          <div class="chart-header">
+            <div class="chart-title-group">
+              <div class="chart-title"><i class="fa-solid fa-fire" style="color: var(--color-info);"></i> Top Selling Hardware Parts</div>
+              <div class="chart-subtitle">Units dispatched across wholesale & retail channels</div>
+            </div>
+          </div>
+          <div class="chart-container-box">
+            <canvas id="topPartsChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 4: Supplier Performance Comparison -->
+        <div class="chart-panel">
+          <div class="chart-header">
+            <div class="chart-title-group">
+              <div class="chart-title"><i class="fa-solid fa-award" style="color: var(--accent-amber);"></i> Supplier Quality & Ranking Scores</div>
+              <div class="chart-subtitle">Evaluated out of 100 based on delivery accuracy & defect rate</div>
+            </div>
+          </div>
+          <div class="chart-container-box">
+            <canvas id="supplierScoresChart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Promotional Campaigns Manager Panel (Business Owner CRUD Function) -->
+      <section class="table-container-card" id="promotionsPanel">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <div class="panel-title">
+              <i class="fa-solid fa-bullhorn" style="color: var(--accent-amber);"></i>
+              Promotional Campaigns
+            </div>
+            <p class="panel-subtitle">Create and manage product discounts and their validity periods.</p>
+          </div>
+          <div id="campaignHeaderActions">
+            <button type="button" class="btn-new-campaign" id="btnOpenCampaignModal" onclick="openCreateCampaignModal()">
+              <i class="fa-solid fa-plus"></i> New Campaign
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Toolbar -->
+        <div class="filter-toolbar">
+          <div class="search-box-wrapper">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="campaignSearchInput" class="input-search" placeholder="Search by campaign name or product..." oninput="filterAndSortCampaigns()">
+          </div>
+
+          <div class="controls-group">
+            <span class="filter-label-text">Status:</span>
+            <select id="campaignStatusFilter" class="select-dropdown" onchange="filterAndSortCampaigns()">
+              <option value="ALL">All Statuses</option>
+              <option value="ACTIVE">Active</option>
+              <option value="UPCOMING">Upcoming</option>
+              <option value="EXPIRED">Expired</option>
+            </select>
+
+            <span class="filter-label-text">Sort:</span>
+            <select id="campaignSortSelector" class="select-dropdown" onchange="filterAndSortCampaigns()">
+              <option value="newest">Newest</option>
+              <option value="ending-soonest">Ending Soonest</option>
+              <option value="highest-discount">Highest Discount</option>
+            </select>
+
+            <div class="active-count-indicator">
+              <span id="campaignFilteredCount">0</span> of <span id="campaignTotalCount">0</span> Campaigns
+            </div>
+          </div>
+        </div>
+
+        <!-- Campaigns Table -->
+        <div class="table-responsive">
+          <table class="data-table" id="campaignsTable">
+            <thead>
+              <tr>
+                <th style="min-width: 220px;">Campaign Name</th>
+                <th style="min-width: 240px;">Products</th>
+                <th style="width: 130px;">Discount</th>
+                <th style="width: 190px;">Start Date / End Date</th>
+                <th style="width: 120px;">Status</th>
+                <th style="width: 180px;">Performance</th>
+                <th style="width: 140px;" class="th-center" id="colActionsHeader">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="campaignsTableBody">
+              <!-- Dynamically rendered rows -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 5. Recent Activity Table -->
+      <section class="table-container-card">
+        <div style="padding: 18px 22px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+          <div style="font-size: 15px; font-weight: 700; color: var(--text-highlight);"><i class="fa-solid fa-list-check" style="color: var(--accent-amber);"></i> Recent ERP Audit Activity</div>
+          <span style="font-size: 11.5px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace;">Real-time Event Stream</span>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 140px;">Timestamp</th>
+                <th style="width: 130px;">Module</th>
+                <th>Description</th>
+                <th style="width: 160px;">User</th>
+                <th style="width: 140px;" class="th-numeric">Amount (LKR)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-dim);">13:24:10 Today</td>
+                <td><span class="module-badge module-sales">Sales</span></td>
+                <td>Generated Tax Invoice <strong>INV-2026-1049</strong> for Lanka Tech Solutions (12x GPUs)</td>
+                <td>Indrathilake H.W.S.M (IT25100755)</td>
+                <td class="td-numeric" style="color: var(--color-positive);">+1,450,000</td>
+              </tr>
+              <tr>
+                <td style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-dim);">12:45:02 Today</td>
+                <td><span class="module-badge module-purchase">Purchase</span></td>
+                <td>Dispatched Purchase Order <strong>PO-2026-8812</strong> to Tech Lanka Pvt Ltd</td>
+                <td>De Silva T.S.A.I.A (IT25101669)</td>
+                <td class="td-numeric" style="color: var(--accent-amber);">-5,500,000</td>
+              </tr>
+              <tr>
+                <td style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-dim);">11:15:33 Today</td>
+                <td><span class="module-badge module-returns">Returns</span></td>
+                <td>Registered Customer RMA <strong>CLM-2026-0421</strong> for ASUS RTX 4080 (Coil Whine)</td>
+                <td>Premachandra T.G.D.T (IT25101790)</td>
+                <td class="td-numeric" style="color: var(--text-dim);">&mdash;</td>
+              </tr>
+              <tr>
+                <td style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-dim);">09:50:18 Today</td>
+                <td><span class="module-badge module-inventory">Inventory</span></td>
+                <td>Warehouse Stock Receipt verified: 50x Intel Core i9-14900K stored in WH-A Bin 04</td>
+                <td>Perera K.P.S.C. (IT25102622)</td>
+                <td class="td-numeric" style="color: var(--color-positive);">+5,280,000</td>
+              </tr>
+              <tr>
+                <td style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-dim);">08:30:15 Today</td>
+                <td><span class="module-badge" style="background:rgba(245,158,11,0.15);color:#F59E0B;border:1px solid rgba(245,158,11,0.3);font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;">Suppliers</span></td>
+                <td>Evaluated Supplier SLA &amp; Tier Benchmark for Tech Lanka Distribution</td>
+                <td>Yuresh D.D.A. (IT25103669)</td>
+                <td class="td-numeric" style="color: var(--color-positive);">Tier 1 (94%)</td>
+              </tr>
+              <tr>
+                <td style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-dim);">Yesterday</td>
+                <td><span class="module-badge module-sales">Sales</span></td>
+                <td>Received Bank Clearance for <strong>INV-2026-1047</strong> Apex Gaming Hub</td>
+                <td>Indrathilake H.W.S.M (IT25100755)</td>
+                <td class="td-numeric" style="color: var(--color-positive);">+920,000</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- MODAL: CREATE / EDIT CAMPAIGN -->
+  <div class="modal-backdrop" id="campaignModal" role="dialog" aria-modal="true" aria-labelledby="campaignModalTitle">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-title-icon"><i class="fa-solid fa-tag"></i></div>
+          <div>
+            <h2 class="modal-title" id="campaignModalTitle">Create Promotional Campaign</h2>
+            <div class="modal-title-sub" id="campaignModalSub">Configure campaign terms, target inventory parts, and discount period</div>
+          </div>
+        </div>
+        <button type="button" class="btn-modal-close" onclick="closeCampaignModal()" title="Close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="campaignForm" onsubmit="handleCampaignFormSubmit(event)">
+        <input type="hidden" id="campaignEditId" value="">
+        <div class="modal-body">
+          <!-- Campaign Name -->
+          <div class="form-group">
+            <label class="form-label" for="campaignNameInput">Campaign Name *</label>
+            <input type="text" id="campaignNameInput" class="form-control" placeholder="e.g. Q3 Creator & AI Powerhouse Fest" required>
+          </div>
+
+          <!-- Target Products (Multi-select from Inventory) -->
+          <div class="form-group">
+            <label class="form-label">
+              <span>Target Products (Inventory) *</span>
+              <span class="form-label-hint" id="selectedProductsCountHint">0 products selected</span>
+            </label>
+            <div class="multi-select-container" id="productMultiSelectContainer">
+              <div class="multi-select-trigger" id="productMultiSelectTrigger" onclick="toggleProductDropdown()">
+                <div class="multi-select-tags" id="selectedProductTags">
+                  <span class="multi-select-placeholder">Search & select hardware parts from inventory...</span>
+                </div>
+                <i class="fa-solid fa-chevron-down" style="color: var(--text-dim); font-size: 11px;"></i>
+              </div>
+
+              <!-- Dropdown menu -->
+              <div class="multi-select-dropdown" id="productMultiSelectDropdown">
+                <div class="dropdown-search-box">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-magnifying-glass" style="color: var(--text-dim); font-size: 12px;"></i>
+                    <input type="text" class="dropdown-search-input" id="dropdownPartSearch" placeholder="Filter inventory parts by name or category..." oninput="filterDropdownParts(this.value)">
+                  </div>
+                  <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 11px;">
+                    <a href="javascript:void(0)" onclick="selectAllProducts(true)" style="color: var(--accent-amber); text-decoration: none;">Select All</a>
+                    <a href="javascript:void(0)" onclick="selectAllProducts(false)" style="color: var(--text-dim); text-decoration: none;">Clear All</a>
+                  </div>
+                </div>
+                <div class="dropdown-options-list" id="dropdownProductList">
+                  <!-- Populated from CATALOG_PRODUCTS -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Discount Configuration -->
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Discount Type *</label>
+              <div class="toggle-group">
+                <button type="button" class="toggle-btn active" id="btnTypePercent" onclick="setDiscountType('PERCENTAGE')">
+                  <i class="fa-solid fa-percent"></i> Percentage (%)
+                </button>
+                <button type="button" class="toggle-btn" id="btnTypeFixed" onclick="setDiscountType('FIXED')">
+                  <i class="fa-solid fa-money-bill"></i> Fixed (LKR)
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="discountValueInput">
+                <span id="discountValueLabel">Discount Percentage *</span>
+                <span class="form-label-hint" id="discountValueHint">Applied to catalog price</span>
+              </label>
+              <div class="input-with-suffix">
+                <input type="number" id="discountValueInput" class="form-control" min="1" max="100" step="1" value="15" required oninput="updateModalLiveStatus()">
+                <span class="input-suffix" id="discountInputSuffix">%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Date Pickers & Auto-Derived Status -->
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="startDateInput">Start Date *</label>
+              <input type="date" id="startDateInput" class="form-control" required onchange="updateModalLiveStatus()">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="endDateInput">End Date *</label>
+              <input type="date" id="endDateInput" class="form-control" required onchange="updateModalLiveStatus()">
+            </div>
+          </div>
+
+          <!-- Live Status Feedback (Auto-Derived) -->
+          <div class="status-preview-box" id="modalStatusPreviewBox">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-weight: 600; color: var(--text-muted);">Auto-Computed Status:</span>
+              <span id="modalDerivedStatusPill" class="status-pill active"><span class="status-dot-sm"></span>Active</span>
+            </div>
+            <span id="modalDerivedStatusExplanation" style="color: var(--text-dim); font-size: 11.5px;">Validity timeline determined by entered schedule.</span>
+          </div>
+
+          <!-- Description / Terms -->
+          <div class="form-group">
+            <label class="form-label" for="campaignDescriptionInput">Description & Promotional Terms (Optional)</label>
+            <textarea id="campaignDescriptionInput" class="form-control" rows="2" placeholder="e.g. Applies to retail & online checkout. Limited stock per customer. Valid while promotional allocation lasts."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="closeCampaignModal()">Cancel</button>
+          <button type="submit" class="btn-save-action" id="btnSaveCampaign">
+            <i class="fa-solid fa-floppy-disk"></i> Save Campaign
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: DELETE CONFIRMATION -->
+  <div class="modal-backdrop" id="deleteConfirmModal" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+    <div class="modal-dialog confirm-dialog">
+      <div class="confirm-body">
+        <div class="confirm-icon-box">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <h3 class="confirm-title" id="deleteModalTitle">Remove this campaign?</h3>
+          <p class="confirm-desc">
+            This can't be undone. Deleting this campaign will immediately remove all associated discounts and stop it from showing on the public storefront's Promotions strip.
+          </p>
+          <div id="deleteTargetCampaignPreview" style="margin-top: 8px; padding: 10px 14px; background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); font-size: 12px; color: var(--text-highlight); font-weight: 600;">
+            <!-- Target name -->
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; margin-top: 8px;">
+          <button type="button" class="btn-secondary" style="flex: 1;" onclick="closeDeleteModal()">Cancel</button>
+          <button type="button" class="btn-delete-confirm" style="flex: 1;" id="btnExecuteDelete" onclick="executeCampaignDelete()">
+            <i class="fa-solid fa-trash-can"></i> Delete Campaign
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-notification" id="feedbackToast">
+    <i class="fa-solid fa-circle-check" style="color: var(--color-positive); font-size: 18px;"></i>
+    <div style="display: flex; flex-direction: column;">
+      <span style="font-weight: 700; font-size: 13.5px; color: var(--text-highlight);" id="toastTitle">Report Exported</span>
+      <span style="font-size: 12px; color: var(--text-muted);" id="toastMessage">Executive KPI summary downloaded as Excel/PDF.</span>
+    </div>
+  </div>
+
+  <script>
+    const toast = document.getElementById("feedbackToast");
+
+    function exportReport() {
+      downloadDashboardReport('pdf');
+    }
+
+    function downloadDashboardReport(format) {
+      showToast("Generating Executive Report", `Downloading Executive Telemetry in ${format.toUpperCase()} format...`);
+      setTimeout(() => {
+        window.location.href = `/api/dashboard/export/${format}?type=INVENTORY`;
+      }, 500);
+    }
+
+
+    function showToast(title, msg, type) {
+      document.getElementById("toastTitle").textContent = title;
+      document.getElementById("toastMessage").textContent = msg;
+      const icon = toast.querySelector("i");
+      if (type === "error") {
+        toast.style.borderColor = "var(--color-negative)";
+        if (icon) {
+          icon.className = "fa-solid fa-circle-exclamation";
+          icon.style.color = "var(--color-negative)";
+        }
+      } else {
+        toast.style.borderColor = "var(--color-positive)";
+        if (icon) {
+          icon.className = "fa-solid fa-circle-check";
+          icon.style.color = "var(--color-positive)";
+        }
+      }
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 4200);
+    }
+
+    function updateChartsPeriod(period) {
+      showToast("Period Filter Updated", `Recomputing metrics and charts for ${period}...`);
+      fetchLiveStats(period);
+    }
+
+    // Chart.js Global Dark Theme Configuration
+    Chart.defaults.color = '#94A3B8';
+    Chart.defaults.borderColor = 'rgba(42, 50, 67, 0.4)';
+    Chart.defaults.font.family = "'Inter', sans-serif";
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // 1. Revenue & Procurement Line Chart
+      const ctxRev = document.getElementById('revenueTrendChart').getContext('2d');
+      new Chart(ctxRev, {
+        type: 'line',
+        data: {
+          labels: ['Apr 2026', 'May 2026', 'Jun 2026', 'Jul 2026', 'Aug 2026', 'Sep 2026'],
+          datasets: [
+            {
+              label: 'Sales Revenue (M LKR)',
+              data: [11.2, 12.8, 14.5, 13.9, 15.2, 16.6],
+              borderColor: '#10B981',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              fill: true,
+              tension: 0.35,
+              pointBackgroundColor: '#10B981'
+            },
+            {
+              label: 'Procurement Cost (M LKR)',
+              data: [8.5, 9.2, 11.0, 9.8, 10.5, 11.8],
+              borderColor: '#F59E0B',
+              backgroundColor: 'rgba(245, 158, 11, 0.05)',
+              fill: true,
+              tension: 0.35,
+              pointBackgroundColor: '#F59E0B'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'top', labels: { boxWidth: 12 } } },
+          scales: { y: { beginAtZero: false } }
+        }
+      });
+
+      // 2. Category Donut Chart
+      const ctxDonut = document.getElementById('categoryDonutChart').getContext('2d');
+      new Chart(ctxDonut, {
+        type: 'doughnut',
+        data: {
+          labels: ['CPU', 'GPU', 'RAM', 'Motherboard', 'Storage', 'PSU & Other'],
+          datasets: [{
+            data: [30, 25, 15, 12, 10, 8],
+            backgroundColor: [
+              '#F59E0B',
+              '#3B82F6',
+              '#10B981',
+              '#8B5CF6',
+              '#EC4899',
+              '#64748B'
+            ],
+            borderWidth: 2,
+            borderColor: '#161A20'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'right', labels: { boxWidth: 12 } } },
+          cutout: '68%'
+        }
+      });
+
+      // 3. Top Selling Parts Horizontal Bar Chart
+      const ctxTopParts = document.getElementById('topPartsChart').getContext('2d');
+      new Chart(ctxTopParts, {
+        type: 'bar',
+        data: {
+          labels: ['Core i9-14900K', 'RTX 4080 OC', 'Corsair 32GB DDR5', 'Samsung 990 PRO 2TB', 'MSI Z790 Tomahawk'],
+          datasets: [{
+            label: 'Units Sold',
+            data: [142, 98, 210, 165, 84],
+            backgroundColor: 'rgba(59, 130, 246, 0.75)',
+            borderColor: '#3B82F6',
+            borderWidth: 1,
+            borderRadius: 4
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } }
+        }
+      });
+
+      // 4. Supplier Performance Bar Chart
+      const ctxSup = document.getElementById('supplierScoresChart').getContext('2d');
+      new Chart(ctxSup, {
+        type: 'bar',
+        data: {
+          labels: ['Tech Lanka', 'PC World', 'Colombo Micro', 'Nanotech', 'ABC Computers', 'Silicon Lanka', 'Apex Memory'],
+          datasets: [{
+            label: 'Score / 100',
+            data: [96, 91, 88, 82, 78, 68, 42],
+            backgroundColor: [
+              '#10B981', // Excellent
+              '#10B981', // Excellent
+              '#3B82F6', // Good
+              '#3B82F6', // Good
+              '#3B82F6', // Good
+              '#F59E0B', // Average
+              '#EF4444'  // Poor
+            ],
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { min: 0, max: 100 } }
+        }
+      });
+    });
+
+    /* ==========================================================================
+       PROMOTIONAL CAMPAIGN MANAGER (BUSINESS OWNER CRUD FUNCTION)
+       Spring Boot equivalent: @PreAuthorize("hasRole('OWNER')")
+       ========================================================================== */
+
+    const CAMPAIGN_STORAGE_KEY = 'ph_promotional_campaigns';
+
+    // 1. Inventory Catalog (used for multi-select dropdown and storefront synchronization)
+    const CATALOG_PRODUCTS = [
+      { id: 1,  name: 'Intel Core i9-14900K Processor',      cat: 'CPU',         price: 110000, icon: 'fa-microchip' },
+      { id: 2,  name: 'AMD Ryzen 7 7800X3D Processor',       cat: 'CPU',         price: 145000, icon: 'fa-microchip' },
+      { id: 3,  name: 'ASUS ROG Strix RTX 4080 OC 16GB',     cat: 'GPU',         price: 370000, icon: 'fa-film' },
+      { id: 4,  name: 'Sapphire Nitro+ Radeon RX 7900 XTX',  cat: 'GPU',         price: 340000, icon: 'fa-film' },
+      { id: 5,  name: 'Corsair Vengeance DDR5 32GB 6000MHz', cat: 'RAM',         price: 48000,  icon: 'fa-memory' },
+      { id: 6,  name: 'Kingston Fury Beast 16GB DDR4',       cat: 'RAM',         price: 18500,  icon: 'fa-memory' },
+      { id: 7,  name: 'ASUS ROG Maximus Z790 Hero',          cat: 'Motherboard', price: 165000, icon: 'fa-server' },
+      { id: 8,  name: 'MSI MAG B650 Tomahawk WiFi',          cat: 'Motherboard', price: 72000,  icon: 'fa-server' },
+      { id: 9,  name: 'Corsair RM1000x (2021) 1000W Gold',   cat: 'PSU',         price: 52000,  icon: 'fa-bolt' },
+      { id: 10, name: 'Seasonic Focus GX-850 850W Gold',     cat: 'PSU',         price: 38500,  icon: 'fa-bolt' },
+      { id: 11, name: 'Samsung 990 Pro 2TB NVMe SSD',        cat: 'Storage',     price: 65000,  icon: 'fa-hard-drive' },
+      { id: 12, name: 'WD Black SN850X 1TB NVMe SSD',        cat: 'Storage',     price: 38000,  icon: 'fa-hard-drive' },
+      { id: 13, name: 'Noctua NH-D15 Dual Tower Cooler',      cat: 'Cooling',     price: 22500,  icon: 'fa-fan' },
+      { id: 14, name: 'Arctic Liquid Freezer II 360mm',      cat: 'Cooling',     price: 28000,  icon: 'fa-fan' },
+      { id: 15, name: 'Logitech G Pro X Superlight 2',       cat: 'Peripherals', price: 24500,  icon: 'fa-keyboard' },
+      { id: 16, name: 'Keychron Q1 Pro Wireless Keyboard',   cat: 'Peripherals', price: 31000,  icon: 'fa-keyboard' }
+    ];
+
+    // 2. Historical Sales Line Items from Sales & Billing module (INV-2026-1020 to INV-2026-1049)
+    const HISTORICAL_SALES_ITEMS = [
+      // September 2026 Invoices (Active campaign period)
+      { inv: "INV-2026-1049", date: "2026-09-15", productId: 3, qty: 8 },
+      { inv: "INV-2026-1049", date: "2026-09-15", productId: 1, qty: 4 },
+      { inv: "INV-2026-1048", date: "2026-09-14", productId: 5, qty: 3 },
+      { inv: "INV-2026-1048", date: "2026-09-14", productId: 11, qty: 2 },
+      { inv: "INV-2026-1047", date: "2026-09-13", productId: 3, qty: 4 },
+      { inv: "INV-2026-1047", date: "2026-09-13", productId: 11, qty: 4 },
+      { inv: "INV-2026-1046", date: "2026-09-15", productId: 1, qty: 1 },
+      { inv: "INV-2026-1046", date: "2026-09-15", productId: 5, qty: 1 },
+      { inv: "INV-2026-1045", date: "2026-09-12", productId: 11, qty: 6 },
+      { inv: "INV-2026-1044", date: "2026-09-11", productId: 12, qty: 12 },
+      { inv: "INV-2026-1043", date: "2026-09-10", productId: 11, qty: 18 },
+      { inv: "INV-2026-1042", date: "2026-09-10", productId: 12, qty: 8 },
+      { inv: "INV-2026-1041", date: "2026-09-09", productId: 3, qty: 12 },
+      { inv: "INV-2026-1040", date: "2026-09-08", productId: 1, qty: 18 },
+      { inv: "INV-2026-1039", date: "2026-09-05", productId: 5, qty: 34 },
+      { inv: "INV-2026-1038", date: "2026-09-04", productId: 3, qty: 14 },
+      { inv: "INV-2026-1037", date: "2026-09-02", productId: 1, qty: 22 },
+      { inv: "INV-2026-1036", date: "2026-09-01", productId: 5, qty: 21 },
+      // Storage flash sale items
+      { inv: "INV-2026-1042", date: "2026-09-16", productId: 11, qty: 20 },
+      { inv: "INV-2026-1041", date: "2026-09-14", productId: 12, qty: 16 },
+      // Mid-Year Campaign Invoices (June - July 2026)
+      { inv: "INV-2026-1030", date: "2026-07-12", productId: 9, qty: 25 },
+      { inv: "INV-2026-1029", date: "2026-07-08", productId: 10, qty: 20 },
+      { inv: "INV-2026-1028", date: "2026-06-25", productId: 13, qty: 35 },
+      { inv: "INV-2026-1027", date: "2026-06-18", productId: 9, qty: 30 },
+      { inv: "INV-2026-1026", date: "2026-06-12", productId: 10, qty: 28 },
+      { inv: "INV-2026-1025", date: "2026-06-05", productId: 13, qty: 56 }
+    ];
+
+    // 3. Seed Promotional Campaigns
+    const DEFAULT_SEED_CAMPAIGNS = [
+      {
+        id: "CMP-2026-01",
+        name: "Q3 Creator & AI Powerhouse Fest",
+        discountType: "PERCENTAGE",
+        discountValue: 15,
+        productIds: [3, 1, 5],
+        startDate: "2026-09-01",
+        endDate: "2026-09-30",
+        description: "Enterprise tier bundle discount for creative workstations and AI compute rigs.",
+        createdBy: "Indrathilake H.W.S.M (IT25100755)"
+      },
+      {
+        id: "CMP-2026-02",
+        name: "Ultra-Speed NVMe Storage Bonanza",
+        discountType: "FIXED",
+        discountValue: 7500,
+        productIds: [11, 12],
+        startDate: "2026-09-10",
+        endDate: "2026-09-25",
+        description: "Flat LKR 7,500 cash discount on Gen 4 PCIe NVMe solid-state storage solutions.",
+        createdBy: "Indrathilake H.W.S.M (IT25100755)"
+      },
+      {
+        id: "CMP-2026-03",
+        name: "Deepavali Tech Dhamaka 2026",
+        discountType: "PERCENTAGE",
+        discountValue: 20,
+        productIds: [2, 8, 14],
+        startDate: "2026-10-15",
+        endDate: "2026-11-05",
+        description: "Upcoming festive seasonal pricing for AM5 platform upgrade kits and AIO liquid cooling.",
+        createdBy: "Indrathilake H.W.S.M (IT25100755)"
+      },
+      {
+        id: "CMP-2026-04",
+        name: "Mid-Year Power & Cooling Expo",
+        discountType: "PERCENTAGE",
+        discountValue: 10,
+        productIds: [9, 10, 13],
+        startDate: "2026-06-01",
+        endDate: "2026-07-15",
+        description: "Concluded mid-year promotion for gold modular power supplies and twin-tower air heatsinks.",
+        createdBy: "Indrathilake H.W.S.M (IT25100755)"
+      }
+    ];
+
+    // State
+    let currentSelectedProductIds = [];
+    let currentDiscountType = "PERCENTAGE";
+    let campaignPendingDeleteId = null;
+
+    // Retrieve today's date in YYYY-MM-DD
+    function getTodayStr() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    // Role-based Access Verification
+    function isBusinessOwner() {
+      let role = "";
+      if (window.PartsHub && typeof PartsHub.getSession === 'function') {
+        const session = PartsHub.getSession();
+        if (session && session.role) role = session.role;
+      }
+      if (!role) {
+        try {
+          const raw = sessionStorage.getItem('ph_session');
+          if (raw) {
+            const s = JSON.parse(raw);
+            if (s && s.role) role = s.role;
+          }
+        } catch (e) {}
+      }
+      const r = (role || "").toUpperCase();
+      return r === 'BUSINESS_OWNER' || r === 'ROLE_OWNER' || r === 'OWNER' || r === 'ROLE_BUSINESS_OWNER';
+    }
+
+    // Load campaigns from storage
+    function loadCampaignsFromStorage() {
+      try {
+        const raw = localStorage.getItem(CAMPAIGN_STORAGE_KEY);
+        if (raw !== null) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) return parsed;
+        }
+      } catch (e) {}
+      return [];
+    }
+
+    function saveCampaignsToStorage(list) {
+      localStorage.setItem(CAMPAIGN_STORAGE_KEY, JSON.stringify(list));
+      // Dispatch storage event so storefront in other tabs/windows updates dynamically
+      window.dispatchEvent(new Event('storage'));
+    }
+
+    // Status auto-computation (Upcoming, Active, Expired)
+    function computeCampaignStatus(startDate, endDate) {
+      const today = getTodayStr();
+      if (!startDate || !endDate) return "PENDING";
+      if (startDate > endDate) return "INVALID";
+      if (today < startDate) return "UPCOMING";
+      if (today > endDate) return "EXPIRED";
+      return "ACTIVE";
+    }
+
+    // Performance calculation from actual Sales & Billing records
+    function computeCampaignSalesCount(campaign) {
+      const start = campaign.startDate;
+      const end = campaign.endDate;
+      const pids = (campaign.productIds || []).map(Number);
+      
+      let totalQty = 0;
+      HISTORICAL_SALES_ITEMS.forEach(sale => {
+        if (sale.date >= start && sale.date <= end && pids.includes(sale.productId)) {
+          totalQty += sale.qty;
+        }
+      });
+      return totalQty;
+    }
+
+    // Format Date: "2026-09-01" -> "Sep 01, 2026"
+    function formatPrettyDate(dateStr) {
+      if (!dateStr) return "—";
+      const parts = dateStr.split("-");
+      if (parts.length !== 3) return dateStr;
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      const m = parseInt(parts[1], 10) - 1;
+      return `${months[m]} ${parts[2]}, ${parts[0]}`;
+    }
+
+    // Render Table
+    function renderCampaignsTable() {
+      const tbody = document.getElementById("campaignsTableBody");
+      if (!tbody) return;
+
+      const campaigns = loadCampaignsFromStorage();
+      const q = (document.getElementById("campaignSearchInput")?.value || "").toLowerCase().trim();
+      const statusFilter = document.getElementById("campaignStatusFilter")?.value || "ALL";
+      const sortVal = document.getElementById("campaignSortSelector")?.value || "newest";
+      const canManage = isBusinessOwner();
+
+      // Filter
+      let filtered = campaigns.filter(c => {
+        const status = computeCampaignStatus(c.startDate, c.endDate);
+        if (statusFilter !== "ALL" && status !== statusFilter) return false;
+
+        if (q) {
+          const matchName = (c.name || "").toLowerCase().includes(q);
+          const matchDesc = (c.description || "").toLowerCase().includes(q);
+          // Match product names
+          const matchProduct = (c.productIds || []).some(pid => {
+            const prod = CATALOG_PRODUCTS.find(p => p.id === pid);
+            return prod && prod.name.toLowerCase().includes(q);
+          });
+          if (!matchName && !matchDesc && !matchProduct) return false;
+        }
+        return true;
+      });
+
+      // Sort
+      filtered.sort((a, b) => {
+        if (sortVal === "ending-soonest") {
+          return a.endDate.localeCompare(b.endDate);
+        } else if (sortVal === "highest-discount") {
+          // Normalize fixed vs percent for sorting
+          const discA = a.discountType === "PERCENTAGE" ? a.discountValue : (a.discountValue / 2000);
+          const discB = b.discountType === "PERCENTAGE" ? b.discountValue : (b.discountValue / 2000);
+          return discB - discA;
+        } else {
+          // newest
+          return b.startDate.localeCompare(a.startDate) || b.id.localeCompare(a.id);
+        }
+      });
+
+      // Update counters
+      const countEl = document.getElementById("campaignFilteredCount");
+      const totalEl = document.getElementById("campaignTotalCount");
+      if (countEl) countEl.textContent = filtered.length;
+      if (totalEl) totalEl.textContent = campaigns.length;
+
+      // Render Rows
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 36px 20px; color: var(--text-dim);">
+              <i class="fa-solid fa-bullhorn" style="font-size: 24px; opacity: 0.3; margin-bottom: 8px; display: block;"></i>
+              No promotional campaigns found matching the active filter criteria.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(c => {
+        const status = computeCampaignStatus(c.startDate, c.endDate);
+        const salesCount = computeCampaignSalesCount(c);
+
+        // Product chips
+        const pids = c.productIds || [];
+        const chipsHtml = pids.slice(0, 2).map(pid => {
+          const prod = CATALOG_PRODUCTS.find(p => p.id === pid);
+          if (!prod) return "";
+          const shortName = prod.name.replace(/Processor|Motherboard|Dual Tower Cooler|Wireless Keyboard/g, "").trim();
+          return `<span class="part-chip" title="${prod.name} (LKR ${prod.price.toLocaleString()})"><i class="fa-solid ${prod.icon}"></i> ${shortName}</span>`;
+        }).join("");
+
+        const moreBadge = pids.length > 2 
+          ? `<span class="part-chip-more" title="${pids.slice(2).map(id => CATALOG_PRODUCTS.find(p=>p.id===id)?.name).filter(Boolean).join(', ')}">+${pids.length - 2} more</span>` 
+          : "";
+
+        // Discount format
+        const discountDisplay = c.discountType === "PERCENTAGE"
+          ? `${c.discountValue}% OFF`
+          : `LKR ${c.discountValue.toLocaleString()} OFF`;
+
+        // Status Pill
+        let statusPillHtml = '';
+        if (status === 'ACTIVE') {
+          statusPillHtml = `<span class="status-pill active"><span class="status-dot-sm"></span>Active</span>`;
+        } else if (status === 'UPCOMING') {
+          statusPillHtml = `<span class="status-pill upcoming"><span class="status-dot-sm"></span>Upcoming</span>`;
+        } else {
+          statusPillHtml = `<span class="status-pill expired"><span class="status-dot-sm"></span>Expired</span>`;
+        }
+
+        // Performance format
+        let perfText = '';
+        if (status === 'UPCOMING') {
+          perfText = `<span class="perf-pill" style="color: var(--color-info);"><i class="fa-solid fa-clock" style="color: var(--color-info);"></i> Scheduled</span>`;
+        } else {
+          perfText = `<span class="perf-pill"><i class="fa-solid fa-chart-simple"></i> <strong>${salesCount}</strong> sales</span>`;
+        }
+
+        // Actions
+        let actionsHtml = '';
+        if (canManage) {
+          actionsHtml = `
+            <div class="table-actions-group" style="justify-content: center;">
+              <button type="button" class="btn-table-action btn-edit" onclick="openEditCampaignModal('${c.id}')" title="Edit Campaign">
+                <i class="fa-regular fa-pen-to-square"></i> Edit
+              </button>
+              ${status !== 'CANCELLED' && status !== 'EXPIRED' ? `<button type="button" class="btn-table-action" onclick="cancelCampaign('${c.id}')" title="Cancel Campaign" style="color: var(--accent-amber); border-color: rgba(245,158,11,0.4);"><i class="fa-solid fa-ban"></i> Cancel</button>` : ''}
+              <button type="button" class="btn-table-action btn-delete" onclick="openDeleteCampaignModal('${c.id}')" title="Delete Campaign">
+                <i class="fa-regular fa-trash-can"></i> Delete
+              </button>
+            </div>
+          `;
+        } else {
+          actionsHtml = `
+            <div style="text-align: center;">
+              <span class="read-only-badge" title="Restricted to Business Owner"><i class="fa-solid fa-lock"></i> Read-Only</span>
+            </div>
+          `;
+        }
+
+        return `
+          <tr data-campaign-id="${c.id}">
+            <td>
+              <div style="font-weight: 700; color: var(--text-highlight); font-size: 13.5px;">${c.name}</div>
+              <div style="font-size: 11.5px; color: var(--text-muted); max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${c.description || 'Standard promotional discount terms.'}</div>
+              <div style="font-size: 10px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; margin-top: 3px;">
+                ${c.id} &bull; ${c.createdBy || 'Business Owner'}
+              </div>
+            </td>
+            <td>
+              <div class="chip-list">
+                ${chipsHtml}
+                ${moreBadge}
+              </div>
+            </td>
+            <td>
+              <span class="discount-pill">${discountDisplay}</span>
+            </td>
+            <td>
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--text-main);">
+                ${formatPrettyDate(c.startDate)}
+              </div>
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-dim);">
+                to ${formatPrettyDate(c.endDate)}
+              </div>
+            </td>
+            <td>${statusPillHtml}</td>
+            <td>${perfText}</td>
+            <td class="td-center">${actionsHtml}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function filterAndSortCampaigns() {
+      renderCampaignsTable();
+    }
+
+    // Role-based UI updates
+    function syncRolePermissions() {
+      const canManage = isBusinessOwner();
+      const btnNew = document.getElementById("btnOpenCampaignModal");
+      if (btnNew) {
+        if (canManage) {
+          btnNew.style.display = "inline-flex";
+        } else {
+          btnNew.style.display = "none";
+        }
+      }
+    }
+
+    // =========================================================================
+    // MULTI-SELECT PRODUCTS DROPDOWN CONTROLLER
+    // =========================================================================
+
+    function buildProductDropdownList(filterQuery = "") {
+      const container = document.getElementById("dropdownProductList");
+      if (!container) return;
+
+      const q = filterQuery.toLowerCase().trim();
+      const filtered = CATALOG_PRODUCTS.filter(p => {
+        if (!q) return true;
+        return p.name.toLowerCase().includes(q) || p.cat.toLowerCase().includes(q);
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div style="padding: 12px; text-align: center; color: var(--text-dim); font-size: 12px;">No matching parts found in inventory.</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(p => {
+        const isSelected = currentSelectedProductIds.includes(p.id);
+        return `
+          <div class="dropdown-option ${isSelected ? 'selected' : ''}" onclick="toggleProductSelection(${p.id})">
+            <div class="option-info">
+              <input type="checkbox" class="option-checkbox" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); toggleProductSelection(${p.id})">
+              <div style="display: flex; flex-direction: column;">
+                <span class="option-name">${p.name}</span>
+                <span style="font-size: 10px; color: var(--text-dim);">${p.cat}</span>
+              </div>
+            </div>
+            <span class="option-price">LKR ${p.price.toLocaleString()}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function toggleProductDropdown() {
+      const dd = document.getElementById("productMultiSelectDropdown");
+      const trigger = document.getElementById("productMultiSelectTrigger");
+      if (!dd) return;
+      const isOpen = dd.classList.contains("open");
+      if (isOpen) {
+        dd.classList.remove("open");
+        trigger.classList.remove("active");
+      } else {
+        dd.classList.add("open");
+        trigger.classList.add("active");
+        buildProductDropdownList(document.getElementById("dropdownPartSearch")?.value || "");
+        document.getElementById("dropdownPartSearch")?.focus();
+      }
+    }
+
+    function filterDropdownParts(val) {
+      buildProductDropdownList(val);
+    }
+
+    function toggleProductSelection(pid) {
+      const idx = currentSelectedProductIds.indexOf(pid);
+      if (idx > -1) {
+        currentSelectedProductIds.splice(idx, 1);
+      } else {
+        currentSelectedProductIds.push(pid);
+      }
+      renderSelectedProductChips();
+      buildProductDropdownList(document.getElementById("dropdownPartSearch")?.value || "");
+    }
+
+    function selectAllProducts(selectAll) {
+      if (selectAll) {
+        currentSelectedProductIds = CATALOG_PRODUCTS.map(p => p.id);
+      } else {
+        currentSelectedProductIds = [];
+      }
+      renderSelectedProductChips();
+      buildProductDropdownList(document.getElementById("dropdownPartSearch")?.value || "");
+    }
+
+    function renderSelectedProductChips() {
+      const container = document.getElementById("selectedProductTags");
+      const countHint = document.getElementById("selectedProductsCountHint");
+      if (!container) return;
+
+      if (countHint) {
+        countHint.textContent = `${currentSelectedProductIds.length} of ${CATALOG_PRODUCTS.length} selected`;
+      }
+
+      if (currentSelectedProductIds.length === 0) {
+        container.innerHTML = `<span class="multi-select-placeholder">Search & select hardware parts from inventory...</span>`;
+        return;
+      }
+
+      container.innerHTML = currentSelectedProductIds.map(pid => {
+        const prod = CATALOG_PRODUCTS.find(p => p.id === pid);
+        if (!prod) return "";
+        const short = prod.name.replace(/Processor|Motherboard|Dual Tower Cooler|Wireless Keyboard/g, "").trim();
+        return `
+          <span class="selected-tag" onclick="event.stopPropagation();">
+            <i class="fa-solid ${prod.icon}" style="color: var(--accent-amber); font-size: 10px;"></i>
+            ${short}
+            <span class="selected-tag-remove" onclick="event.stopPropagation(); toggleProductSelection(${pid})">&times;</span>
+          </span>
+        `;
+      }).join("");
+    }
+
+    // Close multi-select dropdown when clicking outside
+    document.addEventListener("click", (e) => {
+      const container = document.getElementById("productMultiSelectContainer");
+      const dropdown = document.getElementById("productMultiSelectDropdown");
+      const trigger = document.getElementById("productMultiSelectTrigger");
+      if (container && !container.contains(e.target) && dropdown) {
+        dropdown.classList.remove("open");
+        if (trigger) trigger.classList.remove("active");
+      }
+    });
+
+    // Discount Type Toggle
+    function setDiscountType(type) {
+      currentDiscountType = type;
+      const btnPercent = document.getElementById("btnTypePercent");
+      const btnFixed = document.getElementById("btnTypeFixed");
+      const suffix = document.getElementById("discountInputSuffix");
+      const label = document.getElementById("discountValueLabel");
+      const hint = document.getElementById("discountValueHint");
+      const input = document.getElementById("discountValueInput");
+
+      if (type === "PERCENTAGE") {
+        btnPercent.classList.add("active");
+        btnFixed.classList.remove("active");
+        suffix.textContent = "%";
+        label.textContent = "Discount Percentage *";
+        hint.textContent = "Applied to catalog price (1 - 100%)";
+        input.max = 100;
+        input.step = 1;
+        if (parseFloat(input.value) > 100) input.value = 15;
+      } else {
+        btnFixed.classList.add("active");
+        btnPercent.classList.remove("active");
+        suffix.textContent = "LKR";
+        label.textContent = "Fixed Discount (LKR) *";
+        hint.textContent = "Flat price reduction deducted from item price";
+        input.removeAttribute("max");
+        input.step = 500;
+        if (parseFloat(input.value) <= 100) input.value = 5000;
+      }
+      updateModalLiveStatus();
+    }
+
+    // Update Live Status derived from date inputs
+    function updateModalLiveStatus() {
+      const start = document.getElementById("startDateInput")?.value;
+      const end = document.getElementById("endDateInput")?.value;
+      const pill = document.getElementById("modalDerivedStatusPill");
+      const expl = document.getElementById("modalDerivedStatusExplanation");
+      if (!pill || !expl) return;
+
+      if (!start || !end) {
+        pill.className = "status-pill expired";
+        pill.innerHTML = `<span class="status-dot-sm"></span>Incomplete`;
+        expl.textContent = "Please select both a start date and an end date.";
+        return;
+      }
+
+      if (start > end) {
+        pill.className = "status-pill expired";
+        pill.style.borderColor = "var(--color-negative-border)";
+        pill.style.color = "var(--color-negative)";
+        pill.innerHTML = `<span class="status-dot-sm" style="background:var(--color-negative)"></span>Invalid Range`;
+        expl.textContent = "Error: End date cannot precede start date.";
+        return;
+      }
+
+      pill.style.borderColor = "";
+      pill.style.color = "";
+
+      const status = computeCampaignStatus(start, end);
+      if (status === "ACTIVE") {
+        pill.className = "status-pill active";
+        pill.innerHTML = `<span class="status-dot-sm"></span>Active`;
+        expl.textContent = `Campaign will be immediately active and visible on the storefront until ${formatPrettyDate(end)}.`;
+      } else if (status === "UPCOMING") {
+        pill.className = "status-pill upcoming";
+        pill.innerHTML = `<span class="status-dot-sm"></span>Upcoming`;
+        expl.textContent = `Scheduled to automatically activate on ${formatPrettyDate(start)}.`;
+      } else {
+        pill.className = "status-pill expired";
+        pill.innerHTML = `<span class="status-dot-sm"></span>Expired`;
+        expl.textContent = `Validity window has elapsed (ended on ${formatPrettyDate(end)}). Will not show on storefront.`;
+      }
+    }
+
+    // =========================================================================
+    // CREATE / EDIT MODAL FLOW
+    // =========================================================================
+
+    function openCreateCampaignModal() {
+      // Role security check
+      if (!isBusinessOwner()) {
+        showToast("Access Denied", "Only Business Owners (ROLE_OWNER) have permission to create promotional campaigns.", "error");
+        return;
+      }
+
+      document.getElementById("campaignEditId").value = "";
+      document.getElementById("campaignModalTitle").textContent = "Create Promotional Campaign";
+      document.getElementById("campaignModalSub").textContent = "Configure campaign terms, target inventory parts, and discount period";
+      document.getElementById("campaignForm").reset();
+
+      currentSelectedProductIds = [1, 3]; // Default popular combo
+      setDiscountType("PERCENTAGE");
+      document.getElementById("discountValueInput").value = 15;
+
+      const today = getTodayStr();
+      document.getElementById("startDateInput").value = today;
+      // default 14-day campaign
+      const endDateObj = new Date();
+      endDateObj.setDate(endDateObj.getDate() + 14);
+      const endStr = `${endDateObj.getFullYear()}-${String(endDateObj.getMonth()+1).padStart(2,'0')}-${String(endDateObj.getDate()).padStart(2,'0')}`;
+      document.getElementById("endDateInput").value = endStr;
+
+      renderSelectedProductChips();
+      updateModalLiveStatus();
+
+      const modal = document.getElementById("campaignModal");
+      if (modal) {
+        modal.classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
+    }
+
+    function openEditCampaignModal(campaignId) {
+      if (!isBusinessOwner()) {
+        showToast("Access Denied", "Only Business Owners (ROLE_OWNER) have permission to edit promotional campaigns.", "error");
+        return;
+      }
+
+      const campaigns = loadCampaignsFromStorage();
+      const campaign = campaigns.find(c => c.id === campaignId);
+      if (!campaign) {
+        showToast("Not Found", "Target promotional campaign could not be located.", "error");
+        return;
+      }
+
+      document.getElementById("campaignEditId").value = campaign.id;
+      document.getElementById("campaignModalTitle").textContent = `Edit Campaign: ${campaign.name}`;
+      document.getElementById("campaignModalSub").textContent = `Modifying campaign parameters for ID ${campaign.id}`;
+
+      document.getElementById("campaignNameInput").value = campaign.name;
+      document.getElementById("startDateInput").value = campaign.startDate;
+      document.getElementById("endDateInput").value = campaign.endDate;
+      document.getElementById("campaignDescriptionInput").value = campaign.description || "";
+
+      currentSelectedProductIds = (campaign.productIds || []).slice();
+      setDiscountType(campaign.discountType || "PERCENTAGE");
+      document.getElementById("discountValueInput").value = campaign.discountValue;
+
+      renderSelectedProductChips();
+      updateModalLiveStatus();
+
+      const modal = document.getElementById("campaignModal");
+      if (modal) {
+        modal.classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
+    }
+
+    function closeCampaignModal() {
+      const modal = document.getElementById("campaignModal");
+      if (modal) {
+        modal.classList.remove("open");
+        document.body.style.overflow = "";
+      }
+    }
+
+    // Submit handler: Create or Update Campaign
+    function handleCampaignFormSubmit(event) {
+      event.preventDefault();
+
+      // Enforce Owner security rule
+      if (!isBusinessOwner()) {
+        showToast("Security Violation", "Action rejected. Operation requires ROLE_OWNER authority.", "error");
+        return;
+      }
+
+      const editId = document.getElementById("campaignEditId").value;
+      const name = document.getElementById("campaignNameInput").value.trim();
+      const discountVal = parseFloat(document.getElementById("discountValueInput").value);
+      const startDate = document.getElementById("startDateInput").value;
+      const endDate = document.getElementById("endDateInput").value;
+      const description = document.getElementById("campaignDescriptionInput").value.trim();
+
+      // Validation
+      if (!name) {
+        showToast("Validation Error", "Please provide a valid campaign name.", "error");
+        return;
+      }
+      if (currentSelectedProductIds.length === 0) {
+        showToast("Validation Error", "Please select at least one inventory product for this promotion.", "error");
+        return;
+      }
+      if (isNaN(discountVal) || discountVal <= 0) {
+        showToast("Validation Error", "Please enter a positive discount value.", "error");
+        return;
+      }
+      if (currentDiscountType === "PERCENTAGE" && discountVal > 100) {
+        showToast("Validation Error", "Percentage discount cannot exceed 100%.", "error");
+        return;
+      }
+      if (startDate > endDate) {
+        showToast("Validation Error", "Start date cannot exceed end date.", "error");
+        return;
+      }
+
+      const rawEditId = document.getElementById("campaignEditId").value;
+      let editDbId = null;
+      if (rawEditId) {
+        const campaigns = loadCampaignsFromStorage();
+        const existing = campaigns.find(c => c.id === rawEditId || c.dbId == rawEditId);
+        if (existing && existing.dbId) {
+          editDbId = existing.dbId;
+        } else if (!isNaN(Number(rawEditId))) {
+          editDbId = Number(rawEditId);
+        } else {
+          const matches = String(rawEditId).match(/\d+$/);
+          editDbId = matches ? parseInt(matches[0], 10) : parseInt(rawEditId.replace(/\D/g, ''), 10);
+        }
+      }
+
+      const dto = {
+        campaignName: name,
+        description: description,
+        discountPercentage: discountVal,
+        startDate: startDate,
+        endDate: endDate,
+        selectedProducts: currentSelectedProductIds.map(id => {
+          const p = CATALOG_PRODUCTS.find(x => x.id == id);
+          return p ? p.name : ("Product #" + id);
+        }).join(", ")
+      };
+
+      const url = editDbId ? `/api/campaigns/${editDbId}` : '/api/campaigns';
+      const method = editDbId ? 'PUT' : 'POST';
+
+      fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dto)
+      })
+      .then(res => {
+        if (!res.ok) return res.json().then(data => { throw new Error(data.error || 'Failed to save campaign'); });
+        return res.json();
+      })
+      .then(saved => {
+        showToast("Campaign Saved", `"${saved.campaignName}" successfully persisted to database.`);
+        closeCampaignModal();
+        syncCampaignsFromApi();
+      })
+      .catch(err => {
+        showToast("Backend Notice", err.message, "error");
+      });
+    }
+
+    // =========================================================================
+    // DELETE CAMPAIGN FLOW
+    // =========================================================================
+
+    function openDeleteCampaignModal(campaignId) {
+      if (!isBusinessOwner()) {
+        showToast("Access Denied", "Only Business Owners (ROLE_OWNER) have permission to delete campaigns.", "error");
+        return;
+      }
+
+      const campaigns = loadCampaignsFromStorage();
+      const campaign = campaigns.find(c => c.id === campaignId || c.dbId == campaignId);
+      if (!campaign) return;
+
+      campaignPendingDeleteId = campaignId;
+      const previewEl = document.getElementById("deleteTargetCampaignPreview");
+      if (previewEl) {
+        previewEl.innerHTML = `
+          <div><i class="fa-solid fa-bullhorn" style="color: var(--accent-amber); margin-right: 6px;"></i> ${campaign.name}</div>
+          <div style="font-size: 11px; color: var(--text-dim); margin-top: 3px;">
+            ID: ${campaign.id} &bull; ${campaign.productIds.length} items &bull; ${campaign.discountType === 'PERCENTAGE' ? campaign.discountValue + '%' : 'LKR ' + campaign.discountValue.toLocaleString()} discount
+          </div>
+        `;
+      }
+
+      const modal = document.getElementById("deleteConfirmModal");
+      if (modal) {
+        modal.classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
+    }
+
+    function closeDeleteModal() {
+      campaignPendingDeleteId = null;
+      const modal = document.getElementById("deleteConfirmModal");
+      if (modal) {
+        modal.classList.remove("open");
+        document.body.style.overflow = "";
+      }
+    }
+
+    function executeCampaignDelete() {
+      if (!isBusinessOwner()) {
+        showToast("Security Violation", "Operation rejected. You lack ROLE_OWNER authority.", "error");
+        closeDeleteModal();
+        return;
+      }
+
+      if (!campaignPendingDeleteId) return;
+
+      const campaigns = loadCampaignsFromStorage();
+      const target = campaigns.find(c => c.id === campaignPendingDeleteId || c.dbId == campaignPendingDeleteId);
+      const targetName = target ? target.name : "Campaign";
+
+      let dbId = null;
+      if (target && target.dbId) {
+        dbId = target.dbId;
+      } else if (typeof campaignPendingDeleteId === 'number') {
+        dbId = campaignPendingDeleteId;
+      } else {
+        const matches = String(campaignPendingDeleteId).match(/\d+$/);
+        dbId = matches ? parseInt(matches[0], 10) : parseInt(String(campaignPendingDeleteId).replace(/\D/g, ''), 10);
+      }
+
+      // Invoke backend API to delete permanently from SQL database
+      fetch(`/api/campaigns/${dbId}`, { method: 'DELETE' })
+        .then(res => {
+          if (!res.ok) {
+            return res.json().then(d => { throw new Error(d.error || 'Failed to delete campaign'); });
+          }
+          return res.json();
+        })
+        .then(() => {
+          showToast("Campaign Removed", `"${targetName}" permanently removed from database.`);
+          syncCampaignsFromApi();
+        })
+        .catch(err => {
+          console.error('Delete error:', err);
+          showToast("Delete Notice", err.message, "error");
+          const updated = campaigns.filter(c => c.id !== campaignPendingDeleteId && c.dbId != campaignPendingDeleteId);
+          saveCampaignsToStorage(updated);
+          renderCampaignsTable();
+        })
+        .finally(() => {
+          closeDeleteModal();
+        });
+    }
+
+    function cancelCampaign(campaignId) {
+      if (!isBusinessOwner()) {
+        showToast("Access Denied", "Only Business Owners have permission to cancel campaigns.", "error");
+        return;
+      }
+      const campaigns = loadCampaignsFromStorage();
+      const campaign = campaigns.find(c => c.id === campaignId || c.dbId == campaignId);
+      if (!campaign) return;
+
+      if (!confirm(`Are you sure you want to cancel campaign '${campaign.name}'?`)) return;
+
+      let targetId = campaign.dbId;
+      if (!targetId) {
+        const matches = String(campaignId).match(/\d+$/);
+        targetId = matches ? parseInt(matches[0], 10) : parseInt(String(campaignId).replace(/\D/g, ''), 10);
+      }
+
+      fetch(`/api/campaigns/${targetId}/cancel`, { method: 'POST' })
+        .then(res => {
+          if (!res.ok) return res.json().then(d => { throw new Error(d.error || 'Failed to cancel'); });
+          return res.json();
+        })
+        .then(() => {
+          showToast("Campaign Cancelled", `"${campaign.name}" status set to Cancelled.`);
+          syncCampaignsFromApi();
+        })
+        .catch(err => {
+          showToast("Campaign Error", err.message, "error");
+          syncCampaignsFromApi();
+        });
+    }
+
+    // Dynamic Live Stats from Backend /api/dashboard/stats
+    async function fetchLiveStats(period = "6M") {
+      try {
+        const res = await fetch(`/api/dashboard/stats?period=${encodeURIComponent(period)}`);
+        if (res.ok) {
+          const stats = await res.json();
+          const revEl = document.getElementById('kpiTotalRevenue');
+          if (revEl && stats.totalRevenue != null) {
+            const rev = Number(stats.totalRevenue);
+            revEl.textContent = 'LKR ' + (rev >= 1000000 ? (rev / 1000000).toFixed(2) + 'M' : rev.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+          }
+          const invValEl = document.getElementById('kpiInventoryValuation');
+          if (invValEl && stats.totalInventoryValuation != null) {
+            const val = Number(stats.totalInventoryValuation);
+            invValEl.textContent = 'LKR ' + (val >= 1000000 ? (val / 1000000).toFixed(2) + 'M' : val.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+          }
+          const invSkuEl = document.getElementById('kpiInventorySkuMeta');
+          if (invSkuEl && stats.inventoryItems != null) {
+            invSkuEl.textContent = `${stats.inventoryItems} Active SKUs`;
+          }
+          const supEl = document.getElementById('kpiSuppliersCount');
+          if (supEl && stats.suppliersCount != null) {
+            supEl.textContent = stats.suppliersCount;
+          }
+          const ordEl = document.getElementById('kpiPendingOrders');
+          if (ordEl && stats.pendingOrdersCount != null) {
+            ordEl.textContent = stats.pendingOrdersCount;
+          }
+        }
+      } catch (err) {
+        console.log('Using default dashboard metrics', err);
+      }
+    }
+
+    // Synchronize campaigns with backend /api/campaigns
+    async function syncCampaignsFromApi() {
+      try {
+        const res = await fetch('/api/campaigns');
+        if (res.ok) {
+          const apiList = await res.json();
+          if (Array.isArray(apiList)) {
+            const mapped = apiList.map((c, idx) => {
+              let pids = [];
+              if (c.selectedProducts) {
+                const parts = c.selectedProducts.split(',').map(s => s.trim().toLowerCase());
+                CATALOG_PRODUCTS.forEach(p => {
+                  if (parts.some(pt => p.name.toLowerCase().includes(pt) || pt.includes(p.name.toLowerCase()) || String(p.id) === pt)) {
+                    pids.push(p.id);
+                  }
+                });
+              }
+              if (pids.length === 0) pids = [1, 2];
+
+              return {
+                id: `CMP-2026-${String(c.campaignId).padStart(2, '0')}`,
+                dbId: c.campaignId,
+                name: c.campaignName,
+                discountType: "PERCENTAGE",
+                discountValue: Number(c.discountPercentage) || 0,
+                productIds: pids,
+                selectedProducts: c.selectedProducts || "",
+                startDate: c.startDate,
+                endDate: c.endDate,
+                description: c.description || "",
+                status: c.status,
+                createdBy: "Indrathilake H.W.S.M (IT25100755)"
+              };
+            });
+            saveCampaignsToStorage(mapped);
+            renderCampaignsTable();
+          }
+        }
+      } catch (err) {
+        console.log('Campaign API sync offline', err);
+      }
+    }
+
+    // Close modals on backdrop click
+    document.addEventListener("DOMContentLoaded", () => {
+      const cModal = document.getElementById("campaignModal");
+      const dModal = document.getElementById("deleteConfirmModal");
+      if (cModal) {
+        cModal.addEventListener("click", (e) => {
+          if (e.target === cModal) closeCampaignModal();
+        });
+      }
+      if (dModal) {
+        dModal.addEventListener("click", (e) => {
+          if (e.target === dModal) closeDeleteModal();
+        });
+      }
+
+      // Initialize Promotional Campaigns table & permissions
+      syncRolePermissions();
+      renderCampaignsTable();
+
+      // Fetch live backend metrics & sync campaigns
+      fetchLiveStats();
+      syncCampaignsFromApi();
+    });
+  </script>
+
+  <!-- Role-Based Auth Manager -->
+  <script src="auth.js"></script>
+  <script>
+    // Initialize role-based nav & topbar, guard access
+    document.addEventListener('DOMContentLoaded', function() {
+      PartsHub.initPage('dashboard');
+    });
+  </script>
+</body>
+</html>
+
+

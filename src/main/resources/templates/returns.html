@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Returns & Warranty Management | PartsHub Enterprise</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <style>
+    :root {
+      --bg-canvas: #0D0F12;
+      --bg-panel: #161A20;
+      --bg-card: #1D222E;
+      --bg-card-hover: #232A39;
+      --bg-input: #12151B;
+      --border-subtle: #2A3243;
+      --border-light: #374151;
+      --border-accent: rgba(245, 158, 11, 0.4);
+
+      --accent-amber: #F59E0B;
+      --accent-amber-glow: rgba(245, 158, 11, 0.25);
+      --accent-amber-hover: #D97706;
+      
+      --color-positive: #10B981;
+      --color-positive-bg: rgba(16, 185, 129, 0.12);
+      --color-positive-border: rgba(16, 185, 129, 0.3);
+      
+      --color-negative: #EF4444;
+      --color-negative-bg: rgba(239, 68, 68, 0.12);
+      --color-negative-border: rgba(239, 68, 68, 0.3);
+      
+      --color-info: #3B82F6;
+      --color-info-bg: rgba(59, 130, 246, 0.12);
+      --color-info-border: rgba(59, 130, 246, 0.3);
+      
+      --color-average: #F59E0B;
+      --color-average-bg: rgba(245, 158, 11, 0.12);
+      --color-average-border: rgba(245, 158, 11, 0.3);
+
+      --text-main: #F1F5F9;
+      --text-muted: #94A3B8;
+      --text-dim: #64748B;
+      --text-highlight: #FFFFFF;
+
+      --sidebar-width: 270px;
+      --topbar-height: 70px;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --radius-pill: 9999px;
+      --shadow-elevation: 0 10px 30px -5px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-subtle);
+      --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px var(--border-subtle);
+      --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-canvas); color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14px; line-height: 1.5; overflow-x: hidden; min-height: 100vh; display: flex;
+    }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-canvas); }
+    ::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: var(--radius-pill); }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-width); background-color: var(--bg-panel);
+      border-right: 1px solid var(--border-subtle); position: fixed; top: 0; bottom: 0; left: 0;
+      display: flex; flex-direction: column; z-index: 100;
+    }
+    .brand-container {
+      height: var(--topbar-height); display: flex; align-items: center; padding: 0 22px;
+      border-bottom: 1px solid var(--border-subtle); gap: 12px;
+    }
+    .brand-icon-box {
+      width: 38px; height: 38px; border-radius: var(--radius-md);
+      background: linear-gradient(135deg, #F59E0B 0%, #B45309 100%);
+      display: flex; align-items: center; justify-content: center; color: #0D0F12; font-size: 18px;
+    }
+    .brand-title { font-size: 17px; font-weight: 700; color: var(--text-highlight); display: flex; align-items: center; gap: 6px; }
+    .brand-version { font-size: 10px; padding: 1px 6px; background-color: rgba(245, 158, 11, 0.15); color: var(--accent-amber); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius-pill); font-weight: 600; }
+    .brand-subtitle { font-size: 11px; color: var(--text-dim); }
+
+    .sidebar-menu-wrapper { flex: 1; padding: 20px 14px; overflow-y: auto; }
+    .nav-category-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-dim); padding: 0 12px 10px 12px; display: block; }
+    .sidebar-menu { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+    .nav-item { position: relative; }
+    .nav-link {
+      display: flex; align-items: center; gap: 13px; padding: 11px 14px; color: var(--text-muted);
+      text-decoration: none; border-radius: var(--radius-md); font-weight: 500; font-size: 13.5px; transition: var(--transition-smooth);
+    }
+    .nav-link i { font-size: 15px; width: 20px; text-align: center; color: var(--text-dim); transition: var(--transition-smooth); }
+    .nav-link:hover { background-color: var(--bg-card); color: var(--text-highlight); }
+    .nav-link:hover i { color: var(--accent-amber); }
+    .nav-item.active .nav-link {
+      background: linear-gradient(90deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.03) 100%);
+      color: var(--accent-amber); font-weight: 600; border-left: 3px solid var(--accent-amber); border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    }
+    .nav-item.active .nav-link i { color: var(--accent-amber); filter: drop-shadow(0 0 8px var(--accent-amber-glow)); }
+    .nav-badge { margin-left: auto; font-size: 10.5px; font-weight: 600; padding: 2px 7px; border-radius: var(--radius-pill); background: var(--bg-canvas); color: var(--text-dim); border: 1px solid var(--border-subtle); }
+    .nav-item.active .nav-badge { background: rgba(245, 158, 11, 0.2); color: var(--accent-amber); border-color: rgba(245, 158, 11, 0.4); }
+
+    .sidebar-footer { padding: 16px; border-top: 1px solid var(--border-subtle); background-color: rgba(18, 21, 27, 0.6); }
+    .system-status-card { background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 11px 12px; display: flex; flex-direction: column; gap: 6px; }
+    .status-row { display: flex; align-items: center; justify-content: space-between; font-size: 11px; }
+    .pulse-dot { width: 7px; height: 7px; border-radius: 50%; background-color: var(--color-positive); box-shadow: 0 0 8px var(--color-positive); }
+
+    .sidebar-logout-btn, .btn-topbar-logout {
+      width: 100%; margin-top: 10px; padding: 9px 12px; background-color: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #EF4444; border-radius: var(--radius-md); font-size: 12.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: var(--transition-smooth);
+    }
+    .sidebar-logout-btn:hover, .btn-topbar-logout:hover { background-color: rgba(239, 68, 68, 0.2); }
+    .btn-topbar-logout { width: auto; margin-top: 0; padding: 6px 14px; }
+
+    /* MAIN */
+    .app-main { margin-left: var(--sidebar-width); flex: 1; min-width: 0; display: flex; flex-direction: column; min-height: 100vh; }
+    .top-bar {
+      height: var(--topbar-height); background-color: var(--bg-panel); border-bottom: 1px solid var(--border-subtle);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 30px; position: sticky; top: 0; z-index: 90;
+    }
+    .breadcrumbs { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--text-muted); }
+    .breadcrumbs a { color: var(--text-dim); text-decoration: none; }
+    .breadcrumbs .crumb-sep { color: var(--text-dim); font-size: 10px; }
+    .breadcrumbs .current { color: var(--text-highlight); font-weight: 600; }
+    .top-bar-actions { display: flex; align-items: center; gap: 18px; }
+    .session-badge { display: flex; align-items: center; gap: 8px; padding: 5px 12px; background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-pill); font-size: 11.5px; color: var(--text-muted); }
+    .icon-button { width: 38px; height: 38px; border-radius: var(--radius-md); background-color: var(--bg-card); border: 1px solid var(--border-subtle); color: var(--text-muted); display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
+    .badge-counter { position: absolute; top: -3px; right: -3px; width: 17px; height: 17px; border-radius: 50%; background-color: var(--accent-amber); color: #0D0F12; font-size: 9.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .user-profile-widget { display: flex; align-items: center; gap: 12px; padding-left: 12px; border-left: 1px solid var(--border-subtle); }
+    .user-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #1E293B 0%, #334155 100%); border: 2px solid var(--accent-amber); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--accent-amber); font-weight: 700; }
+
+    /* CONTENT */
+    .content-canvas { padding: 30px; flex: 1; display: flex; flex-direction: column; gap: 28px; max-width: 1600px; width: 100%; margin: 0 auto; }
+    .page-header {
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+      background: linear-gradient(180deg, rgba(22, 26, 32, 0.6) 0%, rgba(22, 26, 32, 0.2) 100%);
+      border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 24px 28px;
+    }
+    .page-header-pretitle { font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--accent-amber); display: flex; align-items: center; gap: 7px; }
+    .page-header-title { font-size: 26px; font-weight: 800; color: var(--text-highlight); }
+    .page-header-subtitle { font-size: 13.5px; color: var(--text-muted); max-width: 650px; }
+    .btn-action-primary {
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: #0D0F12; border: none; padding: 12px 22px;
+      border-radius: var(--radius-md); font-size: 14px; font-weight: 700; display: inline-flex; align-items: center; gap: 10px; cursor: pointer; transition: var(--transition-smooth);
+      box-shadow: 0 4px 18px var(--accent-amber-glow);
+    }
+    .btn-action-primary:hover { background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%); transform: translateY(-2px); }
+
+    /* KPI CARDS */
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+    .kpi-card {
+      background-color: var(--bg-panel); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
+      padding: 20px 22px; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow-elevation); transition: var(--transition-smooth);
+    }
+    .kpi-card:hover { transform: translateY(-3px); border-color: var(--border-light); }
+    .kpi-header { display: flex; align-items: center; justify-content: space-between; }
+    .kpi-title { font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--text-dim); }
+    .kpi-icon-box { width: 36px; height: 36px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .kpi-icon-amber { background: rgba(245, 158, 11, 0.12); color: var(--accent-amber); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .kpi-icon-green { background: var(--color-positive-bg); color: var(--color-positive); border: 1px solid var(--color-positive-border); }
+    .kpi-icon-red { background: var(--color-negative-bg); color: var(--color-negative); border: 1px solid var(--color-negative-border); }
+    .kpi-icon-blue { background: var(--color-info-bg); color: var(--color-info); border: 1px solid var(--color-info-border); }
+    .kpi-value { font-size: 28px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--text-highlight); }
+    .kpi-meta { font-size: 11.5px; color: var(--text-dim); }
+
+    /* TOOLBAR */
+    .filter-toolbar {
+      background-color: var(--bg-panel); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
+      padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    }
+    .search-box-wrapper { position: relative; flex: 1; min-width: 260px; max-width: 440px; }
+    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-dim); }
+    .input-search {
+      width: 100%; background-color: var(--bg-input); border: 1px solid var(--border-subtle); color: var(--text-main);
+      padding: 10px 14px 10px 40px; border-radius: var(--radius-md); font-size: 13.5px; outline: none;
+    }
+    .controls-group { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .select-dropdown {
+      background-color: var(--bg-input); border: 1px solid var(--border-subtle); color: var(--text-main);
+      padding: 9px 34px 9px 14px; border-radius: var(--radius-md); font-size: 13px; outline: none; cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394A3B8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 10px center; background-size: 14px;
+    }
+    .active-count-indicator { font-size: 12px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; padding: 6px 12px; background-color: var(--bg-card); border-radius: var(--radius-pill); border: 1px solid var(--border-subtle); }
+
+    /* TABLE */
+    .table-container-card {
+      background-color: var(--bg-panel); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-elevation); overflow: hidden; display: flex; flex-direction: column;
+    }
+    .table-responsive { overflow-x: auto; width: 100%; }
+    .data-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13.5px; }
+    .data-table thead { background-color: #12151B; border-bottom: 1px solid var(--border-subtle); }
+    .data-table th { padding: 14px 18px; font-weight: 600; color: var(--text-dim); font-size: 11.5px; text-transform: uppercase; white-space: nowrap; }
+    .data-table th.th-center { text-align: center; }
+    .data-table tbody tr { border-bottom: 1px solid rgba(42, 50, 67, 0.45); transition: var(--transition-smooth); }
+    .data-table tbody tr:hover { background-color: var(--bg-card); }
+    .data-table td { padding: 16px 18px; vertical-align: middle; color: var(--text-main); }
+    .data-table td.td-center { text-align: center; }
+
+    .claim-code {
+      font-family: 'JetBrains Mono', monospace; font-weight: 700;
+      color: var(--accent-amber); font-size: 13px;
+    }
+    .part-thumb-sm {
+      width: 28px; height: 28px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle); background: var(--bg-card);
+      object-fit: cover; flex-shrink: 0;
+    }
+    .product-name { font-weight: 600; color: var(--text-highlight); }
+    .serial-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-dim); }
+
+    /* Type Badges */
+    .type-badge {
+      display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px;
+      border-radius: var(--radius-pill); font-size: 11px; font-weight: 600;
+    }
+    .type-customer { background: rgba(59, 130, 246, 0.12); color: var(--color-info); border: 1px solid var(--color-info-border); }
+    .type-supplier { background: rgba(245, 158, 11, 0.12); color: var(--accent-amber); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .type-warranty { background: rgba(16, 185, 129, 0.12); color: var(--color-positive); border: 1px solid var(--color-positive-border); }
+
+    /* Status Pills */
+    .status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: var(--radius-pill); font-size: 11.5px; font-weight: 600; }
+    .status-pill.resolved { background-color: var(--color-positive-bg); color: var(--color-positive); border: 1px solid var(--color-positive-border); }
+    .status-pill.approved { background-color: var(--color-info-bg); color: var(--color-info); border: 1px solid var(--color-info-border); }
+    .status-pill.pending { background-color: var(--color-average-bg); color: var(--color-average); border: 1px solid var(--color-average-border); }
+    .status-pill.rejected { background-color: var(--color-negative-bg); color: var(--color-negative); border: 1px solid var(--color-negative-border); }
+    .status-pill.supplier-pending { background-color: rgba(245, 158, 11, 0.15); color: var(--accent-amber); border: 1px solid rgba(245, 158, 11, 0.4); }
+    .status-dot-sm { width: 6px; height: 6px; border-radius: 50%; background-color: currentColor; }
+
+    .btn-table-action, .btn-process-action, .btn-view-details {
+      background-color: var(--bg-card); border: 1px solid var(--border-subtle); color: var(--text-muted);
+      padding: 6px 12px; border-radius: var(--radius-md); font-size: 12px; font-weight: 600; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px; transition: var(--transition-smooth);
+    }
+    .btn-table-action:hover, .btn-process-action:hover, .btn-view-details:hover { border-color: var(--accent-amber); color: var(--accent-amber); }
+
+    /* MODAL */
+    .modal-backdrop {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(13, 15, 18, 0.85); backdrop-filter: blur(8px);
+      z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.28s; padding: 20px;
+    }
+    .modal-backdrop.open { opacity: 1; pointer-events: auto; }
+    .modal-dialog {
+      background-color: var(--bg-panel); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
+      width: 100%; max-width: 680px; box-shadow: var(--shadow-modal); transform: scale(0.94) translateY(10px);
+      transition: transform 0.28s; display: flex; flex-direction: column; overflow: hidden; border-top: 3px solid var(--accent-amber);
+    }
+    .modal-backdrop.open .modal-dialog { transform: scale(1) translateY(0); }
+    .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between; }
+    .modal-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; max-height: calc(85vh - 140px); }
+    .type-toggle-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .type-toggle-btn {
+      background-color: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);
+      padding: 9px 10px; font-size: 12.5px; font-weight: 600; color: var(--text-muted); cursor: pointer; text-align: center;
+    }
+    .type-toggle-btn.active {
+      background-color: rgba(245, 158, 11, 0.15); border-color: var(--accent-amber); color: var(--accent-amber);
+    }
+    .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 7px; }
+    .form-label { font-size: 12.5px; font-weight: 600; color: var(--text-muted); }
+    .form-control {
+      background-color: var(--bg-input); border: 1px solid var(--border-subtle); color: var(--text-main);
+      padding: 10px 14px; border-radius: var(--radius-md); font-size: 13.5px; outline: none; width: 100%;
+    }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border-subtle); background-color: #12151B; display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
+    .btn-secondary { background-color: transparent; border: 1px solid var(--border-subtle); color: var(--text-muted); padding: 10px 18px; border-radius: var(--radius-md); font-size: 13.5px; font-weight: 600; cursor: pointer; }
+    .btn-save-action {
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); border: none; color: #0D0F12; padding: 10px 22px;
+      border-radius: var(--radius-md); font-size: 13.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+    }
+
+    .info-alert-box {
+      padding: 12px 14px; border-radius: var(--radius-md); font-size: 12.5px; display: flex; align-items: flex-start; gap: 10px;
+    }
+    .info-alert-success { background: var(--color-positive-bg); border: 1px solid var(--color-positive-border); color: var(--color-positive); }
+    .info-alert-warning { background: var(--color-average-bg); border: 1px solid var(--color-average-border); color: var(--accent-amber); }
+    .info-alert-danger { background: var(--color-negative-bg); border: 1px solid var(--color-negative-border); color: var(--color-negative); }
+
+    .toast-notification {
+      position: fixed; bottom: 24px; right: 24px; background-color: var(--bg-panel); border: 1px solid var(--color-positive);
+      border-radius: var(--radius-md); padding: 14px 20px; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+      z-index: 2000; transform: translateY(100px); opacity: 0; transition: all 0.3s;
+    }
+    .toast-notification.show { transform: translateY(0); opacity: 1; }
+
+    @media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 900px) {
+      .sidebar { width: 70px; }
+      .brand-title, .brand-subtitle, .nav-text, .nav-badge, .nav-category-label, .sidebar-footer { display: none; }
+      .app-main { margin-left: 70px; }
+    }
+    @media (max-width: 640px) { .kpi-grid { grid-template-columns: 1fr; } .form-grid-2 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <a th:href="@{/}" href="/" class="brand-container" style="text-decoration: none; color: inherit;" title="Return to PartsHub Storefront Home">
+      <div class="brand-icon-box"><i class="fa-solid fa-microchip"></i></div>
+      <div class="brand-text">
+        <div class="brand-title">PartsHub <span class="brand-version">v2.4</span></div>
+        <span class="brand-subtitle">Spare Parts ERP System</span>
+      </div>
+    </a>
+    <div class="sidebar-menu-wrapper">
+      <span class="nav-category-label">Core Modules</span>
+      <ul class="sidebar-menu" id="sidebar-menu-dynamic">
+        <!-- Dynamic nav items injected by auth.js -->
+      </ul>
+    </div>
+    <div class="sidebar-footer">
+      <div class="system-status-card">
+        <div class="status-row"><div style="display: flex; align-items: center; gap: 6px;"><span class="pulse-dot"></span><span>Spring Boot MVC</span></div><span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-dim);">v3.2.3</span></div>
+        <div class="status-row"><span style="color: var(--text-dim); font-size: 10.5px;">MS SQL Server 2022</span><span style="color: var(--color-positive); font-weight: 600; font-size: 10.5px;">ONLINE</span></div>
+      </div>
+      <button type="button" class="sidebar-logout-btn" id="btn-sidebar-logout" title="Sign Out of Session">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        <span>Sign Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="app-main">
+    <header class="top-bar">
+      <nav class="breadcrumbs">
+        <a th:href="@{/}" href="/" title="Go to Storefront Home"><i class="fa-solid fa-house" style="font-size: 11px;"></i> Home</a>
+        <i class="fa-solid fa-chevron-right crumb-sep"></i>
+        <a href="returns.html">Returns</a>
+        <i class="fa-solid fa-chevron-right crumb-sep"></i>
+        <span class="current">Warranty Claims & RMA</span>
+      </nav>
+      <div class="top-bar-actions">
+        <div class="session-badge"><span class="pulse-dot" style="width:6px;height:6px;"></span><span id="topbar-session-label">Loading...</span></div>
+        <button class="icon-button" title="Alerts"><i class="fa-regular fa-bell"></i><span class="badge-counter">1</span></button>
+        <div class="user-profile-widget">
+          <div class="user-avatar"><span id="topbar-user-initials">--</span></div>
+          <div style="display: flex; flex-direction: column;">
+            <span id="topbar-user-name" style="font-size:12.5px;font-weight:600;color:var(--text-highlight);">Loading...</span>
+            <span id="topbar-user-role" style="font-size:11px;color:var(--text-muted);">Loading...</span>
+          </div>
+        </div>
+        <button type="button" class="btn-topbar-logout" id="btn-logout" title="Sign Out of Session">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="content-canvas">
+      <!-- 1. Header -->
+      <section class="page-header">
+        <div>
+          <div class="page-header-pretitle"><i class="fa-solid fa-shield-virus"></i> Quality Assurance & RMA</div>
+          <h1 class="page-header-title">Returns & Warranty Management</h1>
+          <p class="page-header-subtitle">Handle product returns, manufacturer warranty claims, supplier replacements, and reverse logistics tracking.</p>
+        </div>
+        <div>
+          <button type="button" class="btn-action-primary" id="btnOpenReturnModal">
+            <i class="fa-solid fa-plus"></i> New Return Request
+          </button>
+        </div>
+      </section>
+
+      <!-- 2. KPI Cards -->
+      <section class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-header"><span class="kpi-title">Open Claims</span><div class="kpi-icon-box kpi-icon-amber"><i class="fa-solid fa-rotate-left"></i></div></div>
+          <div class="kpi-value" id="kpiOpenClaims">--</div>
+          <span class="kpi-meta"><i class="fa-solid fa-clock" style="color: var(--accent-amber);"></i> Pending QA evaluation</span>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-header"><span class="kpi-title">Approved Claims</span><div class="kpi-icon-box kpi-icon-green"><i class="fa-solid fa-check-double"></i></div></div>
+          <div class="kpi-value" style="color: var(--color-positive);" id="kpiApprovedClaims">--</div>
+          <span class="kpi-meta"><i class="fa-solid fa-truck-ramp-box" style="color: var(--color-positive);"></i> Replaced / refunded</span>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-header"><span class="kpi-title">Rejected Claims</span><div class="kpi-icon-box kpi-icon-red"><i class="fa-solid fa-ban"></i></div></div>
+          <div class="kpi-value" style="color: var(--color-negative);" id="kpiRejectedClaims">--</div>
+          <span class="kpi-meta"><i class="fa-solid fa-triangle-exclamation" style="color: var(--color-negative);"></i> Misuse / void warranty</span>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-header"><span class="kpi-title">Total Registry</span><div class="kpi-icon-box kpi-icon-blue"><i class="fa-solid fa-stopwatch"></i></div></div>
+          <div class="kpi-value" style="color: var(--color-info);" id="kpiTotalClaims">--</div>
+          <span class="kpi-meta"><i class="fa-solid fa-bolt" style="color: var(--color-info);"></i> RMA System Active</span>
+        </div>
+      </section>
+
+      <!-- 3. Toolbar -->
+      <section class="filter-toolbar">
+        <div class="search-box-wrapper">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" id="searchInput" class="input-search" placeholder="Search claim ID, part name, invoice or customer...">
+        </div>
+        <div class="controls-group">
+          <span style="font-size: 12px; color: var(--text-dim); font-weight: 600;">Type:</span>
+          <select id="typeFilter" class="select-dropdown">
+            <option value="ALL">All Claim Types</option>
+            <option value="CUSTOMER_RETURN">Customer Return</option>
+            <option value="SUPPLIER_RETURN">Supplier Return</option>
+            <option value="WARRANTY_CLAIM">Warranty Claim</option>
+          </select>
+
+          <span style="font-size: 12px; color: var(--text-dim); font-weight: 600;">Status:</span>
+          <select id="statusFilter" class="select-dropdown">
+            <option value="ALL">All Statuses</option>
+            <option value="PENDING">Pending</option>
+            <option value="APPROVED">Approved</option>
+            <option value="PENDING_SUPPLIER_CLAIM">Pending Supplier</option>
+            <option value="RESOLVED">Resolved</option>
+            <option value="REJECTED">Rejected</option>
+          </select>
+          <div class="active-count-indicator"><span id="filteredCount">0</span> Claims</div>
+        </div>
+      </section>
+
+      <!-- 4. Data Table -->
+      <section class="table-container-card">
+        <div class="table-responsive">
+          <table class="data-table" id="claimsTable">
+            <thead>
+              <tr>
+                <th style="width: 130px;">Claim ID</th>
+                <th style="width: 150px;">Type</th>
+                <th>Part / Reference Details</th>
+                <th>Customer / Supplier</th>
+                <th style="width: 150px;">Reason</th>
+                <th style="width: 140px;">Resolution</th>
+                <th style="width: 140px;" class="th-center">Status</th>
+                <th style="width: 120px;" class="th-center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="claimsTableBody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+        <div style="padding: 14px 22px; display: flex; justify-content: space-between; background-color: #12151B; border-top: 1px solid var(--border-subtle); font-size: 12.5px; color: var(--text-dim);">
+          <span>Reverse Logistics Tracking Protocol &bull; RMA Registry Connected</span>
+          <span>Supplier Defect Protection: <strong>Active</strong></span>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- MODAL: LOG NEW RETURN / CLAIM -->
+  <div class="modal-backdrop" id="returnModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 34px; height: 34px; border-radius: var(--radius-md); background: rgba(245, 158, 11, 0.15); display: flex; align-items: center; justify-content: center; color: var(--accent-amber);"><i class="fa-solid fa-shield-virus"></i></div>
+          <div><h2 style="font-size: 17px; font-weight: 700; color: var(--text-highlight);" id="modalTitleHeader">Log Return / Warranty Claim</h2><div style="font-size: 11px; color: var(--text-dim);">RMA Entry & Sale Verification</div></div>
+        </div>
+        <button type="button" class="icon-button" onclick="closeReturnModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="returnClaimForm" onsubmit="handleReturnSubmit(event)">
+        <input type="hidden" id="editingClaimId" value="">
+        <div class="modal-body">
+
+          <!-- Error Alert Banner -->
+          <div id="modalAlertBox" style="display: none;" class="info-alert-box info-alert-danger">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span id="modalAlertText">Error message goes here</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Claim Type *</label>
+            <div class="type-toggle-container">
+              <button type="button" class="type-toggle-btn active" id="btnTypeCustomer" onclick="setType('CUSTOMER_RETURN')">Customer Return</button>
+              <button type="button" class="type-toggle-btn" id="btnTypeSupplier" onclick="setType('SUPPLIER_RETURN')">Supplier Return</button>
+              <button type="button" class="type-toggle-btn" id="btnTypeWarranty" onclick="setType('WARRANTY_CLAIM')">Warranty Claim</button>
+            </div>
+            <input type="hidden" id="claimTypeInput" value="CUSTOMER_RETURN">
+          </div>
+
+          <!-- Sale Lookup Section -->
+          <div style="background: var(--bg-card); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 12px;">
+            <div style="font-size: 12.5px; font-weight: 700; color: var(--accent-amber); display: flex; align-items: center; gap: 6px;">
+              <i class="fa-solid fa-receipt"></i> Sale Record Lookup & Verification
+            </div>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Invoice Number *</label>
+                <input type="text" id="returnRefInput" class="form-control" placeholder="e.g. INV-1001" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Customer Name (Validation)</label>
+                <input type="text" id="returnCustomerInput" class="form-control" placeholder="e.g. Colombo PC Clinic">
+              </div>
+            </div>
+            <div style="display: flex; justify-content: flex-end;">
+              <button type="button" class="btn-secondary" style="padding: 6px 14px; font-size: 12px; color: var(--accent-amber); border-color: rgba(245,158,11,0.3);" onclick="lookupSaleRecord()">
+                <i class="fa-solid fa-magnifying-glass"></i> Lookup Sale Invoice
+              </button>
+            </div>
+          </div>
+
+          <!-- Sale Items Selection & Warranty Info -->
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Hardware Part Selection *</label>
+              <select id="returnPartSelect" class="form-control select-dropdown" onchange="onPartSelected()" required>
+                <option value="">-- Enter Invoice & Lookup First --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Return Quantity *</label>
+              <input type="number" id="returnQuantityInput" class="form-control" value="1" min="1" max="100" required>
+            </div>
+          </div>
+
+          <!-- Warranty & Returnable Status Banner -->
+          <div id="warrantyStatusBanner" style="display: none;" class="info-alert-box info-alert-success">
+            <i class="fa-solid fa-shield-check"></i>
+            <div style="display: flex; flex-direction: column;">
+              <span id="warrantyStatusTitle" style="font-weight: 700;">Within Warranty</span>
+              <span id="warrantyStatusDesc">Invoice date: 2026-09-01 &bull; Warranty Expiry: 2027-09-01 (12 Months) &bull; Returnable Qty: 2</span>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Item Condition *</label>
+              <select id="returnConditionSelect" class="form-control select-dropdown" required>
+                <option value="DEFECTIVE">Defective / Non-Functional</option>
+                <option value="SEALED">Sealed / Brand New</option>
+                <option value="OPEN_BOX">Open Box (Resellable)</option>
+                <option value="DAMAGED">Physically Damaged</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Reason for Return *</label>
+              <select id="returnReasonSelect" class="form-control select-dropdown" onchange="onReasonChanged()" required>
+                <option value="Defective">Defective / Non-Functional</option>
+                <option value="MANUFACTURING_DEFECT">Manufacturing Defect (Supplier Route)</option>
+                <option value="CUSTOMER_MISUSE">Customer Misuse / Physical Damage</option>
+                <option value="Wrong Item">Wrong Item Shipped</option>
+                <option value="Damaged in Transit">Damaged in Transit</option>
+                <option value="Other">Other Reason</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Requested Resolution *</label>
+            <select id="returnResolutionSelect" class="form-control select-dropdown" onchange="onResolutionChanged()" required>
+              <option value="Refund">Full Refund / Credit Note</option>
+              <option value="Replacement">Replacement Unit</option>
+              <option value="Store Credit">Store Credit</option>
+              <option value="Repair">Authorized Depot Repair</option>
+              <option value="Reject — Customer Misuse">Reject — Customer Misuse</option>
+            </select>
+          </div>
+
+          <!-- Goodwill Override Box (Shown if Warranty Expired) -->
+          <div id="goodwillContainer" style="display: none; background: rgba(245,158,11,0.08); padding: 12px 14px; border-radius: var(--radius-md); border: 1px solid var(--color-average-border);">
+            <label style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--accent-amber); cursor: pointer;">
+              <input type="checkbox" id="goodwillOverrideCheckbox" onchange="toggleGoodwillReason()"> Approve as Goodwill Exception (Manual Override)
+            </label>
+            <div id="goodwillReasonGroup" style="display: none; margin-top: 10px;" class="form-group">
+              <label class="form-label">Goodwill Override Reason / Manager Approval Note *</label>
+              <input type="text" id="goodwillReasonInput" class="form-control" placeholder="e.g. Approved by Store Manager as goodwill gesture for VIP client">
+            </div>
+          </div>
+
+          <!-- Rejection Reason Box (Shown if Rejected) -->
+          <div id="rejectionContainer" style="display: none;" class="form-group">
+            <label class="form-label" style="color: var(--color-negative);">Rejection Reason / Misuse Details *</label>
+            <input type="text" id="rejectionReasonInput" class="form-control" placeholder="e.g. Void warranty: PCB crack and broken warranty seal.">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Diagnostic Notes & Serial Number Scans</label>
+            <textarea id="returnNotesInput" class="form-control" rows="3" placeholder="Enter hardware serial number and observations from initial diagnostic inspection..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="closeReturnModal()">Cancel</button>
+          <button type="submit" class="btn-save-action" id="btnSubmitClaim"><i class="fa-solid fa-shield-check"></i> <span id="btnSubmitClaimText">Register Claim</span></button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-notification" id="feedbackToast">
+    <i class="fa-solid fa-circle-check" style="color: var(--color-positive); font-size: 18px;"></i>
+    <div style="display: flex; flex-direction: column;">
+      <span style="font-weight: 700; font-size: 13.5px; color: var(--text-highlight);" id="toastTitle">RMA Registered</span>
+      <span style="font-size: 12px; color: var(--text-muted);" id="toastMessage">Claim submitted to QA lab queue.</span>
+    </div>
+  </div>
+
+  <script>
+    const returnModal = document.getElementById("returnModal");
+    const toast = document.getElementById("feedbackToast");
+    const searchInput = document.getElementById("searchInput");
+    const typeFilter = document.getElementById("typeFilter");
+    const statusFilter = document.getElementById("statusFilter");
+    const tableBody = document.getElementById("claimsTableBody");
+    const filteredCount = document.getElementById("filteredCount");
+    const modalAlertBox = document.getElementById("modalAlertBox");
+    const modalAlertText = document.getElementById("modalAlertText");
+
+    let returnClaims = [];
+    let currentSaleLookupData = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadReturnClaims();
+
+      document.getElementById("btnOpenReturnModal").addEventListener("click", () => {
+        document.getElementById("editingClaimId").value = "";
+        document.getElementById("returnClaimForm").reset();
+        modalAlertBox.style.display = "none";
+        document.getElementById("warrantyStatusBanner").style.display = "none";
+        document.getElementById("goodwillContainer").style.display = "none";
+        document.getElementById("rejectionContainer").style.display = "none";
+        document.getElementById("modalTitleHeader").textContent = "Log Return / Warranty Claim";
+        document.getElementById("btnSubmitClaimText").textContent = "Register Claim";
+        setType('CUSTOMER_RETURN');
+        returnModal.classList.add("open");
+        document.body.style.overflow = "hidden";
+      });
+
+      searchInput.addEventListener("input", filterTable);
+      typeFilter.addEventListener("change", filterTable);
+      statusFilter.addEventListener("change", filterTable);
+    });
+
+    function loadReturnClaims() {
+      fetch('/api/returns')
+        .then(res => res.json())
+        .then(data => {
+          returnClaims = data;
+          renderClaimsTable(data);
+          updateKPIs(data);
+        })
+        .catch(err => console.error("Failed to load claims:", err));
+    }
+
+    function updateKPIs(claims) {
+      const openCount = claims.filter(c => c.status === "PENDING" || c.status === "PENDING_SUPPLIER_CLAIM").length;
+      const approvedCount = claims.filter(c => c.status === "APPROVED" || c.status === "RESOLVED").length;
+      const rejectedCount = claims.filter(c => c.status === "REJECTED").length;
+
+      document.getElementById("kpiOpenClaims").textContent = openCount;
+      document.getElementById("kpiApprovedClaims").textContent = approvedCount;
+      document.getElementById("kpiRejectedClaims").textContent = rejectedCount;
+      document.getElementById("kpiTotalClaims").textContent = claims.length;
+    }
+
+    function renderClaimsTable(claims) {
+      tableBody.innerHTML = "";
+      claims.forEach(clm => {
+        const tr = document.createElement("tr");
+        tr.dataset.type = clm.claimType;
+        tr.dataset.status = clm.status;
+
+        let typeBadge = '<span class="type-badge type-customer"><i class="fa-solid fa-user"></i> Customer Return</span>';
+        if (clm.claimType === "SUPPLIER_RETURN") {
+          typeBadge = '<span class="type-badge type-supplier"><i class="fa-solid fa-truck"></i> Supplier Return</span>';
+        } else if (clm.claimType === "WARRANTY_CLAIM") {
+          typeBadge = '<span class="type-badge type-warranty"><i class="fa-solid fa-shield-halved"></i> Warranty Claim</span>';
+        }
+
+        let statusClass = "pending";
+        let statusLabel = "Pending";
+        if (clm.status === "APPROVED") {
+          statusClass = "approved";
+          statusLabel = "Approved";
+        } else if (clm.status === "RESOLVED") {
+          statusClass = "resolved";
+          statusLabel = "Resolved";
+        } else if (clm.status === "REJECTED") {
+          statusClass = "rejected";
+          statusLabel = "Rejected";
+        } else if (clm.status === "PENDING_SUPPLIER_CLAIM") {
+          statusClass = "supplier-pending";
+          statusLabel = "Pending Supplier";
+        }
+
+        const isSupplierPending = (clm.status === "PENDING_SUPPLIER_CLAIM");
+        const canApprove = (clm.status === "PENDING");
+        const canResolve = (clm.status === "APPROVED" || clm.status === "PENDING");
+        const canEdit = (clm.status === "PENDING" || clm.status === "PENDING_SUPPLIER_CLAIM");
+        const canDelete = (clm.status === "PENDING");
+
+        tr.innerHTML = `
+          <td><span class="claim-code">${escapeHtml(clm.claimNumber)}</span></td>
+          <td>${typeBadge}</td>
+          <td>
+            <div>
+              <div class="product-name">${escapeHtml(clm.partName)} <span style="font-size:11px; color:var(--accent-amber);">(Qty: ${clm.quantity || 1})</span></div>
+              <div class="serial-tag">Ref: ${escapeHtml(clm.referenceNumber)} &bull; ${escapeHtml(clm.itemCondition || 'DEFECTIVE')}</div>
+            </div>
+          </td>
+          <td><span style="color: var(--text-muted); font-weight: 600;">${escapeHtml(clm.partyName || 'Retail Client')}</span></td>
+          <td><span style="font-size: 12.5px;">${escapeHtml(clm.reason)}</span></td>
+          <td><span class="status-pill status-approved" style="background: rgba(59,130,246,0.12); color: #60A5FA; border-color: rgba(59,130,246,0.3);">${escapeHtml(clm.resolution || 'Pending Review')}</span></td>
+          <td class="td-center"><span class="status-pill ${statusClass}"><span class="status-dot-sm"></span>${statusLabel}</span></td>
+          <td class="td-center">
+            <div style="display: flex; gap: 6px; justify-content: center;">
+              ${isSupplierPending ? `<button class="btn-process-action" style="background: rgba(245,158,11,0.15); color: var(--accent-amber); border-color: rgba(245,158,11,0.3);" onclick="resolveSupplierClaim(${clm.id})" title="Resolve Supplier Claim"><i class="fa-solid fa-truck-fast"></i> Resolve</button>` : ''}
+              ${canApprove ? `<button class="btn-process-action" style="background: rgba(16,185,129,0.15); color: var(--color-positive); border-color: rgba(16,185,129,0.3);" onclick="updateClaimStatus(${clm.id}, 'APPROVED')" title="Approve Claim"><i class="fa-solid fa-check"></i></button>` : ''}
+              ${canResolve ? `<button class="btn-process-action" onclick="updateClaimStatus(${clm.id}, 'RESOLVED')" title="Resolve / Close Claim"><i class="fa-solid fa-clipboard-check"></i></button>` : ''}
+              <button class="btn-view-details" onclick="viewClaimDetails(${clm.id})" title="View Dossier"><i class="fa-regular fa-eye"></i></button>
+              ${canEdit ? `<button class="btn-table-action" onclick="openEditClaimModal(${clm.id})" title="Update Claim" style="color: var(--accent-amber); border-color: rgba(245,158,11,0.4);"><i class="fa-regular fa-pen-to-square"></i></button>` : ''}
+              ${canDelete ? `<button class="btn-table-action" onclick="deleteClaim(${clm.id}, '${escapeHtml(clm.claimNumber)}')" title="Delete Claim" style="color: var(--color-negative); border-color: var(--color-negative-border);"><i class="fa-regular fa-trash-can"></i></button>` : ''}
+            </div>
+          </td>
+        `;
+        tableBody.appendChild(tr);
+      });
+
+      if (filteredCount) filteredCount.textContent = `${claims.length} Claims`;
+    }
+
+    function openEditClaimModal(id) {
+      const claim = returnClaims.find(c => c.id === id);
+      if (!claim) return;
+
+      document.getElementById("returnClaimForm").reset();
+      document.getElementById("editingClaimId").value = claim.id;
+      modalAlertBox.style.display = "none";
+      document.getElementById("modalTitleHeader").textContent = `Update Claim (${claim.claimNumber})`;
+      document.getElementById("btnSubmitClaimText").textContent = "Save Changes";
+
+      setType(claim.claimType || 'CUSTOMER_RETURN');
+      document.getElementById("returnRefInput").value = claim.referenceNumber || '';
+      document.getElementById("returnCustomerInput").value = claim.partyName || '';
+
+      const partSelect = document.getElementById("returnPartSelect");
+      partSelect.innerHTML = `<option value="${escapeHtml(claim.partName)}" selected>${escapeHtml(claim.partName)}</option>`;
+
+      document.getElementById("returnQuantityInput").value = claim.quantity || 1;
+      document.getElementById("returnConditionSelect").value = claim.itemCondition || 'DEFECTIVE';
+      document.getElementById("returnReasonSelect").value = claim.reason || 'Defective';
+      document.getElementById("returnResolutionSelect").value = claim.resolution || 'Refund';
+
+      document.getElementById("goodwillOverrideCheckbox").checked = !!claim.goodwillOverride;
+      document.getElementById("goodwillReasonInput").value = claim.goodwillReason || '';
+      toggleGoodwillReason();
+
+      document.getElementById("rejectionReasonInput").value = claim.rejectionReason || '';
+      document.getElementById("returnNotesInput").value = claim.diagnosticNotes || '';
+
+      onResolutionChanged();
+
+      returnModal.classList.add("open");
+      document.body.style.overflow = "hidden";
+    }
+
+    function deleteClaim(id, claimNumber) {
+      if (!confirm(`Are you sure you want to delete claim '${claimNumber}'?\n\nThis claim is still pending and has had no stock/refund side effects applied.`)) return;
+
+      fetch(`/api/returns/${id}`, {
+        method: 'DELETE'
+      })
+      .then(res => {
+        if (!res.ok) return res.json().then(json => { throw new Error(json.error || "Failed to delete claim"); });
+        return res.json();
+      })
+      .then(data => {
+        showToast("Claim Deleted", `Return claim ${claimNumber} deleted successfully.`);
+        loadReturnClaims();
+      })
+      .catch(err => alert("Error deleting claim: " + err.message));
+    }
+
+    function lookupSaleRecord() {
+      const inv = document.getElementById("returnRefInput").value.trim();
+      const cust = document.getElementById("returnCustomerInput").value.trim();
+      modalAlertBox.style.display = "none";
+
+      if (!inv) {
+        showModalError("Please enter an Invoice Number to look up.");
+        return;
+      }
+
+      fetch(`/api/returns/lookup-sale?invoiceNumber=${encodeURIComponent(inv)}&customerName=${encodeURIComponent(cust)}`)
+        .then(res => {
+          if (!res.ok) return res.json().then(json => { throw new Error(json.error || "Sale lookup failed"); });
+          return res.json();
+        })
+        .then(data => {
+          currentSaleLookupData = data;
+          document.getElementById("returnCustomerInput").value = data.customerName;
+
+          const partSelect = document.getElementById("returnPartSelect");
+          partSelect.innerHTML = '<option value="">-- Select Part from Invoice --</option>';
+          data.items.forEach(item => {
+            const opt = document.createElement("option");
+            opt.value = item.partName;
+            opt.textContent = `${item.partName} (Purchased: ${item.originalQuantity}, Returnable: ${item.returnableQuantity})`;
+            opt.dataset.itemJson = JSON.stringify(item);
+            partSelect.appendChild(opt);
+          });
+
+          showToast("Sale Found", `Invoice ${data.invoiceNumber} verified for customer ${data.customerName}.`);
+        })
+        .catch(err => {
+          showModalError(err.message);
+        });
+    }
+
+    function onPartSelected() {
+      const select = document.getElementById("returnPartSelect");
+      const selectedOpt = select.options[select.selectedIndex];
+      if (!selectedOpt || !selectedOpt.dataset.itemJson) {
+        document.getElementById("warrantyStatusBanner").style.display = "none";
+        return;
+      }
+
+      const item = JSON.parse(selectedOpt.dataset.itemJson);
+      const banner = document.getElementById("warrantyStatusBanner");
+      const title = document.getElementById("warrantyStatusTitle");
+      const desc = document.getElementById("warrantyStatusDesc");
+      const qtyInput = document.getElementById("returnQuantityInput");
+
+      qtyInput.max = item.returnableQuantity;
+      if (item.returnableQuantity > 0) qtyInput.value = 1;
+
+      banner.style.display = "flex";
+      if (item.inWarranty) {
+        banner.className = "info-alert-box info-alert-success";
+        title.textContent = "Within Manufacturer Warranty";
+        desc.textContent = `Purchased: ${currentSaleLookupData.saleDate} • Warranty Expiry: ${item.warrantyExpiryDate} (${item.warrantyPeriodMonths} Months) • Returnable Qty: ${item.returnableQuantity}`;
+        document.getElementById("goodwillContainer").style.display = "none";
+      } else {
+        banner.className = "info-alert-box info-alert-warning";
+        title.textContent = "Warranty Expired — Requires Goodwill Override";
+        desc.textContent = `Purchased: ${currentSaleLookupData.saleDate} • Expired On: ${item.warrantyExpiryDate} • Returnable Qty: ${item.returnableQuantity}`;
+        document.getElementById("goodwillContainer").style.display = "block";
+      }
+    }
+
+    function onReasonChanged() {
+      const val = document.getElementById("returnReasonSelect").value;
+      if (val === "CUSTOMER_MISUSE") {
+        document.getElementById("returnResolutionSelect").value = "Reject — Customer Misuse";
+        onResolutionChanged();
+      } else if (val === "MANUFACTURING_DEFECT") {
+        document.getElementById("returnResolutionSelect").value = "Replacement";
+        onResolutionChanged();
+      }
+    }
+
+    function onResolutionChanged() {
+      const val = document.getElementById("returnResolutionSelect").value;
+      if (val === "Reject — Customer Misuse") {
+        document.getElementById("rejectionContainer").style.display = "block";
+      } else {
+        document.getElementById("rejectionContainer").style.display = "none";
+      }
+    }
+
+    function toggleGoodwillReason() {
+      const checked = document.getElementById("goodwillOverrideCheckbox").checked;
+      document.getElementById("goodwillReasonGroup").style.display = checked ? "block" : "none";
+    }
+
+    function showModalError(msg) {
+      modalAlertText.textContent = msg;
+      modalAlertBox.style.display = "flex";
+    }
+
+    function handleReturnSubmit(e) {
+      e.preventDefault();
+      modalAlertBox.style.display = "none";
+
+      const editingId = document.getElementById("editingClaimId").value;
+      const isEdit = !!editingId;
+
+      const payload = {
+        claimType: document.getElementById("claimTypeInput").value,
+        referenceNumber: document.getElementById("returnRefInput").value.trim(),
+        partyName: document.getElementById("returnCustomerInput").value.trim(),
+        partName: document.getElementById("returnPartSelect").value,
+        quantity: parseInt(document.getElementById("returnQuantityInput").value, 10) || 1,
+        itemCondition: document.getElementById("returnConditionSelect").value,
+        reason: document.getElementById("returnReasonSelect").value,
+        resolution: document.getElementById("returnResolutionSelect").value,
+        goodwillOverride: document.getElementById("goodwillOverrideCheckbox").checked,
+        goodwillReason: document.getElementById("goodwillReasonInput").value.trim(),
+        rejectionReason: document.getElementById("rejectionReasonInput").value.trim(),
+        diagnosticNotes: document.getElementById("returnNotesInput").value.trim()
+      };
+
+      const url = isEdit ? `/api/returns/${editingId}` : '/api/returns';
+      const method = isEdit ? 'PUT' : 'POST';
+
+      fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(res => {
+        if (!res.ok) return res.json().then(json => { throw new Error(json.error || "Failed to save claim"); });
+        return res.json();
+      })
+      .then(saved => {
+        closeReturnModal();
+        const actionLabel = isEdit ? "Claim Updated" : "Claim Created";
+        showToast(actionLabel, `${saved.claimNumber} saved successfully (Status: ${saved.status}).`);
+        loadReturnClaims();
+      })
+      .catch(err => {
+        showModalError(err.message);
+      });
+    }
+
+    function resolveSupplierClaim(id) {
+      if (!confirm("Confirm supplier claim resolution for this defective item?")) return;
+      fetch(`/api/returns/${id}/resolve-supplier-claim`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resolution: 'Supplier Credit Note Received', notes: 'Defective unit replaced by manufacturer.' })
+      })
+      .then(res => res.json())
+      .then(updated => {
+        showToast("Supplier Claim Resolved", `${updated.claimNumber} resolved and inventory finalized.`);
+        loadReturnClaims();
+      })
+      .catch(err => alert("Error resolving supplier claim: " + err.message));
+    }
+
+    function updateClaimStatus(id, newStatus) {
+      fetch(`/api/returns/${id}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      })
+      .then(res => res.json())
+      .then(updated => {
+        showToast("RMA Status Updated", `${updated.claimNumber} set to ${newStatus}.`);
+        loadReturnClaims();
+      })
+      .catch(err => alert("Error updating status: " + err.message));
+    }
+
+    function viewClaimDetails(id) {
+      const claim = returnClaims.find(c => c.id === id);
+      if (claim) {
+        showToast("RMA Dossier", `${claim.claimNumber} • Ref: ${claim.referenceNumber} • Status: ${claim.status} • Goodwill: ${claim.goodwillOverride ? 'YES' : 'NO'}`);
+      }
+    }
+
+    function showToast(title, msg) {
+      document.getElementById("toastTitle").textContent = title;
+      document.getElementById("toastMessage").textContent = msg;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 4000);
+    }
+
+    function closeReturnModal() {
+      document.getElementById("editingClaimId").value = "";
+      const titleEl = document.getElementById("modalTitleHeader");
+      if (titleEl) titleEl.textContent = "Log Return / Warranty Claim";
+      const btnSubmit = document.getElementById("btnSubmitClaimText");
+      if (btnSubmit) btnSubmit.textContent = "Register Claim";
+      returnModal.classList.remove("open");
+      document.body.style.overflow = "";
+    }
+
+    function setType(type) {
+      document.getElementById("claimTypeInput").value = type;
+      document.getElementById("btnTypeCustomer").className = (type === "CUSTOMER_RETURN") ? "type-toggle-btn active" : "type-toggle-btn";
+      document.getElementById("btnTypeSupplier").className = (type === "SUPPLIER_RETURN") ? "type-toggle-btn active" : "type-toggle-btn";
+      document.getElementById("btnTypeWarranty").className = (type === "WARRANTY_CLAIM") ? "type-toggle-btn active" : "type-toggle-btn";
+    }
+
+    function filterTable() {
+      const q = searchInput.value.toLowerCase().trim();
+      const type = typeFilter.value;
+      const stat = statusFilter.value;
+
+      let filtered = returnClaims.filter(clm => {
+        const text = `${clm.claimNumber} ${clm.partName} ${clm.referenceNumber} ${clm.partyName || ''}`.toLowerCase();
+        const matchesQ = !q || text.includes(q);
+        const matchesType = (type === "ALL") || (clm.claimType === type);
+        const matchesStat = (stat === "ALL") || (clm.status === stat);
+        return matchesQ && matchesType && matchesStat;
+      });
+
+      renderClaimsTable(filtered);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+  </script>
+
+  <!-- Role-Based Auth Manager -->
+  <script src="auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      PartsHub.initPage('returns');
+    });
+  </script>
+</body>
+</html>

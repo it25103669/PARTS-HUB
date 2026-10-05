@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${campaign.campaignName} + ' - Details'">Campaign Details - PartsHub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #0F172A;
+            --bg-card: #1E293B;
+            --border-subtle: #334155;
+            --text-main: #F8FAFC;
+            --text-dim: #94A3B8;
+            --primary: #38BDF8;
+            --danger: #EF4444;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 24px;
+        }
+        .header {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 24px;
+            max-width: 650px;
+        }
+        .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .btn {
+            background-color: var(--primary);
+            color: #0F172A;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-secondary { background-color: var(--border-subtle); color: var(--text-main); }
+        .btn-danger { background-color: var(--danger); color: white; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="/campaigns" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Back to List</a>
+        <h1 th:text="${campaign.campaignName}" style="margin-top: 12px;">Campaign Details</h1>
+    </div>
+
+    <div class="card">
+        <div class="row">
+            <span style="color:var(--text-dim);">Campaign ID</span>
+            <span th:text="${campaign.campaignId}">1</span>
+        </div>
+        <div class="row">
+            <span style="color:var(--text-dim);">Discount</span>
+            <span th:text="${campaign.discountPercentage + '%'}">15%</span>
+        </div>
+        <div class="row">
+            <span style="color:var(--text-dim);">Target Products</span>
+            <span th:text="${campaign.selectedProducts}">CPUs</span>
+        </div>
+        <div class="row">
+            <span style="color:var(--text-dim);">Start Date</span>
+            <span th:text="${campaign.startDate}">2026-09-01</span>
+        </div>
+        <div class="row">
+            <span style="color:var(--text-dim);">End Date</span>
+            <span th:text="${campaign.endDate}">2026-09-30</span>
+        </div>
+        <div class="row">
+            <span style="color:var(--text-dim);">Status</span>
+            <span th:text="${campaign.status}">ACTIVE</span>
+        </div>
+        <div class="row" th:if="${campaign.description}">
+            <span style="color:var(--text-dim);">Description</span>
+            <span th:text="${campaign.description}">Notes</span>
+        </div>
+
+        <div style="margin-top: 24px; display: flex; gap: 8px;">
+            <a th:href="@{'/campaigns/' + ${campaign.campaignId} + '/edit'}" class="btn">Edit Campaign</a>
+            <form th:if="${canCancel}" th:action="@{'/campaigns/' + ${campaign.campaignId} + '/cancel'}" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-secondary">Cancel Campaign</button>
+            </form>
+            <form th:if="${canDelete}" th:action="@{'/campaigns/' + ${campaign.campaignId} + '/delete'}" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

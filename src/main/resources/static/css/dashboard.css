@@ -1,0 +1,212 @@
+/* ============================================================
+   PartsHub Pro – dashboard.css
+   Styles specific to the Dashboard and KPI summary cards.
+   ============================================================ */
+
+/* ── Section header ───────────────────────────────────────── */
+.ph-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+.ph-section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+.ph-section-subtitle {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 0.1rem;
+}
+
+/* ── Summary Cards Grid ───────────────────────────────────── */
+.ph-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+}
+
+.ph-summary-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+.ph-summary-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    border-radius: var(--radius-md) 0 0 var(--radius-md);
+}
+.ph-summary-card.accent-blue::before      { background: var(--blue-bright); }
+.ph-summary-card.accent-success::before   { background: var(--success); }
+.ph-summary-card.accent-warning::before   { background: var(--warning); }
+.ph-summary-card.accent-danger::before    { background: var(--danger); }
+.ph-summary-card.accent-secondary::before { background: var(--text-muted); }
+
+.ph-summary-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+    border-color: #334155;
+}
+
+.ph-summary-card__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+.ph-summary-card.accent-blue    .ph-summary-card__icon { background: rgba(59,130,246,0.15); color: var(--blue-bright); }
+.ph-summary-card.accent-success .ph-summary-card__icon { background: rgba(34,197,94,0.15);  color: var(--success); }
+.ph-summary-card.accent-warning .ph-summary-card__icon { background: rgba(245,158,11,0.15); color: var(--warning); }
+.ph-summary-card.accent-danger  .ph-summary-card__icon { background: rgba(239,68,68,0.15);  color: var(--danger); }
+.ph-summary-card.accent-secondary .ph-summary-card__icon { background: rgba(100,116,139,0.15); color: var(--text-muted); }
+
+.ph-summary-card__body { flex: 1; min-width: 0; }
+.ph-summary-card__label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+}
+.ph-summary-card__value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.1;
+    margin-bottom: 0.35rem;
+}
+.ph-summary-card__change {
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+.ph-summary-card__change.positive { color: var(--success); }
+.ph-summary-card__change.negative { color: var(--danger);  }
+.ph-summary-card__change.neutral  { color: var(--text-muted); }
+
+/* ── Chart Grid ───────────────────────────────────────────── */
+.ph-chart-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.ph-chart-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.ph-chart-grid-2-1 {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.ph-chart-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+}
+.ph-chart-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+.ph-chart-card__title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+.ph-chart-card__subtitle {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 0.1rem;
+}
+.ph-chart-container {
+    position: relative;
+    width: 100%;
+    height: 220px;
+}
+.ph-chart-container canvas {
+    max-height: 220px;
+}
+
+/* ── Activity Feed ────────────────────────────────────────── */
+.ph-activity-list {
+    list-style: none;
+}
+.ph-activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.875rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+.ph-activity-item:last-child { border-bottom: none; }
+
+.ph-activity-item__icon {
+    width: 34px;
+    height: 34px;
+    background: var(--bg-card-alt);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+}
+.ph-activity-item__body { flex: 1; min-width: 0; }
+.ph-activity-item__desc {
+    font-size: 0.825rem;
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+.ph-activity-item__time {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 0.15rem;
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 1200px) {
+    .ph-summary-grid { grid-template-columns: repeat(2, 1fr); }
+    .ph-chart-grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .ph-chart-grid-2-1 { grid-template-columns: 1fr; }
+}
+
+    @media (max-width: 768px) {
+    .ph-summary-grid { grid-template-columns: 1fr 1fr; }
+    .ph-chart-grid-3,
+    .ph-chart-grid-2  { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+    .ph-summary-grid  { grid-template-columns: 1fr; }
+}

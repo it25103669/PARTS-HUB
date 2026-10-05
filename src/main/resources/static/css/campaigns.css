@@ -1,0 +1,510 @@
+/* ============================================================
+   PartsHub Pro – campaigns.css
+   Styles for Promotional Campaign Management pages.
+   Depends on main.css and layout.css custom properties.
+   ============================================================ */
+
+/* ── Page Header ──────────────────────────────────────────── */
+.ph-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.ph-page-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.ph-page-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+/* ── Alert messages ───────────────────────────────────────── */
+.ph-alert {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    margin-bottom: 1.25rem;
+    font-weight: 500;
+}
+
+.ph-alert--success {
+    background: rgba(34, 197, 94, 0.12);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #4ade80;
+}
+
+.ph-alert--danger {
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+}
+
+/* ── Card ─────────────────────────────────────────────────── */
+.ph-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+.ph-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.ph-card__title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.ph-badge-count {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    background: var(--bg-card-alt);
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+}
+
+/* ── Buttons ──────────────────────────────────────────────── */
+.ph-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.55rem 1.1rem;
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.ph-btn--primary {
+    background: var(--blue-primary);
+    color: #fff;
+}
+.ph-btn--primary:hover {
+    background: var(--blue-muted);
+    color: #fff;
+}
+
+.ph-btn--secondary {
+    background: var(--bg-card-alt);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+.ph-btn--secondary:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.ph-btn--sm {
+    padding: 0.35rem 0.8rem;
+    font-size: 0.8rem;
+}
+
+/* ── Status Badges ────────────────────────────────────────── */
+.ph-status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.7rem;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.ph-status-badge--active {
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.ph-status-badge--upcoming {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.ph-status-badge--expired {
+    background: rgba(100, 116, 139, 0.15);
+    color: #94a3b8;
+    border: 1px solid rgba(100, 116, 139, 0.3);
+}
+
+.ph-status-badge--cancelled {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* ── Discount Badge ───────────────────────────────────────── */
+.ph-discount-badge {
+    display: inline-block;
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: var(--radius-sm);
+    padding: 0.15rem 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.ph-discount-badge-lg {
+    display: inline-block;
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: var(--radius-sm);
+    padding: 0.25rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+/* ── Table ────────────────────────────────────────────────── */
+.ph-table-wrapper {
+    overflow-x: auto;
+}
+
+.ph-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.ph-table thead th {
+    background: var(--bg-card-alt);
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+
+.ph-table tbody td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    vertical-align: middle;
+}
+
+.ph-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.ph-table tbody tr:hover {
+    background: var(--bg-hover);
+}
+
+.ph-table-link {
+    color: var(--text-primary);
+    font-weight: 500;
+    text-decoration: none;
+    transition: var(--transition);
+}
+.ph-table-link:hover {
+    color: var(--blue-bright);
+}
+
+.ph-table-products {
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+}
+
+/* ── Action Buttons (table) ───────────────────────────────── */
+.ph-action-group {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.ph-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: var(--transition);
+    text-decoration: none;
+    color: var(--text-secondary);
+}
+
+.ph-action-btn--view:hover  { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border-color: rgba(59,130,246,0.4); }
+.ph-action-btn--edit:hover  { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245,158,11,0.4); }
+.ph-action-btn--cancel:hover{ background: rgba(239, 68, 68, 0.15);  color: #f87171; border-color: rgba(239,68,68,0.4); }
+.ph-action-btn--delete:hover{ background: rgba(239, 68, 68, 0.2);   color: #ef4444; border-color: rgba(239,68,68,0.5); }
+
+/* ── Empty State ──────────────────────────────────────────── */
+.ph-empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+/* ── View Grid ────────────────────────────────────────────── */
+.ph-view-grid {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 1.25rem;
+    align-items: start;
+}
+
+@media (max-width: 768px) {
+    .ph-view-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ── Detail List ──────────────────────────────────────────── */
+.ph-detail-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.ph-detail-item {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 0.5rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+    align-items: start;
+}
+
+.ph-detail-item:last-child {
+    border-bottom: none;
+}
+
+.ph-detail-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding-top: 0.1rem;
+}
+
+.ph-detail-value {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+/* ── Actions Panel (view page) ────────────────────────────── */
+.ph-actions-card {
+    position: sticky;
+    top: calc(var(--header-h) + 1.5rem);
+}
+
+.ph-actions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.ph-action-full {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1rem;
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+    text-decoration: none;
+    width: 100%;
+    background: transparent;
+    transition: var(--transition);
+    color: var(--text-secondary);
+}
+
+.ph-action-full--edit:hover {
+    background: rgba(245, 158, 11, 0.1);
+    color: #fbbf24;
+    border-color: rgba(245, 158, 11, 0.4);
+}
+
+.ph-action-full--cancel {
+    color: #f87171;
+    border-color: rgba(239, 68, 68, 0.3);
+}
+.ph-action-full--cancel:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.ph-action-full--delete {
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.05);
+}
+.ph-action-full--delete:hover {
+    background: rgba(239, 68, 68, 0.15);
+    color: #dc2626;
+}
+
+/* ── Action Notes ─────────────────────────────────────────── */
+.ph-action-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.78rem;
+    margin-top: 0.25rem;
+    line-height: 1.5;
+}
+
+.ph-action-note--active    { background: rgba(34,197,94,0.08);   color: #86efac; border: 1px solid rgba(34,197,94,0.2); }
+.ph-action-note--upcoming  { background: rgba(59,130,246,0.08);  color: #93c5fd; border: 1px solid rgba(59,130,246,0.2); }
+.ph-action-note--cancelled { background: rgba(239,68,68,0.08);   color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); }
+.ph-action-note--expired   { background: rgba(100,116,139,0.08); color: #94a3b8; border: 1px solid rgba(100,116,139,0.2); }
+
+/* ── Form ─────────────────────────────────────────────────── */
+.ph-form-card {
+    max-width: 760px;
+}
+
+.ph-form-group {
+    margin-bottom: 1.2rem;
+}
+
+.ph-form-group--error .ph-form-control {
+    border-color: var(--danger);
+}
+
+.ph-form-label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.ph-required {
+    color: var(--danger);
+    margin-left: 0.15rem;
+}
+
+.ph-form-control {
+    display: block;
+    width: 100%;
+    padding: 0.6rem 0.85rem;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-family: inherit;
+    transition: var(--transition);
+    outline: none;
+}
+
+.ph-form-control:focus {
+    border-color: var(--blue-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.ph-form-control::placeholder {
+    color: var(--text-muted);
+}
+
+.ph-form-textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.ph-form-control--narrow {
+    max-width: 200px;
+}
+
+.ph-form-hint {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 0.35rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.ph-form-error {
+    color: #f87171;
+    font-size: 0.8rem;
+    margin-top: 0.35rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.ph-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+@media (max-width: 560px) {
+    .ph-form-row { grid-template-columns: 1fr; }
+}
+
+.ph-form-status-note {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+    background: rgba(59, 130, 246, 0.07);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 1rem;
+    font-size: 0.82rem;
+    color: #93c5fd;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.ph-form-status-note i {
+    margin-top: 0.15rem;
+    flex-shrink: 0;
+}
+
+.ph-form-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    flex-wrap: wrap;
+}
+
+/* date input colour fix for dark theme */
+input[type="date"] {
+    color-scheme: dark;
+}

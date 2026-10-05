@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In | PartsHub Enterprise v2.4</title>
+  <meta name="description"
+    content="Secure employee login portal for PartsHub Enterprise Spare Parts Management System.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <style>
+    /* ====================================================
+       PARTSHUB ENTERPRISE — LOGIN PAGE DESIGN SYSTEM
+       ==================================================== */
+    :root {
+      --bg-canvas: #0D0F12;
+      --bg-panel: #161A20;
+      --bg-card: #1D222E;
+      --border: #2A3243;
+      --border-light: #374151;
+      --amber: #F59E0B;
+      --amber-glow: rgba(245, 158, 11, 0.25);
+      --amber-dim: rgba(245, 158, 11, 0.12);
+      --green: #10B981;
+      --red: #EF4444;
+      --text: #F1F5F9;
+      --muted: #94A3B8;
+      --dim: #64748B;
+      --white: #FFFFFF;
+      --radius-sm: 6px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --radius-pill: 9999px;
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-canvas);
+      background-image: url('/images/login-background/login-bg.jpg');
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Full-page dark+amber overlay so text stays readable */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        linear-gradient(135deg,
+          rgba(13, 15, 18, 0.88) 0%,
+          rgba(13, 15, 18, 0.72) 50%,
+          rgba(13, 15, 18, 0.88) 100%),
+        radial-gradient(ellipse 60% 50% at 25% 50%, rgba(245, 158, 11, 0.07) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 50% at 75% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-canvas);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 99px;
+    }
+
+    /* ===================== LEFT PANEL ===================== */
+    .login-left {
+      background: rgba(22, 26, 32, 0.72);
+      backdrop-filter: blur(20px) saturate(1.3);
+      -webkit-backdrop-filter: blur(20px) saturate(1.3);
+      border-right: 1px solid rgba(245, 158, 11, 0.12);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 60px 64px;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    /* Ambient glow layers */
+    .login-left::before {
+      content: '';
+      position: absolute;
+      top: -120px;
+      left: -80px;
+      width: 420px;
+      height: 420px;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.09) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .login-left::after {
+      content: '';
+      position: absolute;
+      bottom: -100px;
+      right: -60px;
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Subtle circuit-grid overlay */
+    .circuit-overlay {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(245, 158, 11, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(245, 158, 11, 0.08) 1px, transparent 1px);
+      background-size: 40px 40px;
+      opacity: 1;
+      pointer-events: none;
+    }
+
+    /* Brand */
+    .brand-area {
+      position: relative;
+      z-index: 2;
+      margin-bottom: 52px;
+    }
+
+    .brand-logo-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 30px;
+    }
+
+    .brand-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #F59E0B 0%, #B45309 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: #0D0F12;
+      box-shadow: 0 0 28px rgba(245, 158, 11, 0.4), 0 0 0 1px rgba(245, 158, 11, 0.3);
+    }
+
+    .brand-wordmark {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-name {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-ver {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      background: var(--amber-dim);
+      color: var(--amber);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: var(--radius-pill);
+      letter-spacing: 0.5px;
+    }
+
+    .brand-tagline {
+      font-size: 11.5px;
+      color: var(--dim);
+      font-weight: 400;
+      margin-top: 2px;
+    }
+
+    /* Hero */
+    .hero-headline {
+      font-size: 36px;
+      font-weight: 800;
+      line-height: 1.15;
+      color: var(--white);
+      letter-spacing: -1px;
+      margin-bottom: 16px;
+    }
+
+    .hero-headline .highlight {
+      background: linear-gradient(90deg, #F59E0B, #FBBF24);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: 14.5px;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 380px;
+      margin-bottom: 36px;
+    }
+
+    /* Feature list */
+    .feature-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .fi-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: var(--amber);
+      flex-shrink: 0;
+    }
+
+    /* System status pills */
+    .system-status-bar {
+      position: absolute;
+      bottom: 28px;
+      left: 64px;
+      right: 64px;
+      display: flex;
+      gap: 8px;
+      z-index: 2;
+      flex-wrap: wrap;
+    }
+
+    .sys-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
+      font-size: 10.5px;
+      color: var(--muted);
+    }
+
+    .sys-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+      animation: pulse-glow 2s infinite;
+    }
+
+    @keyframes pulse-glow {
+
+      0%,
+      100% {
+        box-shadow: 0 0 6px var(--green);
+      }
+
+      50% {
+        box-shadow: 0 0 12px var(--green);
+      }
+    }
+
+    /* ===================== RIGHT LOGIN PANEL ===================== */
+    .login-right {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 48px 64px;
+      overflow-y: auto;
+    }
+
+    .login-form-container {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    /* Entry animation */
+    .fade-up {
+      animation: fadeUp 0.45s cubic-bezier(0.34, 1.3, 0.64, 1) both;
+    }
+
+    .fade-up-d1 {
+      animation-delay: 0.08s;
+    }
+
+    .fade-up-d2 {
+      animation-delay: 0.16s;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .form-heading {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 6px;
+      letter-spacing: -0.4px;
+    }
+
+    .form-subheading {
+      font-size: 13.5px;
+      color: var(--muted);
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    /* Security badge */
+    .security-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--green);
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: var(--radius-pill);
+      padding: 3px 10px;
+      margin-bottom: 28px;
+    }
+
+    /* Inline error banner */
+    .error-banner {
+      display: none;
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      border-radius: var(--radius-md);
+      padding: 11px 14px;
+      font-size: 13px;
+      color: #FCA5A5;
+      margin-bottom: 20px;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.5;
+    }
+
+    .error-banner.visible {
+      display: flex;
+    }
+
+    .error-banner i {
+      color: var(--red);
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+
+    /* Field groups */
+    .field-group {
+      margin-bottom: 18px;
+    }
+
+    .field-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 7px;
+    }
+
+    .field-label a {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--amber);
+      text-decoration: none;
+      text-transform: none;
+      letter-spacing: 0;
+      transition: var(--transition);
+    }
+
+    .field-label a:hover {
+      color: #FBBF24;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--dim);
+      font-size: 14px;
+      pointer-events: none;
+      transition: var(--transition);
+    }
+
+    .field-input {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 13px 48px 13px 42px;
+      font-size: 14px;
+      color: var(--text);
+      font-family: inherit;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .field-input::placeholder {
+      color: var(--dim);
+    }
+
+    .field-input:focus {
+      border-color: var(--amber);
+      box-shadow: 0 0 0 3px var(--amber-glow);
+      background: #1f2535;
+    }
+
+    .input-wrap:focus-within .input-icon {
+      color: var(--amber);
+    }
+
+    /* Password toggle */
+    .pw-toggle {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid transparent;
+      border-radius: 6px;
+      color: var(--dim);
+      cursor: pointer;
+      font-size: 15px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 25;
+      padding: 0;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: var(--transition);
+    }
+
+    .pw-toggle:hover,
+    .pw-toggle:focus {
+      color: var(--amber);
+      background: rgba(245, 158, 11, 0.12);
+      border-color: rgba(245, 158, 11, 0.25);
+      outline: none;
+    }
+
+    .pw-toggle.active {
+      color: var(--amber);
+      background: rgba(245, 158, 11, 0.18);
+      border-color: rgba(245, 158, 11, 0.4);
+    }
+
+    /* Remember me */
+    .remember-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .remember-checkbox {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      accent-color: var(--amber);
+      cursor: pointer;
+    }
+
+    .remember-label {
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* Submit button */
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, #F59E0B, #D97706);
+      color: #0D0F12;
+      font-size: 14.5px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      letter-spacing: 0.2px;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      box-shadow: 0 4px 20px rgba(245, 158, 11, 0.35);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-login::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+      pointer-events: none;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 28px rgba(245, 158, 11, 0.5);
+    }
+
+    .btn-login:active {
+      transform: translateY(0);
+    }
+
+    .btn-login:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Spinner inside button */
+    .btn-spinner {
+      display: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(13, 15, 18, 0.3);
+      border-top-color: #0D0F12;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .btn-login.loading .btn-text {
+      display: none;
+    }
+
+    .btn-login.loading .btn-spinner {
+      display: block;
+    }
+
+    /* Footer */
+    .form-footer {
+      text-align: center;
+      font-size: 11.5px;
+      color: var(--dim);
+      margin-top: 24px;
+      line-height: 1.7;
+    }
+
+    .form-footer a {
+      color: var(--amber);
+      text-decoration: none;
+    }
+
+    .form-footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Divider */
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: var(--border);
+      margin: 24px 0;
+    }
+
+    /* Support contact */
+    .support-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--dim);
+    }
+
+    .support-row i {
+      font-size: 11px;
+    }
+
+    /* Shake animation on wrong creds */
+    @keyframes shake {
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      20% {
+        transform: translateX(-7px);
+      }
+
+      40% {
+        transform: translateX(7px);
+      }
+
+      60% {
+        transform: translateX(-5px);
+      }
+
+      80% {
+        transform: translateX(5px);
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      body {
+        grid-template-columns: 1fr;
+      }
+
+      .login-left {
+        display: none;
+      }
+
+      .login-right {
+        padding: 40px 24px;
+      }
+    }
+  </style>
+</head>
+
+<body th:style="'background-image: url(' + @{/images/login-background/login-bg.jpg} + ')'">
+
+  <!-- ==================== LEFT BRANDING PANEL ==================== -->
+  <div class="login-left" role="complementary" aria-label="PartsHub product information">
+    <div class="circuit-overlay" aria-hidden="true"></div>
+
+    <div class="brand-area">
+      <div class="brand-logo-row">
+        <div class="brand-icon" aria-hidden="true">
+          <i class="fa-solid fa-microchip"></i>
+        </div>
+        <div class="brand-wordmark">
+          <span class="brand-name">
+            PartsHub
+            <span class="brand-ver">v2.4</span>
+          </span>
+          <span class="brand-tagline">Spare Parts ERP System</span>
+        </div>
+      </div>
+
+      <h1 class="hero-headline">
+        Enterprise-grade<br>
+        <span class="highlight">Procurement Intelligence</span><br>
+        at your fingertips.
+      </h1>
+
+      <p class="hero-sub">
+        A unified internal platform to track inventory, streamline purchase orders, and monitor supplier performance in
+        real time.
+      </p>
+    </div>
+
+    <div class="feature-list">
+      <div class="feature-item">
+        <div class="fi-icon" aria-hidden="true"><i class="fa-solid fa-boxes-stacked"></i></div>
+        <span>Real-time inventory &amp; warehouse tracking across 1,400+ SKUs</span>
+      </div>
+      <div class="feature-item">
+        <div class="fi-icon" aria-hidden="true"><i class="fa-solid fa-ranking-star"></i></div>
+        <span>Automated supplier performance scoring &amp; tier benchmarking</span>
+      </div>
+      <div class="feature-item">
+        <div class="fi-icon" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i></div>
+        <span>Role-based access control — every stakeholder sees only what they need</span>
+      </div>
+      <div class="feature-item">
+        <div class="fi-icon" aria-hidden="true"><i class="fa-solid fa-database"></i></div>
+        <span>MS SQL Server 2022 &middot; Spring Boot v3.2 &middot; Thymeleaf MVC</span>
+      </div>
+    </div>
+
+    <!-- System status bar -->
+    <div class="system-status-bar" aria-label="System status">
+      <div class="sys-pill">
+        <span class="sys-dot" aria-hidden="true"></span>
+        Spring Boot v3.2.3
+      </div>
+      <div class="sys-pill">
+        <span class="sys-dot" aria-hidden="true"></span>
+        MS SQL Server 2022
+      </div>
+      <div class="sys-pill">
+        <span class="sys-dot" aria-hidden="true"></span>
+        System Online
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== RIGHT LOGIN PANEL ==================== -->
+  <main class="login-right">
+    <div class="login-form-container">
+
+      <div class="fade-up">
+        <h2 class="form-heading">Welcome back</h2>
+        <p class="form-subheading">
+          Sign in with your employee credentials to access your dashboard.
+        </p>
+        <div class="security-badge">
+          <i class="fa-solid fa-lock" style="font-size:9px;"></i>
+          Secured by Spring Security &mdash; TLS encrypted session
+        </div>
+      </div>
+
+      <!-- Inline error banner — shown on failed authentication -->
+      <div class="error-banner" id="errorBanner" role="alert" aria-live="polite">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span id="errorText">
+          The credentials you entered are incorrect. Please check your Employee ID and password and try again.
+        </span>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" novalidate autocomplete="on" class="fade-up fade-up-d1">
+
+        <!-- Employee ID / Username -->
+        <div class="field-group">
+          <label class="field-label" for="username">Employee ID / Username</label>
+          <div class="input-wrap">
+            <i class="fa-solid fa-id-badge input-icon" aria-hidden="true"></i>
+            <input type="text" id="username" name="username" class="field-input" placeholder="e.g. perera, yuresh, or indrathilake"
+              autocomplete="username" spellcheck="false" required />
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="field-group">
+          <label class="field-label" for="password">
+            Password
+            <a href="#" id="forgotPwLink" tabindex="0">Forgot password?</a>
+          </label>
+          <div class="input-wrap">
+            <i class="fa-solid fa-lock input-icon" aria-hidden="true"></i>
+            <input type="password" id="password" name="password" class="field-input" placeholder="Enter your password"
+              autocomplete="current-password" required />
+            <button type="button" class="pw-toggle" id="pwToggle" title="Show password"
+              aria-label="Toggle password visibility" onclick="togglePasswordVisibility(event)">
+              <i class="fa-solid fa-eye" id="pwIcon" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Remember me -->
+        <div class="remember-row">
+          <input type="checkbox" id="rememberMe" name="rememberMe" class="remember-checkbox">
+          <label for="rememberMe" class="remember-label">Keep me signed in on this device</label>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-login" id="btnLogin">
+          <span class="btn-text">
+            <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
+            Sign In
+          </span>
+          <span class="btn-spinner" aria-hidden="true"></span>
+        </button>
+
+      </form>
+
+      <div class="divider" role="separator"></div>
+
+      <div class="support-row fade-up fade-up-d2">
+        <i class="fa-regular fa-circle-question" aria-hidden="true"></i>
+        <span>Need access? Contact your system administrator or</span>
+        <a href="mailto:it@partshub.local" style="color:var(--amber);text-decoration:none;font-size:12px;">IT
+          Support</a>
+      </div>
+
+      <p class="form-footer">
+        &copy; 2024 PartsHub Enterprise &mdash;
+        <a href="#">Privacy Policy</a> &middot;
+        <a href="#">Terms of Use</a>
+      </p>
+
+    </div>
+  </main>
+
+  <!-- Auth Manager -->
+  <script src="auth.js"></script>
+
+  <script>
+    (function () {
+      "use strict";
+
+      /* ── If already authenticated, go straight to their landing page ── */
+      var existing = PartsHub.getSession();
+      if (existing && !window.location.search.includes("switch=true")) {
+        window.location.replace(existing.landingPage);
+        return;
+      }
+
+      /* ── Password visibility toggle ── */
+      window.togglePasswordVisibility = function (e) {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        var pw = document.getElementById("password");
+        var icon = document.getElementById("pwIcon");
+        var btn = document.getElementById("pwToggle");
+        if (!pw) return;
+
+        if (pw.type === "password") {
+          pw.type = "text";
+          if (icon) {
+            icon.className = "fa-solid fa-eye-slash";
+          }
+          if (btn) {
+            btn.classList.add("active");
+            btn.setAttribute("title", "Hide password");
+            btn.setAttribute("aria-label", "Hide password");
+          }
+        } else {
+          pw.type = "password";
+          if (icon) {
+            icon.className = "fa-solid fa-eye";
+          }
+          if (btn) {
+            btn.classList.remove("active");
+            btn.setAttribute("title", "Show password");
+            btn.setAttribute("aria-label", "Show password");
+          }
+        }
+        pw.focus();
+      };
+
+      var pwBtn = document.getElementById("pwToggle");
+      if (pwBtn) {
+        pwBtn.addEventListener("click", window.togglePasswordVisibility);
+        pwBtn.addEventListener("touchend", function (e) {
+          window.togglePasswordVisibility(e);
+        });
+      }
+
+      /* ── Forgot password ── */
+      var forgotLink = document.getElementById("forgotPwLink");
+      if (forgotLink) {
+        forgotLink.addEventListener("click", function (e) {
+          e.preventDefault();
+          alert("Please contact your system administrator or IT Support (it@partshub.local) to reset your password.");
+        });
+      }
+
+      /* ── Login form submit ── */
+      document.getElementById("loginForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        var username = document.getElementById("username").value.trim().toLowerCase();
+        var password = document.getElementById("password").value;
+        var banner = document.getElementById("errorBanner");
+        var btn = document.getElementById("btnLogin");
+
+        // Hide any previous error
+        banner.classList.remove("visible");
+
+        // Basic client-side empty check
+        if (!username || !password) {
+          showError("Please enter your Employee ID and password.");
+          return;
+        }
+
+        // Show loading state
+        btn.classList.add("loading");
+        btn.disabled = true;
+
+        function handleSuccess(roleKey) {
+          PartsHub.login(roleKey);
+          var session = PartsHub.getSession();
+          var destination = session ? session.landingPage : 'dashboard.html';
+          window.location.replace(destination);
+        }
+
+        function handleFailure() {
+          btn.classList.remove("loading");
+          btn.disabled = false;
+          showError("The credentials you entered are incorrect. Please check your Employee ID and password and try again.");
+          var pw = document.getElementById("password");
+          if (pw) {
+            pw.value = "";
+            pw.focus();
+          }
+        }
+
+        // Authenticate against Spring Boot API with client fallback
+        fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: username, password: password })
+        }).then(function (res) {
+          if (res.ok) return res.json();
+          throw new Error('Unauthorized');
+        }).then(function (data) {
+          handleSuccess(data.role);
+        }).catch(function () {
+          // Offline fallback to client auth
+          var role = PartsHub.authenticate(username, password);
+          if (role) {
+            handleSuccess(role);
+          } else {
+            handleFailure();
+          }
+        });
+      });
+
+      function showError(msg) {
+        var banner = document.getElementById("errorBanner");
+        var text = document.getElementById("errorText");
+        text.textContent = msg;
+        banner.classList.add("visible");
+        // Shake the form card
+        var form = document.getElementById("loginForm");
+        form.style.animation = "shake 0.4s ease";
+        setTimeout(function () { form.style.animation = ""; }, 400);
+      }
+
+      /* ── Quick autofill for Project Team Members ── */
+      window.autofillLogin = function (username, password, autoSubmit) {
+        var u = document.getElementById("username");
+        var p = document.getElementById("password");
+        var banner = document.getElementById("errorBanner");
+        if (banner) banner.classList.remove("visible");
+        if (u && p) {
+          u.value = username;
+          p.value = password;
+          u.style.borderColor = "var(--amber)";
+          p.style.borderColor = "var(--amber)";
+          setTimeout(function () {
+            u.style.borderColor = "";
+            p.style.borderColor = "";
+          }, 600);
+          if (autoSubmit) {
+            var form = document.getElementById("loginForm");
+            if (form) {
+              if (typeof form.requestSubmit === "function") {
+                form.requestSubmit();
+              } else {
+                form.dispatchEvent(new Event("submit", { cancelable: true }));
+              }
+            }
+          } else {
+            p.focus();
+          }
+        }
+      };
+
+    })();
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Promotional Campaigns - PartsHub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #0F172A;
+            --bg-card: #1E293B;
+            --border-subtle: #334155;
+            --text-main: #F8FAFC;
+            --text-dim: #94A3B8;
+            --primary: #38BDF8;
+            --accent: #F59E0B;
+            --danger: #EF4444;
+            --success: #10B981;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 24px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .btn {
+            background-color: var(--primary);
+            color: #0F172A;
+            font-weight: 600;
+            padding: 10px 18px;
+            border-radius: 6px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-secondary {
+            background-color: var(--border-subtle);
+            color: var(--text-main);
+        }
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        th {
+            color: var(--text-dim);
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-ACTIVE { background: rgba(16, 185, 129, 0.2); color: #34D399; }
+        .badge-UPCOMING { background: rgba(56, 189, 248, 0.2); color: #7DD3FC; }
+        .badge-EXPIRED { background: rgba(148, 163, 184, 0.2); color: #94A3B8; }
+        .badge-CANCELLED { background: rgba(239, 68, 68, 0.2); color: #F87171; }
+        .alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+        .alert-success { background: rgba(16, 185, 129, 0.2); border: 1px solid var(--success); color: #34D399; }
+        .alert-error { background: rgba(239, 68, 68, 0.2); border: 1px solid var(--danger); color: #F87171; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <a href="/dashboard" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+            <h1 style="display:inline-block; margin-left: 16px;">Promotional Campaigns</h1>
+        </div>
+        <a href="/campaigns/create" class="btn"><i class="fa-solid fa-plus"></i> New Campaign</a>
+    </div>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Discount</th>
+                    <th>Target Products</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="c : ${campaigns}">
+                    <td th:text="${c.campaignId}">1</td>
+                    <td th:text="${c.campaignName}" style="font-weight:600;">Summer Sale</td>
+                    <td th:text="${c.discountPercentage + '%'}">10%</td>
+                    <td th:text="${c.selectedProducts}">CPUs</td>
+                    <td th:text="${c.startDate}">2026-06-01</td>
+                    <td th:text="${c.endDate}">2026-06-30</td>
+                    <td>
+                        <span class="badge" th:classappend="'badge-' + ${c.status}" th:text="${c.status}">ACTIVE</span>
+                    </td>
+                    <td>
+                        <a th:href="@{'/campaigns/' + ${c.campaignId}}" class="btn btn-secondary" style="padding: 4px 10px; font-size:12px;">View</a>
+                        <a th:href="@{'/campaigns/' + ${c.campaignId} + '/edit'}" class="btn" style="padding: 4px 10px; font-size:12px;">Edit</a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(campaigns)}">
+                    <td colspan="8" style="text-align:center; color: var(--text-dim); padding: 24px;">No campaigns found. Click "New Campaign" to create one.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventory Management | PartsHub Enterprise</title>
+  
+  <!-- Modern Typography: Inter & Segoe UI Stack -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome 6 Iconography via CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <style>
+    /* ==========================================================================
+       PARTSHUB ENTERPRISE DESIGN SYSTEM & CSS VARIABLES
+       ========================================================================== */
+    :root {
+      --bg-canvas: #0D0F12;
+      --bg-panel: #161A20;
+      --bg-card: #1D222E;
+      --bg-card-hover: #232A39;
+      --bg-input: #12151B;
+      --border-subtle: #2A3243;
+      --border-light: #374151;
+      --border-accent: rgba(245, 158, 11, 0.4);
+
+      --accent-amber: #F59E0B;
+      --accent-amber-glow: rgba(245, 158, 11, 0.25);
+      --accent-amber-hover: #D97706;
+      
+      --color-positive: #10B981;
+      --color-positive-bg: rgba(16, 185, 129, 0.12);
+      --color-positive-border: rgba(16, 185, 129, 0.3);
+      
+      --color-negative: #EF4444;
+      --color-negative-bg: rgba(239, 68, 68, 0.12);
+      --color-negative-border: rgba(239, 68, 68, 0.3);
+      
+      --color-info: #3B82F6;
+      --color-info-bg: rgba(59, 130, 246, 0.12);
+      --color-info-border: rgba(59, 130, 246, 0.3);
+      
+      --color-average: #F59E0B;
+      --color-average-bg: rgba(245, 158, 11, 0.12);
+      --color-average-border: rgba(245, 158, 11, 0.3);
+
+      --text-main: #F1F5F9;
+      --text-muted: #94A3B8;
+      --text-dim: #64748B;
+      --text-highlight: #FFFFFF;
+
+      --sidebar-width: 270px;
+      --topbar-height: 70px;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --radius-pill: 9999px;
+      --shadow-elevation: 0 10px 30px -5px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-subtle);
+      --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px var(--border-subtle);
+      --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-canvas);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-canvas); }
+    ::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: var(--radius-pill); }
+    ::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+
+    /* ==========================================================================
+       SIDEBAR NAVIGATION
+       ========================================================================== */
+    .sidebar {
+      width: var(--sidebar-width);
+      background-color: var(--bg-panel);
+      border-right: 1px solid var(--border-subtle);
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      transition: var(--transition-smooth);
+    }
+
+    .brand-container {
+      height: var(--topbar-height);
+      display: flex;
+      align-items: center;
+      padding: 0 22px;
+      border-bottom: 1px solid var(--border-subtle);
+      gap: 12px;
+    }
+
+    .brand-icon-box {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, #F59E0B 0%, #B45309 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0D0F12;
+      font-size: 18px;
+      box-shadow: 0 0 16px var(--accent-amber-glow);
+    }
+
+    .brand-text { display: flex; flex-direction: column; }
+    .brand-title {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: var(--text-highlight);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .brand-version {
+      font-size: 10px;
+      padding: 1px 6px;
+      background-color: rgba(245, 158, 11, 0.15);
+      color: var(--accent-amber);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: var(--radius-pill);
+      font-weight: 600;
+    }
+    .brand-subtitle { font-size: 11px; color: var(--text-dim); }
+
+    .sidebar-menu-wrapper {
+      flex: 1;
+      padding: 20px 14px;
+      overflow-y: auto;
+    }
+
+    .nav-category-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-dim);
+      padding: 0 12px 10px 12px;
+      display: block;
+    }
+
+    .sidebar-menu { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+    .nav-item { position: relative; }
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 11px 14px;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: var(--radius-md);
+      font-weight: 500;
+      font-size: 13.5px;
+      transition: var(--transition-smooth);
+    }
+    .nav-link i { font-size: 15px; width: 20px; text-align: center; color: var(--text-dim); transition: var(--transition-smooth); }
+    .nav-link:hover { background-color: var(--bg-card); color: var(--text-highlight); }
+    .nav-link:hover i { color: var(--accent-amber); }
+
+    .nav-item.active .nav-link {
+      background: linear-gradient(90deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.03) 100%);
+      color: var(--accent-amber);
+      font-weight: 600;
+      border-left: 3px solid var(--accent-amber);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    }
+    .nav-item.active .nav-link i { color: var(--accent-amber); filter: drop-shadow(0 0 8px var(--accent-amber-glow)); }
+
+    .nav-badge {
+      margin-left: auto;
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: var(--radius-pill);
+      background: var(--bg-canvas);
+      color: var(--text-dim);
+      border: 1px solid var(--border-subtle);
+    }
+    .nav-item.active .nav-badge {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--accent-amber);
+      border-color: rgba(245, 158, 11, 0.4);
+    }
+
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid var(--border-subtle);
+      background-color: rgba(18, 21, 27, 0.6);
+    }
+    .system-status-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 11px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .status-row { display: flex; align-items: center; justify-content: space-between; font-size: 11px; }
+    .status-indicator { display: flex; align-items: center; gap: 6px; color: var(--text-muted); }
+    .pulse-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background-color: var(--color-positive);
+      box-shadow: 0 0 8px var(--color-positive);
+      position: relative;
+    }
+
+    /* ==========================================================================
+       APP MAIN & TOP BAR
+       ========================================================================== */
+    .app-main {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--bg-canvas);
+      min-height: 100vh;
+    }
+
+    .top-bar {
+      height: var(--topbar-height);
+      background-color: var(--bg-panel);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+      backdrop-filter: blur(10px);
+    }
+
+    .breadcrumbs { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--text-muted); }
+    .breadcrumbs a { color: var(--text-dim); text-decoration: none; transition: var(--transition-smooth); }
+    .breadcrumbs a:hover { color: var(--text-highlight); }
+    .breadcrumbs .crumb-sep { color: var(--text-dim); font-size: 10px; }
+    .breadcrumbs .current { color: var(--text-highlight); font-weight: 600; }
+
+    .top-bar-actions { display: flex; align-items: center; gap: 18px; }
+    .session-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 12px;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-pill);
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .icon-button {
+      width: 38px; height: 38px; border-radius: var(--radius-md);
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; position: relative; transition: var(--transition-smooth);
+    }
+    .icon-button:hover { border-color: var(--border-light); color: var(--text-highlight); }
+    .badge-counter {
+      position: absolute; top: -3px; right: -3px;
+      width: 17px; height: 17px; border-radius: 50%;
+      background-color: var(--accent-amber);
+      color: #0D0F12; font-size: 9.5px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .user-profile-widget {
+      display: flex; align-items: center; gap: 12px;
+      padding-left: 12px; border-left: 1px solid var(--border-subtle);
+    }
+    .user-avatar-box { position: relative; }
+    .user-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+      border: 2px solid var(--accent-amber);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; color: var(--accent-amber); font-weight: 700;
+    }
+    .user-online-pip {
+      position: absolute; bottom: 0; right: 0;
+      width: 10px; height: 10px; border-radius: 50%;
+      background-color: var(--color-positive);
+      border: 2px solid var(--bg-panel);
+    }
+    .user-details { display: flex; flex-direction: column; }
+    .user-name-title { font-size: 12.5px; font-weight: 600; color: var(--text-highlight); line-height: 1.2; }
+    .user-role-label { font-size: 11px; color: var(--accent-amber); font-weight: 500; }
+
+    /* ==========================================================================
+       CONTENT CANVAS
+       ========================================================================== */
+    .content-canvas {
+      padding: 30px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      max-width: 1600px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Page Header */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      background: linear-gradient(180deg, rgba(22, 26, 32, 0.6) 0%, rgba(22, 26, 32, 0.2) 100%);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 24px 28px;
+    }
+    .page-header-info { display: flex; flex-direction: column; gap: 5px; }
+    .page-header-pretitle {
+      font-size: 12px; font-weight: 600; letter-spacing: 0.8px;
+      text-transform: uppercase; color: var(--accent-amber);
+      display: flex; align-items: center; gap: 7px;
+    }
+    .page-header-title { font-size: 26px; font-weight: 800; color: var(--text-highlight); letter-spacing: -0.5px; }
+    .page-header-subtitle { font-size: 13.5px; color: var(--text-muted); max-width: 650px; }
+
+    .btn-action-primary {
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+      color: #0D0F12; border: none; padding: 12px 22px;
+      border-radius: var(--radius-md); font-size: 14px; font-weight: 700;
+      display: inline-flex; align-items: center; gap: 10px;
+      cursor: pointer; transition: var(--transition-smooth);
+      box-shadow: 0 4px 18px var(--accent-amber-glow);
+    }
+    .btn-action-primary:hover {
+      background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(245, 158, 11, 0.4);
+    }
+
+    /* KPI Row */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+    .kpi-card {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: var(--shadow-elevation);
+      transition: var(--transition-smooth);
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-card:hover { transform: translateY(-3px); border-color: var(--border-light); }
+    .kpi-header { display: flex; align-items: center; justify-content: space-between; }
+    .kpi-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-dim); }
+    .kpi-icon-box {
+      width: 36px; height: 36px; border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .kpi-icon-amber { background: rgba(245, 158, 11, 0.12); color: var(--accent-amber); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .kpi-icon-green { background: var(--color-positive-bg); color: var(--color-positive); border: 1px solid var(--color-positive-border); }
+    .kpi-icon-red { background: var(--color-negative-bg); color: var(--color-negative); border: 1px solid var(--color-negative-border); }
+    .kpi-icon-blue { background: var(--color-info-bg); color: var(--color-info); border: 1px solid var(--color-info-border); }
+
+    .kpi-value-row { display: flex; align-items: baseline; gap: 8px; }
+    .kpi-value { font-size: 28px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--text-highlight); }
+    .kpi-meta { font-size: 11.5px; color: var(--text-dim); display: flex; align-items: center; gap: 5px; }
+
+    /* Filter Toolbar */
+    .filter-toolbar {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .search-box-wrapper { position: relative; flex: 1; min-width: 260px; max-width: 440px; }
+    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-dim); font-size: 14px; }
+    .input-search {
+      width: 100%; background-color: var(--bg-input);
+      border: 1px solid var(--border-subtle); color: var(--text-main);
+      padding: 10px 14px 10px 40px; border-radius: var(--radius-md);
+      font-size: 13.5px; outline: none; transition: var(--transition-smooth);
+    }
+    .input-search:focus { border-color: var(--accent-amber); box-shadow: 0 0 0 3px var(--accent-amber-glow); }
+    .controls-group { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .filter-label-text { font-size: 12px; color: var(--text-dim); font-weight: 600; text-transform: uppercase; }
+    .select-dropdown {
+      background-color: var(--bg-input); border: 1px solid var(--border-subtle);
+      color: var(--text-main); padding: 9px 34px 9px 14px;
+      border-radius: var(--radius-md); font-size: 13px; outline: none; cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394A3B8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 10px center; background-size: 14px;
+    }
+    .select-dropdown:focus { border-color: var(--accent-amber); }
+    .active-count-indicator {
+      font-size: 12px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;
+      padding: 6px 12px; background-color: var(--bg-card); border-radius: var(--radius-pill);
+      border: 1px solid var(--border-subtle);
+    }
+
+    /* Table */
+    .table-container-card {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-elevation);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .table-responsive { overflow-x: auto; width: 100%; }
+    .data-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13.5px; }
+    .data-table thead { background-color: #12151B; border-bottom: 1px solid var(--border-subtle); }
+    .data-table th {
+      padding: 14px 18px; font-weight: 600; color: var(--text-dim);
+      font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.6px; white-space: nowrap;
+    }
+    .data-table th.th-numeric { text-align: right; }
+    .data-table th.th-center { text-align: center; }
+    .data-table tbody tr { border-bottom: 1px solid rgba(42, 50, 67, 0.45); transition: var(--transition-smooth); }
+    .data-table tbody tr:hover { background-color: var(--bg-card); }
+    .data-table td { padding: 16px 18px; vertical-align: middle; color: var(--text-main); }
+    .data-table td.td-numeric { text-align: right; font-family: 'JetBrains Mono', monospace; }
+    .data-table td.td-center { text-align: center; }
+
+    .part-icon-box {
+      width: 36px; height: 36px; border-radius: var(--radius-sm);
+      background-color: var(--bg-card); border: 1px solid var(--border-subtle);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent-amber); font-size: 15px;
+    }
+    .part-thumb-wrap {
+      width: 44px; height: 44px; border-radius: var(--radius-md);
+      background-color: var(--bg-card); border: 1px solid var(--border-subtle);
+      overflow: hidden; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: var(--transition-smooth);
+    }
+    .part-thumb-wrap:hover {
+      border-color: var(--accent-amber); transform: scale(1.05);
+      box-shadow: 0 0 12px var(--accent-amber-glow);
+    }
+    .part-thumb-img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .part-title { font-weight: 600; color: var(--text-highlight); font-size: 14px; }
+    .part-sku { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--text-dim); }
+
+    .category-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 9px; border-radius: var(--radius-pill);
+      font-size: 11px; font-weight: 600; background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle); color: var(--text-muted);
+    }
+    .location-badge {
+      font-size: 12px; color: var(--text-muted); display: inline-flex; align-items: center; gap: 5px;
+    }
+
+    /* Status Pills */
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 3px 10px; border-radius: var(--radius-pill);
+      font-size: 11.5px; font-weight: 600;
+    }
+    .status-pill.in-stock { background-color: var(--color-positive-bg); color: var(--color-positive); border: 1px solid var(--color-positive-border); }
+    .status-pill.low-stock { background-color: var(--color-average-bg); color: var(--color-average); border: 1px solid var(--color-average-border); }
+    .status-pill.out-of-stock { background-color: var(--color-negative-bg); color: var(--color-negative); border: 1px solid var(--color-negative-border); }
+    .status-dot-sm { width: 6px; height: 6px; border-radius: 50%; background-color: currentColor; }
+
+    .btn-view-details {
+      background-color: var(--bg-card); border: 1px solid var(--border-subtle);
+      color: var(--text-muted); padding: 6px 12px; border-radius: var(--radius-md);
+      font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex;
+      align-items: center; gap: 6px; transition: var(--transition-smooth);
+    }
+    .btn-view-details:hover { border-color: var(--accent-amber); color: var(--accent-amber); background-color: rgba(245, 158, 11, 0.08); }
+
+    .table-footer-bar {
+      padding: 14px 22px; display: flex; align-items: center;
+      justify-content: space-between; border-top: 1px solid var(--border-subtle);
+      background-color: #12151B; font-size: 12.5px; color: var(--text-dim);
+    }
+
+    /* ==========================================================================
+       MODAL POPUP
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(13, 15, 18, 0.85); backdrop-filter: blur(8px);
+      z-index: 1000; display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 20px;
+    }
+    .modal-backdrop.open { opacity: 1; pointer-events: auto; }
+    .modal-dialog {
+      background-color: var(--bg-panel); border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg); width: 100%; max-width: 680px;
+      box-shadow: var(--shadow-modal); transform: scale(0.94) translateY(10px);
+      transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex; flex-direction: column; overflow: hidden;
+      border-top: 3px solid var(--accent-amber);
+    }
+    .modal-backdrop.open .modal-dialog { transform: scale(1) translateY(0); }
+    .modal-header {
+      padding: 20px 24px; border-bottom: 1px solid var(--border-subtle);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-title-group { display: flex; align-items: center; gap: 10px; }
+    .modal-title-icon {
+      width: 34px; height: 34px; border-radius: var(--radius-md);
+      background-color: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3);
+      color: var(--accent-amber); display: flex; align-items: center; justify-content: center; font-size: 15px;
+    }
+    .modal-title { font-size: 17px; font-weight: 700; color: var(--text-highlight); }
+    .btn-modal-close {
+      background: none; border: none; color: var(--text-dim); font-size: 18px;
+      cursor: pointer; width: 32px; height: 32px; border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center; transition: var(--transition-smooth);
+    }
+    .btn-modal-close:hover { background-color: var(--bg-card); color: var(--text-highlight); }
+
+    .modal-body {
+      padding: 24px; display: flex; flex-direction: column;
+      gap: 16px; overflow-y: auto; max-height: calc(85vh - 140px);
+    }
+    .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 7px; }
+    .form-label { font-size: 12.5px; font-weight: 600; color: var(--text-muted); }
+    .form-control {
+      background-color: var(--bg-input); border: 1px solid var(--border-subtle);
+      color: var(--text-main); padding: 10px 14px; border-radius: var(--radius-md);
+      font-size: 13.5px; outline: none; transition: var(--transition-smooth); width: 100%;
+    }
+    .form-control:focus { border-color: var(--accent-amber); box-shadow: 0 0 0 3px var(--accent-amber-glow); }
+    .form-control[readonly] { background-color: rgba(18, 21, 27, 0.5); color: var(--accent-amber); font-family: 'JetBrains Mono', monospace; }
+
+    .modal-footer {
+      padding: 16px 24px; border-top: 1px solid var(--border-subtle);
+      background-color: #12151B; display: flex; align-items: center; justify-content: flex-end; gap: 12px;
+    }
+    .btn-secondary {
+      background-color: transparent; border: 1px solid var(--border-subtle);
+      color: var(--text-muted); padding: 10px 18px; border-radius: var(--radius-md);
+      font-size: 13.5px; font-weight: 600; cursor: pointer; transition: var(--transition-smooth);
+    }
+    .btn-secondary:hover { border-color: var(--border-light); color: var(--text-highlight); background-color: var(--bg-card); }
+    .btn-save-action {
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+      border: none; color: #0D0F12; padding: 10px 22px;
+      border-radius: var(--radius-md); font-size: 13.5px; font-weight: 700;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+      box-shadow: 0 4px 14px var(--accent-amber-glow); transition: var(--transition-smooth);
+    }
+    .btn-save-action:hover { background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%); transform: translateY(-1px); }
+
+    /* Toast */
+    .toast-notification {
+      position: fixed; bottom: 24px; right: 24px;
+      background-color: var(--bg-panel); border: 1px solid var(--color-positive);
+      border-radius: var(--radius-md); padding: 14px 20px;
+      display: flex; align-items: center; gap: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7); z-index: 2000;
+      transform: translateY(100px); opacity: 0; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .toast-notification.show { transform: translateY(0); opacity: 1; }
+
+    @media (max-width: 1100px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 900px) {
+      .sidebar { width: 70px; }
+      .brand-title, .brand-subtitle, .nav-text, .nav-badge, .nav-category-label, .sidebar-footer { display: none; }
+      .brand-container { justify-content: center; padding: 0; }
+      .nav-link { justify-content: center; padding: 12px 0; }
+      .app-main { margin-left: 70px; }
+    }
+    @media (max-width: 640px) {
+      .kpi-grid { grid-template-columns: 1fr; }
+      .form-grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==========================================================================
+       SIDEBAR NAVIGATION (Inventory Active)
+       ========================================================================== -->
+  <aside class="sidebar">
+    <a th:href="@{/}" href="/" class="brand-container" style="text-decoration: none; color: inherit;" title="Return to PartsHub Storefront Home">
+      <div class="brand-icon-box"><i class="fa-solid fa-microchip"></i></div>
+      <div class="brand-text">
+        <div class="brand-title">PartsHub <span class="brand-version">v2.4</span></div>
+        <span class="brand-subtitle">Spare Parts ERP System</span>
+      </div>
+    </a>
+
+    <div class="sidebar-menu-wrapper">
+      <span class="nav-category-label">Core Modules</span>
+      <ul class="sidebar-menu" id="sidebar-menu-dynamic">
+        <!-- Dynamic nav items injected by auth.js -->
+      </ul>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="system-status-card">
+        <div class="status-row">
+          <div class="status-indicator">
+            <span class="pulse-dot"></span>
+            <span>Spring Boot MVC</span>
+          </div>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-dim);">v3.2.3</span>
+        </div>
+        <div class="status-row">
+          <span style="color: var(--text-dim); font-size: 10.5px;">MS SQL Server 2022</span>
+          <span style="color: var(--color-positive); font-weight: 600; font-size: 10.5px;">ONLINE</span>
+        </div>
+      </div>
+      <button type="button" class="sidebar-logout-btn" id="btn-sidebar-logout" title="Sign Out of Session">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        <span>Sign Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ==========================================================================
+       MAIN WRAPPER & TOP BAR
+       ========================================================================== -->
+  <main class="app-main">
+    <header class="top-bar">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a th:href="@{/}" href="/" title="Go to Storefront Home"><i class="fa-solid fa-house" style="font-size: 11px;"></i> Home</a>
+        <i class="fa-solid fa-chevron-right crumb-sep"></i>
+        <a href="inventory.html">Inventory</a>
+        <i class="fa-solid fa-chevron-right crumb-sep"></i>
+        <span class="current">Stock Tracking & Warehouses</span>
+      </nav>
+
+      <div class="top-bar-actions">
+        <div class="session-badge"><span class="pulse-dot" style="width:6px;height:6px;"></span><span id="topbar-session-label">Loading...</span>
+        </div>
+        <button class="icon-button" title="Alerts"><i class="fa-regular fa-bell"></i><span class="badge-counter">4</span></button>
+        <div class="user-profile-widget">
+          <div class="user-avatar-box">
+            <div class="user-avatar"><span id="topbar-user-initials">--</span></div>
+            <span class="user-online-pip"></span>
+          </div><span id="topbar-role-badge" style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:99px;border:1px solid;margin-left:6px;display:none;"></span>
+          <div class="user-details">
+            <span class="user-name-title" id="topbar-user-name">Loading...</span>
+            <span class="user-role-label" id="topbar-user-role">Loading...</span>
+          </div>
+        </div>
+        <button type="button" class="btn-topbar-logout" id="btn-logout" title="Sign Out of Session">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="content-canvas">
+      <!-- 1. Page Header -->
+      <section class="page-header">
+        <div class="page-header-info">
+          <div class="page-header-pretitle">
+            <i class="fa-solid fa-boxes-packing"></i>
+            Real-Time Stock Intelligence
+          </div>
+          <h1 class="page-header-title">Inventory Management</h1>
+          <p class="page-header-subtitle">
+            Real-time stock tracking across categories and warehouse locations with automated replenishment thresholds.
+          </p>
+        </div>
+        <div>
+          <button type="button" class="btn-action-primary" id="btnOpenAddModal">
+            <i class="fa-solid fa-plus"></i> Add New Item
+          </button>
+        </div>
+      </section>
+
+      <!-- 2. KPI Stat Cards (4) -->
+      <section class="kpi-grid" aria-label="Inventory Metrics">
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-title">Total Active SKUs</span>
+            <div class="kpi-icon-box kpi-icon-amber"><i class="fa-solid fa-barcode"></i></div>
+          </div>
+          <div class="kpi-value-row">
+            <span class="kpi-value" id="kpiActiveSkus" th:text="${items != null ? items.size() : '0'}">0</span>
+          </div>
+          <span class="kpi-meta"><i class="fa-solid fa-arrow-trend-up" style="color: var(--color-positive);"></i> Real-time active SKUs</span>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-title">Low Stock Alerts</span>
+            <div class="kpi-icon-box kpi-icon-amber"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          </div>
+          <div class="kpi-value-row">
+            <span class="kpi-value" id="kpiLowStock" style="color: var(--color-average);">0</span>
+          </div>
+          <span class="kpi-meta"><i class="fa-solid fa-bell" style="color: var(--color-average);"></i> Below reorder safety margins</span>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-title">Out of Stock Items</span>
+            <div class="kpi-icon-box kpi-icon-red"><i class="fa-solid fa-circle-xmark"></i></div>
+          </div>
+          <div class="kpi-value-row">
+            <span class="kpi-value" id="kpiOutOfStock" style="color: var(--color-negative);">0</span>
+          </div>
+          <span class="kpi-meta"><i class="fa-solid fa-circle-exclamation" style="color: var(--color-negative);"></i> Immediate supplier PO required</span>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-title">Total Inventory Value</span>
+            <div class="kpi-icon-box kpi-icon-green"><i class="fa-solid fa-coins"></i></div>
+          </div>
+          <div class="kpi-value-row">
+            <span class="kpi-value" id="kpiTotalValue" style="color: var(--color-positive); font-size: 20px;" th:text="${totalValue != null ? 'LKR ' + #numbers.formatDecimal(totalValue, 1, 'COMMA', 2, 'POINT') : 'LKR 0.00'}">LKR 0.00</span>
+          </div>
+          <span class="kpi-meta"><i class="fa-solid fa-check" style="color: var(--color-positive);"></i> Live inventory valuation (Qty x Unit Cost)</span>
+        </div>
+      </section>
+
+      <!-- 2.5. Pending Item Approvals (Executive Review) -->
+      <section class="table-container-card" id="pendingApprovalsCard" style="margin-bottom: 24px; border: 1px solid var(--accent-amber);">
+        <div style="padding: 16px 20px; background-color: var(--bg-panel); border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 32px; height: 32px; border-radius: 8px; background-color: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: var(--accent-amber); display: flex; align-items: center; justify-content: center;">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <div>
+              <h3 style="font-size: 15px; font-weight: 700; color: var(--text-highlight);">Pending Item Approvals (Executive Review)</h3>
+              <p style="font-size: 12px; color: var(--text-muted);">Newly added spare parts awaiting Business Owner approval before publishing to public catalog.</p>
+            </div>
+          </div>
+          <span class="active-count-indicator" style="background-color: var(--color-average-bg); color: var(--color-average); border-color: var(--color-average-border);" id="pendingCountBadge">0 Pending</span>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table" id="pendingApprovalsTable">
+            <thead>
+              <tr>
+                <th style="width: 60px;" class="th-center">Image</th>
+                <th>Part Name &amp; SKU</th>
+                <th style="width: 140px;">Category &amp; Brand</th>
+                <th style="width: 120px;" class="th-numeric">Price (LKR)</th>
+                <th style="width: 100px;" class="th-numeric">Initial Qty</th>
+                <th style="width: 120px;" class="th-center">Status</th>
+                <th style="width: 180px;" class="th-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="pendingApprovalsTableBody">
+              <tr><td colspan="7" style="text-align:center; padding: 20px; color: var(--text-muted);">Loading pending approval items...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 3. Filter Toolbar -->
+      <section class="filter-toolbar">
+        <div class="search-box-wrapper">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" id="searchInput" class="input-search" placeholder="Search by part name, SKU, or brand...">
+        </div>
+
+        <div class="controls-group">
+          <span class="filter-label-text">Category:</span>
+          <select id="categoryFilter" class="select-dropdown">
+            <option value="ALL">All Categories</option>
+            <option value="CPU">CPU / Processors</option>
+            <option value="GPU">GPU / Graphic Cards</option>
+            <option value="RAM">RAM / Memory</option>
+            <option value="Motherboard">Motherboards</option>
+            <option value="PSU">Power Supplies</option>
+            <option value="Storage">Storage (NVMe/SSD)</option>
+            <option value="Cooling">Cooling Solutions</option>
+            <option value="Peripherals">Peripherals</option>
+          </select>
+
+          <span class="filter-label-text">Status:</span>
+          <select id="statusFilter" class="select-dropdown">
+            <option value="ALL">All Stock Status</option>
+            <option value="IN_STOCK">In Stock</option>
+            <option value="LOW_STOCK">Low Stock</option>
+            <option value="OUT_OF_STOCK">Out of Stock</option>
+          </select>
+
+          <span class="filter-label-text">Sort:</span>
+          <select id="sortSelector" class="select-dropdown">
+            <option value="qty-desc">Highest Quantity</option>
+            <option value="qty-asc">Lowest Quantity</option>
+            <option value="val-desc">Highest Value</option>
+            <option value="name-asc">Part Name (A-Z)</option>
+          </select>
+
+          <div class="active-count-indicator">
+            <span id="filteredCount">8</span> of <span id="totalCount">8</span> Items
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Inventory Data Table -->
+      <section class="table-container-card">
+        <div class="table-responsive">
+          <table class="data-table" id="inventoryTable">
+            <thead>
+              <tr>
+                <th style="width: 60px;" class="th-center">Icon</th>
+                <th>Part Name & SKU</th>
+                <th style="width: 140px;">Category</th>
+                <th style="width: 170px;">Warehouse Location</th>
+                <th style="width: 110px;" class="th-numeric">Qty on Hand</th>
+                <th style="width: 110px;" class="th-numeric">Reorder Level</th>
+                <th style="width: 130px;" class="th-numeric">Unit Price (LKR)</th>
+                <th style="width: 140px;" class="th-numeric">Total Value</th>
+                <th style="width: 120px;" class="th-center">Status</th>
+                <th style="width: 90px;" class="th-center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="inventoryTableBody">
+              <!-- Item 1 -->
+              <tr data-category="CPU" data-status="IN_STOCK" data-qty="48" data-val="5280000" data-name="Intel Core i9-14900K Processor">
+                <td class="td-center">
+                  <div class="part-thumb-wrap">
+                    <img th:src="@{'/images/products/CPU-INT-1490K.jpg'}" src="/images/products/CPU-INT-1490K.jpg" alt="Intel Core i9" class="part-thumb-img" onerror="this.onerror=null; this.src='/images/placeholder.png';">
+                  </div>
+                </td>
+                <td>
+                  <div class="part-title">Intel Core i9-14900K Processor</div>
+                  <div class="part-sku">SKU: CPU-INT-1490K &bull; Supplier: Tech Lanka Pvt Ltd</div>
+                </td>
+                <td><span class="category-badge"><i class="fa-solid fa-microchip"></i> CPU</span></td>
+                <td><span class="location-badge"><i class="fa-solid fa-warehouse"></i> Colombo WH-A (Bin 04)</span></td>
+                <td class="td-numeric" style="font-weight: 700; color: var(--color-positive);">48</td>
+                <td class="td-numeric" style="color: var(--text-dim);">10</td>
+                <td class="td-numeric">110,000</td>
+                <td class="td-numeric" style="color: var(--text-highlight); font-weight: 700;">5,280,000</td>
+                <td class="td-center"><span class="status-pill in-stock"><span class="status-dot-sm"></span>In Stock</span></td>
+                <td class="td-center"><button class="btn-view-details" onclick="quickView('Intel Core i9-14900K', 'CPU-INT-1490K')"><i class="fa-regular fa-eye"></i> View</button></td>
+              </tr>
+
+              <!-- Item 2 -->
+              <tr data-category="GPU" data-status="LOW_STOCK" data-qty="4" data-val="1480000" data-name="ASUS ROG Strix RTX 4080 OC 16GB">
+                <td class="td-center">
+                  <div class="part-thumb-wrap">
+                    <img th:src="@{'/images/products/GPU-ASUS-4080.jpg'}" src="/images/products/GPU-ASUS-4080.jpg" alt="ASUS ROG Strix RTX 4080" class="part-thumb-img" onerror="this.onerror=null; this.src='/images/placeholder.png';">
+                  </div>
+                </td>
+                <td>
+                  <div class="part-title">ASUS ROG Strix RTX 4080 OC 16GB</div>
+                  <div class="part-sku">SKU: GPU-ASUS-4080 &bull; Supplier: PC World Suppliers</div>
+                </td>
+                <td><span class="category-badge"><i class="fa-solid fa-film"></i> GPU</span></td>
+                <td><span class="location-badge"><i class="fa-solid fa-warehouse"></i> Colombo WH-A (Secure Cage)</span></td>
+                <td class="td-numeric" style="font-weight: 700; color: var(--color-average);">4</td>
+                <td class="td-numeric" style="color: var(--text-dim);">8</td>
+                <td class="td-numeric">370,000</td>
+                <td class="td-numeric" style="color: var(--text-highlight); font-weight: 700;">1,480,000</td>
+                <td class="td-center"><span class="status-pill low-stock"><span class="status-dot-sm"></span>Low Stock</span></td>
+                <td class="td-center"><button class="btn-view-details" onclick="quickView('ASUS RTX 4080', 'GPU-ASUS-4080')"><i class="fa-regular fa-eye"></i> View</button></td>
+              </tr>
+
+              <!-- Item 3 -->
+              <tr data-category="RAM" data-status="IN_STOCK" data-qty="112" data-val="3584000" data-name="Corsair Vengeance DDR5 32GB (2x16GB) 6000MHz">
+                <td class="td-center">
+                  <div class="part-thumb-wrap">
+                    <img th:src="@{'/images/products/RAM-COR-32G6K.jpg'}" src="/images/products/RAM-COR-32G6K.jpg" alt="Corsair Vengeance" class="part-thumb-img" onerror="this.onerror=null; this.src='/images/placeholder.png';">
+                  </div>
+                </td>
+                <td>
+                  <div class="part-title">Corsair Vengeance DDR5 32GB 6000MHz</div>
+                  <div class="part-sku">SKU: RAM-COR-32G6K &bull; Supplier: Colombo Micro Hub</div>
+                </td>
+                <td><span class="category-badge"><i class="fa-solid fa-memory"></i> RAM</span></td>
+                <td><span class="location-badge"><i class="fa-solid fa-warehouse"></i> Kandy Hub (Bin 12)</span></td>
+                <td class="td-numeric" style="font-weight: 700; color: var(--color-positive);">112</td>
+                <td class="td-numeric" style="color: var(--text-dim);">25</td>
+                <td class="td-numeric">32,000</td>
+                <td class="td-numeric" style="color: var(--text-highlight); font-weight: 700;">3,584,000</td>
+                <td class="td-center"><span class="status-pill in-stock"><span class="status-dot-sm"></span>In Stock</span></td>
+                <td class="td-center"><button class="btn-view-details" onclick="quickView('Corsair DDR5 32GB', 'RAM-COR-32G6K')"><i class="fa-regular fa-eye"></i> View</button></td>
+              </tr>
+
+              <!-- Item 4 -->
+              <tr data-category="Motherboard" data-status="IN_STOCK" data-qty="26" data-val="2340000" data-name="MSI MAG Z790 Tomahawk WiFi Motherboard">
+                <td class="td-center">
+                  <div class="part-thumb-wrap">
+                    <img th:src="@{'/images/products/MB-MSI-Z790T.jpg'}" src="/images/products/MB-MSI-Z790T.jpg" alt="MSI Motherboard" class="part-thumb-img" onerror="this.onerror=null; this.src='/images/placeholder.png';">
+                  </div>
+                </td>
+                <td>
+                  <div class="part-title">MSI MAG Z790 Tomahawk WiFi</div>
+                  <div class="part-sku">SKU: MB-MSI-Z790T &bull; Supplier: PC World Suppliers</div>
+                </td>
+                <td><span class="category-badge"><i class="fa-solid fa-chess-board"></i> Motherboard</span></td>
+                <td><span class="location-badge"><i class="fa-solid fa-warehouse"></i> Colombo WH-B (Rack 02)</span></td>
+                <td class="td-numeric" style="font-weight: 700; color: var(--color-positive);">26</td>
+                <td class="td-numeric" style="color: var(--text-dim);">12</td>
+                <td class="td-numeric">90,000</td>
+                <td class="td-numeric" style="color: var(--text-highlight); font-weight: 700;">2,340,000</td>
+                <td class="td-center"><span class="status-pill in-stock"><span class="status-dot-sm"></span>In Stock</span></td>
+                <td class="td-center"><button class="btn-view-details" onclick="quickView('MSI Z790', 'MB-MSI-Z790T')"><i class="fa-regular fa-eye"></i> View</button></td>
+              </tr>
+
+              <!-- Item 5 -->
+              <tr data-category="Storage" data-status="IN_STOCK" data-qty="84" data-val="2352000" data-name="Samsung 990 PRO 2TB PCIe 4.0 M.2 NVMe SSD">
+                <td class="td-center">
+                  <div class="part-thumb-wrap">
+                    <img th:src="@{'/images/products/SSD-SAM-990P2.jpg'}" src="/images/products/SSD-SAM-990P2.jpg" alt="Samsung SSD" class="part-thumb-img" onerror="this.onerror=null; this.src='/images/placeholder.png';">
+                  </div>
+                </td>
+                <td>
+                  <div class="part-title">Samsung 990 PRO 2TB NVMe SSD</div>
+                  <div class="part-sku">SKU: SSD-SAM-990P2 &bull; Supplier: Tech Lanka Pvt Ltd</div>
+                </td>
+                <td><span class="category-badge"><i class="fa-solid fa-hard-drive"></i> Storage</span></td>
+                <td><span class="location-badge"><i class="fa-solid fa-warehouse"></i> Colombo WH-A (Bin 09)</span></td>
+                <td class="td-numeric" style="font-weight: 700; color: var(--color-positive);">84</td>
+                <td class="td-numeric" style="color: var(--text-dim);">20</td>
+                <td class="td-numeric">28,000</td>
+                <td class="td-numeric" style="color: var(--text-highlight); font-weight: 700;">2,352,000</td>
+                <td class="td-center"><span class="status-pill in-stock"><span class="status-dot-sm"></span>In Stock</span></td>
+                <td class="td-center"><button class="btn-view-details" onclick="quickView('Samsung 990 PRO 2TB', 'SSD-SAM-990P2')"><i class="fa-regular fa-eye"></i> View</button></td>
+              </tr>
+
+              <!-- Item 6 -->
+              <tr data-category="PSU" data-status="OUT_OF_STOCK" data-qty="0" data-val="0" data-name="Corsair RM850x 850W 80+ Gold Modular PSU">
+                <td class="td-center">
+                  <div class="part-thumb-wrap">
+                    <img th:src="@{'/images/products/PSU-COR-850X.jpg'}" src="/images/products/PSU-COR-850X.jpg" alt="Corsair PSU" class="part-thumb-img" onerror="this.onerror=null; this.src='/images/placeholder.png';">
+                  </div>
+                </td>
+                <td>
+                  <div class="part-title">Corsair RM850x 850W Gold PSU</div>
+                  <div class="part-sku">SKU: PSU-COR-850X &bull; Supplier: Nanotech Hardware</div>
+                </td>
+                <td><span class="category-badge"><i class="fa-solid fa-plug"></i> PSU</span></td>
+                <td><span class="location-badge"><i class="fa-solid fa-warehouse"></i> Galle Depot (Rack 05)</span></td>
+                <td class="td-numeric" style="font-weight: 700; color: var(--color-negative);">0</td>
+                <td class="td-numeric" style="color: var(--text-dim);">15</td>
+                <td class="td-numeric">45,000</td>
+                <td class="td-numeric" style="color: var(--text-dim); font-weight: 700;">0</td>
+                <td class="td-center"><span class="status-pill out-of-stock"><span class="status-dot-sm"></span>Out of Stock</span></td>
+                <td class="td-center"><button class="btn-view-details" onclick="quickView('Corsair RM850x', 'PSU-COR-850X')"><i class="fa-regular fa-eye"></i> View</button></td>
+              </tr>
+
+              <!-- Item 7 -->
+              <tr data-category="Cooling" data-status="IN_STOCK" data-qty="35" data-val="1225000" data-name="DeepCool LT720 360mm Liquid CPU Cooler">
+                <td class="td-center">
+                  <div class="part-thumb-wrap">
+                    <img th:src="@{'/images/products/CLR-NZXT-K360.jpg'}" src="/images/products/CLR-NZXT-K360.jpg" alt="Liquid Cooler" class="part-thumb-img" onerror="this.onerror=null; this.src='/images/placeholder.png';">
+                  </div>
+                </td>
+                <td>
+                  <div class="part-title">DeepCool LT720 360mm AIO Cooler</div>
+                  <div class="part-sku">SKU: CLR-NZXT-K360 &bull; Supplier: Nanotech Hardware</div>
+                </td>
+                <td><span class="category-badge"><i class="fa-solid fa-fan"></i> Cooling</span></td>
+                <td><span class="location-badge"><i class="fa-solid fa-warehouse"></i> Colombo WH-B (Rack 08)</span></td>
+                <td class="td-numeric" style="font-weight: 700; color: var(--color-positive);">35</td>
+                <td class="td-numeric" style="color: var(--text-dim);">10</td>
+                <td class="td-numeric">35,000</td>
+                <td class="td-numeric" style="color: var(--text-highlight); font-weight: 700;">1,225,000</td>
+                <td class="td-center"><span class="status-pill in-stock"><span class="status-dot-sm"></span>In Stock</span></td>
+                <td class="td-center"><button class="btn-view-details" onclick="quickView('DeepCool LT720', 'CLR-NZXT-K360')"><i class="fa-regular fa-eye"></i> View</button></td>
+              </tr>
+
+              <!-- Item 8 -->
+              <tr data-category="Peripherals" data-status="LOW_STOCK" data-qty="5" data-val="140000" data-name="Logitech G Pro X Superlight Wireless Mouse">
+                <td class="td-center">
+                  <div class="part-thumb-wrap">
+                    <img th:src="@{'/images/products/PER-LOG-GPX2.jpg'}" src="/images/products/PER-LOG-GPX2.jpg" alt="Logitech Mouse" class="part-thumb-img" onerror="this.onerror=null; this.src='/images/placeholder.png';">
+                  </div>
+                </td>
+                <td>
+                  <div class="part-title">Logitech G Pro X Superlight Mouse</div>
+                  <div class="part-sku">SKU: PER-LOG-GPX &bull; Supplier: ABC Computers</div>
+                </td>
+                <td><span class="category-badge"><i class="fa-solid fa-computer-mouse"></i> Peripherals</span></td>
+                <td><span class="location-badge"><i class="fa-solid fa-warehouse"></i> Colombo WH-A (Bin 22)</span></td>
+                <td class="td-numeric" style="font-weight: 700; color: var(--color-average);">5</td>
+                <td class="td-numeric" style="color: var(--text-dim);">12</td>
+                <td class="td-numeric">28,000</td>
+                <td class="td-numeric" style="color: var(--text-highlight); font-weight: 700;">140,000</td>
+                <td class="td-center"><span class="status-pill low-stock"><span class="status-dot-sm"></span>Low Stock</span></td>
+                <td class="td-center"><button class="btn-view-details" onclick="quickView('Logitech G Pro X', 'PER-LOG-GPX')"><i class="fa-regular fa-eye"></i> View</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-footer-bar">
+          <div>Showing <strong style="color: var(--text-main);" id="tableCountDisplay">8</strong> inventory items</div>
+          <div>Location Protocol: <strong>Colombo WH-A Main Warehouse</strong> &bull; Synced with MS SQL Server</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ==========================================================================
+       MODAL: ADD/EDIT INVENTORY ITEM
+       ========================================================================== -->
+  <div class="modal-backdrop" id="inventoryModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-title-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
+          <div>
+            <h2 class="modal-title" id="modalTitle">Add New Inventory Item</h2>
+            <div style="font-size: 11px; color: var(--text-dim);">Catalog New Hardware SKU</div>
+          </div>
+        </div>
+        <button type="button" class="btn-modal-close" id="btnCloseModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="inventoryForm" enctype="multipart/form-data" onsubmit="handleInventorySubmit(event)">
+        <input type="hidden" id="inventoryEditId" value="">
+        <div class="modal-body">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="partName">Part Name *</label>
+              <input type="text" id="partName" class="form-control" placeholder="e.g. AMD Ryzen 9 7950X" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="skuCode">SKU (Auto-Generated)</label>
+              <input type="text" id="skuCode" class="form-control" value="SKU-HW-2026-9042" readonly>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="categorySelect">Category *</label>
+              <select id="categorySelect" class="form-control select-dropdown" required>
+                <option value="CPU">CPU / Processors</option>
+                <option value="GPU">GPU / Graphic Cards</option>
+                <option value="RAM">RAM / Memory</option>
+                <option value="Motherboard">Motherboard</option>
+                <option value="PSU">Power Supply</option>
+                <option value="Storage">Storage (SSD/HDD)</option>
+                <option value="Cooling">Cooling</option>
+                <option value="Peripherals">Peripherals</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="brandInput">Brand / Manufacturer *</label>
+              <input type="text" id="brandInput" class="form-control" placeholder="e.g. ASUS, Intel, Corsair, Samsung" required>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="compatibilityInput">Socket / Compatibility</label>
+              <input type="text" id="compatibilityInput" class="form-control" placeholder="e.g. LGA1700, AM5, PCIe 4.0, DDR5">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="supplierSelect">Primary Supplier *</label>
+              <select id="supplierSelect" class="form-control select-dropdown" required>
+                <option value="Tech Lanka Pvt Ltd">Tech Lanka Pvt Ltd</option>
+                <option value="PC World Suppliers">PC World Suppliers</option>
+                <option value="Colombo Micro Hub">Colombo Micro Hub</option>
+                <option value="ABC Computers">ABC Computers</option>
+                <option value="Nanotech Hardware Distributors">Nanotech Hardware Distributors</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="qtyOnHand">Initial Quantity *</label>
+              <input type="number" id="qtyOnHand" class="form-control" min="0" value="25" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="reorderLevel">Reorder Threshold *</label>
+              <input type="number" id="reorderLevel" class="form-control" min="1" value="10" required>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="unitCost">Unit Cost (LKR) *</label>
+              <input type="number" id="unitCost" class="form-control" min="0" value="75000" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="sellingPrice">Selling Price (LKR) *</label>
+              <input type="number" id="sellingPrice" class="form-control" min="0" value="89000" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="warehouseLocation">Warehouse Storage Bin *</label>
+            <select id="warehouseLocation" class="form-control select-dropdown" required>
+              <option value="Colombo WH-A (Bin 04)">Colombo WH-A (Bin 04)</option>
+              <option value="Colombo WH-B (Rack 02)">Colombo WH-B (Rack 02)</option>
+              <option value="Kandy Regional Hub (Bin 12)">Kandy Regional Hub (Bin 12)</option>
+              <option value="Galle Depot (Rack 05)">Galle Depot (Rack 05)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="itemImage">Product Image</label>
+            <input type="file" id="itemImage" name="image" class="form-control" accept="image/*">
+            <div style="font-size: 11px; color: var(--text-dim); margin-top: 4px;">Upload hardware photo (PNG, JPG, WebP) - automatically saved with unique identifier</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="description">Specifications & Warranty Notes</label>
+            <textarea id="description" class="form-control" rows="2" placeholder="e.g. 3-Year Authorized Distributor Warranty, Factory Sealed"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="btnCancelModal">Cancel</button>
+          <button type="submit" class="btn-save-action"><i class="fa-solid fa-floppy-disk"></i> Save Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-notification" id="feedbackToast" role="alert">
+    <i class="fa-solid fa-circle-check" style="color: var(--color-positive); font-size: 18px;"></i>
+    <div style="display: flex; flex-direction: column;">
+      <span style="font-weight: 700; font-size: 13.5px; color: var(--text-highlight);" id="toastTitle">Success</span>
+      <span style="font-size: 12px; color: var(--text-muted);" id="toastMessage">Item updated in MS SQL Server catalog.</span>
+    </div>
+  </div>
+
+  <script>
+    const modalBackdrop = document.getElementById("inventoryModal");
+    const btnOpenModal = document.getElementById("btnOpenAddModal");
+    const btnCloseModal = document.getElementById("btnCloseModal");
+    const btnCancelModal = document.getElementById("btnCancelModal");
+    const form = document.getElementById("inventoryForm");
+    const searchInput = document.getElementById("searchInput");
+    const categoryFilter = document.getElementById("categoryFilter");
+    const statusFilter = document.getElementById("statusFilter");
+    const sortSelector = document.getElementById("sortSelector");
+    const tableBody = document.getElementById("inventoryTableBody");
+    const filteredCount = document.getElementById("filteredCount");
+    const totalCount = document.getElementById("totalCount");
+    const tableCountDisplay = document.getElementById("tableCountDisplay");
+    const toast = document.getElementById("feedbackToast");
+
+    let inventoryItems = [];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadInventory();
+
+      if (btnOpenModal) btnOpenModal.addEventListener("click", () => {
+        document.getElementById("inventoryEditId").value = "";
+        document.getElementById("modalTitle").textContent = "Add New Inventory Item";
+        document.getElementById("skuCode").value = "SKU-HW-2026-" + Math.floor(1000 + Math.random() * 9000);
+        document.getElementById("partName").value = "";
+        document.getElementById("qtyOnHand").value = "25";
+        document.getElementById("reorderLevel").value = "10";
+        document.getElementById("unitCost").value = "75000";
+        document.getElementById("sellingPrice").value = "89000";
+        document.getElementById("description").value = "";
+        const fileInput = document.getElementById("itemImage");
+        if (fileInput) fileInput.value = "";
+        modalBackdrop.classList.add("open");
+        document.body.style.overflow = "hidden";
+      });
+
+      const closeModal = () => {
+        modalBackdrop.classList.remove("open");
+        document.body.style.overflow = "";
+        form.reset();
+        const fileInput = document.getElementById("itemImage");
+        if (fileInput) fileInput.value = "";
+        document.getElementById("inventoryEditId").value = "";
+      };
+
+      if (btnCloseModal) btnCloseModal.addEventListener("click", closeModal);
+      if (btnCancelModal) btnCancelModal.addEventListener("click", closeModal);
+
+      modalBackdrop.addEventListener("click", (e) => {
+        if (e.target === modalBackdrop) closeModal();
+      });
+
+      if (searchInput) searchInput.addEventListener("input", filterAndSort);
+      if (categoryFilter) categoryFilter.addEventListener("change", filterAndSort);
+      if (statusFilter) statusFilter.addEventListener("change", filterAndSort);
+      if (sortSelector) sortSelector.addEventListener("change", filterAndSort);
+    });
+
+    function getCategoryIcon(cat) {
+      switch(cat) {
+        case "CPU": return "fa-microchip";
+        case "GPU": return "fa-vr-cardboard";
+        case "RAM": return "fa-memory";
+        case "Motherboard": return "fa-chess-board";
+        case "Storage": return "fa-hard-drive";
+        case "PSU": return "fa-bolt";
+        case "Cooling": return "fa-fan";
+        default: return "fa-boxes-stacked";
+      }
+    }
+
+    function formatNumber(num) {
+      if (num === null || num === undefined) return "0";
+      return Number(num).toLocaleString('en-US');
+    }
+
+    function loadInventory() {
+      fetch('/api/inventory')
+        .then(res => res.json())
+        .then(data => {
+          inventoryItems = data;
+          updateKPICards();
+          filterAndSort();
+        })
+        .catch(err => {
+          console.error("Failed to load inventory:", err);
+        });
+    }
+
+    function updateKPICards() {
+      if (!inventoryItems) return;
+      const activeSkus = inventoryItems.length;
+      const lowStock = inventoryItems.filter(i => (i.qtyOnHand || 0) <= (i.reorderLevel || 10) && (i.qtyOnHand || 0) > 0).length;
+      const outOfStock = inventoryItems.filter(i => (i.qtyOnHand || 0) === 0 || i.status === 'OUT_OF_STOCK').length;
+      
+      const totalVal = inventoryItems.reduce((sum, item) => {
+        const qty = Number(item.qtyOnHand) || 0;
+        const cost = Number(item.unitCost) || Number(item.sellingPrice) || 0;
+        return sum + (qty * cost);
+      }, 0);
+
+      const kpiActive = document.getElementById("kpiActiveSkus");
+      const kpiLow = document.getElementById("kpiLowStock");
+      const kpiOut = document.getElementById("kpiOutOfStock");
+      const kpiValue = document.getElementById("kpiTotalValue");
+
+      if (kpiActive) kpiActive.textContent = activeSkus.toLocaleString('en-US');
+      if (kpiLow) kpiLow.textContent = lowStock.toLocaleString('en-US');
+      if (kpiOut) kpiOut.textContent = outOfStock.toLocaleString('en-US');
+      if (kpiValue) {
+        if (totalVal >= 1000000) {
+          kpiValue.textContent = `LKR ${(totalVal / 1000000).toFixed(2)}M`;
+        } else {
+          kpiValue.textContent = `LKR ${totalVal.toLocaleString('en-US')}`;
+        }
+      }
+    }
+
+    function renderTable(items) {
+      tableBody.innerHTML = "";
+
+      if (!items || items.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="10" class="td-center" style="padding: 45px 20px; color: var(--text-dim);">
+              <i class="fa-solid fa-folder-open" style="font-size: 36px; margin-bottom: 12px; color: #475569; display: block;"></i>
+              <strong style="font-size: 15px; color: var(--text-main);">No Matching Spare Parts Found</strong>
+              <div style="font-size: 12.5px; margin-top: 4px; color: var(--text-muted);">No inventory items match your current query or category filters.</div>
+            </td>
+          </tr>`;
+        if (filteredCount) filteredCount.textContent = "0";
+        if (totalCount) totalCount.textContent = inventoryItems.length;
+        if (tableCountDisplay) tableCountDisplay.textContent = "0";
+        return;
+      }
+
+      items.forEach(item => {
+        const tr = document.createElement("tr");
+        tr.dataset.category = item.category;
+        tr.dataset.status = item.status;
+        tr.dataset.qty = item.qtyOnHand;
+        const totalVal = (item.qtyOnHand || 0) * (item.unitCost || 0);
+        tr.dataset.val = totalVal;
+        tr.dataset.name = item.partName;
+
+        let statusClass = "in-stock";
+        let statusLabel = "In Stock";
+        if (item.status === "LOW_STOCK") {
+          statusClass = "low-stock";
+          statusLabel = "Low Stock";
+        } else if (item.status === "OUT_OF_STOCK") {
+          statusClass = "out-of-stock";
+          statusLabel = "Out of Stock";
+        }
+
+        const icon = getCategoryIcon(item.category);
+        let imageSrc = '/images/placeholder.png';
+        if (item.image && item.image.trim() !== '') {
+          let img = item.image.trim();
+          if (img.startsWith('http://') || img.startsWith('https://')) {
+            imageSrc = img;
+          } else if (img.startsWith('/')) {
+            imageSrc = img;
+          } else if (img.startsWith('images/')) {
+            imageSrc = '/' + img;
+          } else {
+            imageSrc = '/images/products/' + img;
+          }
+          imageSrc = encodeURI(imageSrc);
+        } else if (item.partName) {
+          imageSrc = `/images/products/${encodeURIComponent(item.partName)}.jpg`;
+        }
+
+        const brandText = item.brand ? ` &bull; Brand: ${escapeHtml(item.brand)}` : '';
+        const compatText = item.compatibility ? `<div style="font-size: 10.5px; color: var(--text-dim); margin-top: 2px;"><i class="fa-solid fa-microchip"></i> ${escapeHtml(item.compatibility)}</div>` : '';
+
+        tr.innerHTML = `
+          <td class="td-center">
+            <div class="part-thumb-wrap">
+              <img src="${imageSrc}" alt="${escapeHtml(item.partName)}" class="part-thumb-img" onerror="this.onerror=null; this.src='/images/placeholder.png';">
+            </div>
+          </td>
+          <td>
+            <div class="part-title">${escapeHtml(item.partName)}</div>
+            <div class="part-sku">SKU: ${escapeHtml(item.skuCode)}${brandText} &bull; Supplier: ${escapeHtml(item.supplierName)}</div>
+            ${compatText}
+          </td>
+          <td><span class="category-badge"><i class="fa-solid ${icon}"></i> ${escapeHtml(item.category)}</span></td>
+          <td><span class="location-badge"><i class="fa-solid fa-warehouse"></i> ${escapeHtml(item.warehouseLocation)}</span></td>
+          <td class="td-numeric" style="font-weight: 700; color: ${item.qtyOnHand <= item.reorderLevel ? 'var(--color-negative)' : 'var(--color-positive)'};">
+            <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px;">
+              <span>${item.qtyOnHand}</span>
+              <div style="display: inline-flex; flex-direction: column; gap: 2px;">
+                <button type="button" class="btn-save-action" style="padding: 1px 5px; font-size: 9px; line-height: 1;" onclick="adjustStockApi(${item.id}, 1)" title="Increase Stock (+1)"><i class="fa-solid fa-plus"></i></button>
+                <button type="button" class="btn-save-action" style="padding: 1px 5px; font-size: 9px; line-height: 1; background: #EF4444;" onclick="adjustStockApi(${item.id}, -1)" title="Deduct Stock (-1)"><i class="fa-solid fa-minus"></i></button>
+              </div>
+            </div>
+          </td>
+          <td class="td-numeric" style="color: var(--text-dim);">${item.reorderLevel}</td>
+          <td class="td-numeric">${formatNumber(item.sellingPrice || item.unitCost)}</td>
+          <td class="td-numeric" style="color: var(--text-highlight); font-weight: 700;">${formatNumber(totalVal)}</td>
+          <td class="td-center"><span class="status-pill ${statusClass}"><span class="status-dot-sm"></span>${statusLabel}</span></td>
+          <td class="td-center">
+            <div style="display: flex; gap: 6px; justify-content: center; align-items: center;">
+              ${item.qtyOnHand <= item.reorderLevel ? `<button class="btn-view-details" style="color: #F59E0B; border-color: rgba(245,158,11,0.4);" onclick="triggerRestockApi(${item.id})" title="Initiate Restock Request"><i class="fa-solid fa-truck-ramp-box"></i> Restock</button>` : ''}
+              <button class="btn-view-details" onclick="editItem(${item.id})" title="Edit Item"><i class="fa-solid fa-pen-to-square"></i></button>
+              <button class="btn-view-details" onclick="quickView('${escapeHtml(item.partName)}', '${escapeHtml(item.skuCode)}')" title="Audit Dossier"><i class="fa-regular fa-eye"></i></button>
+              <button class="btn-view-details" style="color: var(--color-negative); border-color: rgba(239,68,68,0.25);" onclick="deleteItem(${item.id}, '${escapeHtml(item.partName)}')" title="Delete Item"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
+          </td>
+        `;
+        tableBody.appendChild(tr);
+      });
+
+      if (filteredCount) filteredCount.textContent = items.length;
+      if (totalCount) totalCount.textContent = inventoryItems.length;
+      if (tableCountDisplay) tableCountDisplay.textContent = items.length;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    function handleInventorySubmit(e) {
+      e.preventDefault();
+      const editId = document.getElementById("inventoryEditId").value;
+      const formData = new FormData();
+      formData.append("partName", document.getElementById("partName").value);
+      formData.append("skuCode", document.getElementById("skuCode").value);
+      formData.append("category", document.getElementById("categorySelect").value);
+      formData.append("brand", document.getElementById("brandInput") ? document.getElementById("brandInput").value : "Generic");
+      formData.append("compatibility", document.getElementById("compatibilityInput") ? document.getElementById("compatibilityInput").value : "");
+      formData.append("supplierName", document.getElementById("supplierSelect").value);
+      formData.append("qtyOnHand", parseInt(document.getElementById("qtyOnHand").value) || 0);
+      formData.append("reorderLevel", parseInt(document.getElementById("reorderLevel").value) || 10);
+      formData.append("unitCost", parseFloat(document.getElementById("unitCost").value) || 0);
+      formData.append("sellingPrice", parseFloat(document.getElementById("sellingPrice").value) || 0);
+      formData.append("warehouseLocation", document.getElementById("warehouseLocation").value);
+      formData.append("description", document.getElementById("description").value);
+
+      const fileInput = document.getElementById("itemImage");
+      if (fileInput && fileInput.files && fileInput.files[0]) {
+        formData.append("image", fileInput.files[0]);
+      }
+
+      const url = editId ? `/api/inventory/${editId}` : '/api/inventory';
+      const method = 'POST';
+
+      fetch(url, {
+        method: method,
+        body: formData
+      })
+      .then(res => {
+        return res.json().then(data => ({ ok: res.ok, data: data }));
+      })
+      .then(result => {
+        if (!result.ok) {
+          const errorMsg = result.data.error || "Failed to save item";
+          alert("Save Error: " + errorMsg);
+          return;
+        }
+        modalBackdrop.classList.remove("open");
+        document.body.style.overflow = "";
+        form.reset();
+        if (fileInput) fileInput.value = "";
+        document.getElementById("inventoryEditId").value = "";
+        showToast(editId ? "SKU Updated" : "SKU Cataloged", `"${result.data.partName}" saved in database.`);
+        loadInventory();
+      })
+      .catch(err => {
+        alert("Error saving item: " + err.message);
+      });
+    }
+
+    function editItem(id) {
+      fetch(`/api/inventory/${id}`)
+        .then(res => res.json())
+        .then(item => {
+          document.getElementById("inventoryEditId").value = item.id;
+          document.getElementById("modalTitle").textContent = "Edit Inventory Item";
+          document.getElementById("partName").value = item.partName || "";
+          document.getElementById("skuCode").value = item.skuCode || "";
+          document.getElementById("categorySelect").value = item.category || "CPU";
+          if (document.getElementById("brandInput")) document.getElementById("brandInput").value = item.brand || "";
+          if (document.getElementById("compatibilityInput")) document.getElementById("compatibilityInput").value = item.compatibility || "";
+          document.getElementById("supplierSelect").value = item.supplierName || "Tech Lanka Pvt Ltd";
+          document.getElementById("qtyOnHand").value = item.qtyOnHand != null ? item.qtyOnHand : 0;
+          document.getElementById("reorderLevel").value = item.reorderLevel != null ? item.reorderLevel : 10;
+          document.getElementById("unitCost").value = item.unitCost != null ? item.unitCost : 0;
+          document.getElementById("sellingPrice").value = item.sellingPrice != null ? item.sellingPrice : 0;
+          document.getElementById("warehouseLocation").value = item.warehouseLocation || "Colombo WH-A (Bin 04)";
+          document.getElementById("description").value = item.description || "";
+          const fileInput = document.getElementById("itemImage");
+          if (fileInput) fileInput.value = "";
+
+          modalBackdrop.classList.add("open");
+          document.body.style.overflow = "hidden";
+        })
+        .catch(err => alert("Failed to fetch item: " + err.message));
+    }
+
+    function adjustStockApi(id, delta) {
+      fetch(`/api/inventory/${id}/stock?delta=${delta}`, { method: 'POST' })
+        .then(res => res.json().then(data => ({ ok: res.ok, data: data })))
+        .then(result => {
+          if (!result.ok) {
+            alert("Stock Update Rejected: " + (result.data.error || "Operation failed"));
+            return;
+          }
+          showToast("Stock Updated", `New stock for "${result.data.partName}": ${result.data.qtyOnHand} units.`);
+          loadInventory();
+        })
+        .catch(err => alert("Stock update error: " + err.message));
+    }
+
+    function triggerRestockApi(id) {
+      fetch(`/api/inventory/${id}/restock-request`, { method: 'POST' })
+        .then(res => res.json().then(data => ({ ok: res.ok, data: data })))
+        .then(result => {
+          if (!result.ok) {
+            alert("Restock Request Failed: " + (result.data.error || "Operation failed"));
+            return;
+          }
+          showToast("Restock Initiated", result.data.message || "Restock request dispatched.");
+        })
+        .catch(err => alert("Restock request error: " + err.message));
+    }
+
+    function deleteItem(id, name) {
+      if (!confirm(`Are you sure you want to delete "${name}" from inventory?`)) return;
+      fetch(`/api/inventory/${id}`, { method: 'DELETE' })
+        .then(res => res.json())
+        .then(data => {
+          showToast("SKU Deleted", `"${name}" removed from inventory records.`);
+          loadInventory();
+        })
+        .catch(err => alert("Failed to delete item: " + err.message));
+    }
+
+    function quickView(part, sku) {
+      showToast("Stock Audit Dossier", `Viewing real-time bin telemetry for ${part} (${sku})`);
+    }
+
+    function showToast(title, message) {
+      document.getElementById("toastTitle").textContent = title;
+      document.getElementById("toastMessage").textContent = message;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 4000);
+    }
+
+    function filterAndSort() {
+      const q = (searchInput.value || "").toLowerCase().trim();
+      const cat = categoryFilter.value;
+      const stat = statusFilter.value;
+      const sort = sortSelector.value;
+
+      let filtered = inventoryItems.filter(item => {
+        const name = (item.partName || "").toLowerCase();
+        const sku = (item.skuCode || "").toLowerCase();
+        const sup = (item.supplierName || "").toLowerCase();
+        const brand = (item.brand || "").toLowerCase();
+        const compat = (item.compatibility || "").toLowerCase();
+        const matchesQ = !q || name.includes(q) || sku.includes(q) || sup.includes(q) || brand.includes(q) || compat.includes(q);
+        const matchesCat = (cat === "ALL") || (item.category === cat);
+        const matchesStat = (stat === "ALL") || (item.status === stat);
+        return matchesQ && matchesCat && matchesStat;
+      });
+
+      filtered.sort((a, b) => {
+        if (sort === "qty-desc") return (b.qtyOnHand || 0) - (a.qtyOnHand || 0);
+        if (sort === "qty-asc") return (a.qtyOnHand || 0) - (b.qtyOnHand || 0);
+        if (sort === "val-desc") return ((b.qtyOnHand || 0) * (b.unitCost || 0)) - ((a.qtyOnHand || 0) * (a.unitCost || 0));
+        if (sort === "name-asc") return (a.partName || "").localeCompare(b.partName || "");
+        return (b.id || 0) - (a.id || 0);
+      });
+
+      renderTable(filtered);
+    }
+
+    function loadPendingApprovals() {
+      fetch('/api/inventory/pending')
+        .then(res => res.json())
+        .then(items => {
+          const tbody = document.getElementById('pendingApprovalsTableBody');
+          const countBadge = document.getElementById('pendingCountBadge');
+          if (!tbody) return;
+          if (countBadge) countBadge.textContent = items.length + ' Pending';
+
+          if (items.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 24px; color: var(--text-muted);"><i class="fa-solid fa-check-circle" style="color: var(--color-positive); margin-right: 8px;"></i> No pending items awaiting approval. All inventory parts are up to date!</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = items.map(item => {
+            let imgPath = item.image ? (item.image.startsWith('/') ? item.image : '/' + item.image) : '/images/products/' + encodeURI(item.partName) + '.jpg';
+            return `
+              <tr>
+                <td class="td-center">
+                  <div class="part-thumb-wrap">
+                    <img src="${imgPath}" alt="${item.partName}" class="part-thumb-img" onerror="this.onerror=null; this.src='/images/placeholder.png';">
+                  </div>
+                </td>
+                <td>
+                  <div class="part-title">${item.partName}</div>
+                  <div class="part-sku">SKU: ${item.skuCode} &bull; Supplier: ${item.supplierName}</div>
+                </td>
+                <td><span class="category-badge"><i class="fa-solid fa-microchip"></i> ${item.category}</span><br><span style="font-size:11px;color:var(--text-dim);">${item.brand}</span></td>
+                <td class="td-numeric" style="font-weight:700;">${Number(item.sellingPrice).toLocaleString('en-LK')}</td>
+                <td class="td-numeric" style="font-weight:700; color:var(--color-positive);">${item.qtyOnHand}</td>
+                <td class="td-center"><span class="status-pill low-stock"><span class="status-dot-sm"></span>PENDING</span></td>
+                <td class="td-center">
+                  <div style="display:flex; gap:6px; justify-content:center;">
+                    <button class="btn-view-details" style="border-color: var(--color-positive); color: var(--color-positive); background: rgba(16,185,129,0.1);" onclick="approveItem(${item.id})">
+                      <i class="fa-solid fa-check"></i> Approve
+                    </button>
+                    <button class="btn-view-details" style="border-color: var(--color-negative); color: var(--color-negative); background: rgba(239,68,68,0.1);" onclick="rejectItem(${item.id})">
+                      <i class="fa-solid fa-xmark"></i> Reject
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }).join('');
+        })
+        .catch(err => console.error('Failed to load pending approvals:', err));
+    }
+
+    function approveItem(id) {
+      fetch('/api/inventory/' + id + '/approve', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          showToast("Item Approved", `Published ${data.partName || 'item'} to index.html catalog.`);
+          loadPendingApprovals();
+          if (typeof loadInventory === 'function') loadInventory();
+        })
+        .catch(err => alert("Failed to approve item: " + err));
+    }
+
+    function rejectItem(id) {
+      fetch('/api/inventory/' + id + '/reject', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          showToast("Item Rejected", `Rejected ${data.partName || 'item'}. It remains hidden from public catalog.`);
+          loadPendingApprovals();
+          if (typeof loadInventory === 'function') loadInventory();
+        })
+        .catch(err => alert("Failed to reject item: " + err));
+    }
+
+    document.addEventListener('DOMContentLoaded', loadPendingApprovals);
+  </script>
+
+
+  <!-- Role-Based Auth Manager -->
+  <script src="auth.js"></script>
+  <script>
+    // Initialize role-based nav & topbar, guard access
+    document.addEventListener('DOMContentLoaded', function() {
+      PartsHub.initPage('inventory');
+    });
+  </script>
+</body>
+</html>
+

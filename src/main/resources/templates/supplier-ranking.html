@@ -1,0 +1,3807 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supplier Performance & Ranking | PartsHub Enterprise</title>
+  
+  <!-- Modern Typography: Inter & Segoe UI Stack -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome 6 Iconography via CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <style>
+    /* ==========================================================================
+       PARTSHUB ENTERPRISE DESIGN SYSTEM & CSS VARIABLES
+       Optimized for Spring Boot MVC + Thymeleaf with Microsoft SQL Server Backend
+       ========================================================================== */
+    :root {
+      /* Core Dark Surfaces */
+      --bg-canvas: #0D0F12;
+      --bg-panel: #161A20;
+      --bg-card: #1D222E;
+      --bg-card-hover: #232A39;
+      --bg-input: #12151B;
+      --border-subtle: #2A3243;
+      --border-light: #374151;
+      --border-accent: rgba(245, 158, 11, 0.4);
+
+      /* High-Tech Accents */
+      --accent-amber: #F59E0B;
+      --accent-amber-glow: rgba(245, 158, 11, 0.25);
+      --accent-amber-hover: #D97706;
+      
+      /* Semantic Colors */
+      --color-positive: #10B981;
+      --color-positive-bg: rgba(16, 185, 129, 0.12);
+      --color-positive-border: rgba(16, 185, 129, 0.3);
+      
+      --color-negative: #EF4444;
+      --color-negative-bg: rgba(239, 68, 68, 0.12);
+      --color-negative-border: rgba(239, 68, 68, 0.3);
+      
+      --color-info: #3B82F6;
+      --color-info-bg: rgba(59, 130, 246, 0.12);
+      --color-info-border: rgba(59, 130, 246, 0.3);
+      
+      --color-average: #F59E0B;
+      --color-average-bg: rgba(245, 158, 11, 0.12);
+      --color-average-border: rgba(245, 158, 11, 0.3);
+
+      /* Typography & Neutrals */
+      --text-main: #F1F5F9;
+      --text-muted: #94A3B8;
+      --text-dim: #64748B;
+      --text-highlight: #FFFFFF;
+
+      /* Podium Metals */
+      --gold: #FFD700;
+      --gold-bg: rgba(255, 215, 0, 0.08);
+      --gold-border: rgba(255, 215, 0, 0.4);
+      --silver: #C0C0C0;
+      --silver-bg: rgba(192, 192, 192, 0.08);
+      --silver-border: rgba(192, 192, 192, 0.35);
+      --bronze: #CD7F32;
+      --bronze-bg: rgba(205, 127, 50, 0.08);
+      --bronze-border: rgba(205, 127, 50, 0.35);
+
+      /* Layout Spacing & Radii */
+      --sidebar-width: 270px;
+      --topbar-height: 70px;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --radius-pill: 9999px;
+      --shadow-elevation: 0 10px 30px -5px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-subtle);
+      --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px var(--border-subtle);
+      --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Reset & Base Setup */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-canvas);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-canvas);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-subtle);
+      border-radius: var(--radius-pill);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--border-light);
+    }
+
+    /* ==========================================================================
+       SIDEBAR NAVIGATION (Fixed Left)
+       ========================================================================== */
+    .sidebar {
+      width: var(--sidebar-width);
+      background-color: var(--bg-panel);
+      border-right: 1px solid var(--border-subtle);
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      transition: var(--transition-smooth);
+    }
+
+    .brand-container {
+      height: var(--topbar-height);
+      display: flex;
+      align-items: center;
+      padding: 0 22px;
+      border-bottom: 1px solid var(--border-subtle);
+      gap: 12px;
+    }
+
+    .brand-icon-box {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, #F59E0B 0%, #B45309 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0D0F12;
+      font-size: 18px;
+      box-shadow: 0 0 16px var(--accent-amber-glow);
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-title {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: var(--text-highlight);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .brand-version {
+      font-size: 10px;
+      padding: 1px 6px;
+      background-color: rgba(245, 158, 11, 0.15);
+      color: var(--accent-amber);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: var(--radius-pill);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-subtitle {
+      font-size: 11px;
+      color: var(--text-dim);
+      font-weight: 400;
+    }
+
+    .sidebar-menu-wrapper {
+      flex: 1;
+      padding: 20px 14px;
+      overflow-y: auto;
+    }
+
+    .nav-category-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-dim);
+      padding: 0 12px 10px 12px;
+      display: block;
+    }
+
+    .sidebar-menu {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .nav-item {
+      position: relative;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 11px 14px;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: var(--radius-md);
+      font-weight: 500;
+      font-size: 13.5px;
+      transition: var(--transition-smooth);
+      position: relative;
+    }
+
+    .nav-link i {
+      font-size: 15px;
+      width: 20px;
+      text-align: center;
+      color: var(--text-dim);
+      transition: var(--transition-smooth);
+    }
+
+    .nav-link:hover {
+      background-color: var(--bg-card);
+      color: var(--text-highlight);
+    }
+
+    .nav-link:hover i {
+      color: var(--accent-amber);
+    }
+
+    /* Active State for Supplier Management */
+    .nav-item.active .nav-link {
+      background: linear-gradient(90deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.03) 100%);
+      color: var(--accent-amber);
+      font-weight: 600;
+      border-left: 3px solid var(--accent-amber);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      box-shadow: inset 0 0 12px rgba(245, 158, 11, 0.05);
+    }
+
+    .nav-item.active .nav-link i {
+      color: var(--accent-amber);
+      filter: drop-shadow(0 0 8px var(--accent-amber-glow));
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: var(--radius-pill);
+      background: var(--bg-canvas);
+      color: var(--text-dim);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .nav-item.active .nav-badge {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--accent-amber);
+      border-color: rgba(245, 158, 11, 0.4);
+    }
+
+    /* Sidebar Footer / System Status */
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid var(--border-subtle);
+      background-color: rgba(18, 21, 27, 0.6);
+    }
+
+    .system-status-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 11px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background-color: var(--color-positive);
+      box-shadow: 0 0 8px var(--color-positive);
+      position: relative;
+    }
+
+    .pulse-dot::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      border-radius: 50%;
+      background-color: var(--color-positive);
+      animation: pulse-ring 1.8s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+    }
+
+    @keyframes pulse-ring {
+      0% { transform: scale(1); opacity: 0.8; }
+      100% { transform: scale(2.8); opacity: 0; }
+    }
+
+    .db-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    /* ==========================================================================
+       MAIN WRAPPER & TOP BAR
+       ========================================================================== */
+    .app-main {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--bg-canvas);
+      min-height: 100vh;
+    }
+
+    .top-bar {
+      height: var(--topbar-height);
+      background-color: var(--bg-panel);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+      backdrop-filter: blur(10px);
+    }
+
+    .breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .breadcrumbs a {
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: var(--transition-smooth);
+    }
+
+    .breadcrumbs a:hover {
+      color: var(--text-highlight);
+    }
+
+    .breadcrumbs .crumb-sep {
+      color: var(--text-dim);
+      font-size: 10px;
+    }
+
+    .breadcrumbs .current {
+      color: var(--text-highlight);
+      font-weight: 600;
+    }
+
+    .top-bar-actions {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .session-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 12px;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-pill);
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .icon-button {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-md);
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      transition: var(--transition-smooth);
+    }
+
+    .icon-button:hover {
+      border-color: var(--border-light);
+      color: var(--text-highlight);
+      background-color: var(--bg-card-hover);
+    }
+
+    .badge-counter {
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      background-color: var(--accent-amber);
+      color: #0D0F12;
+      font-size: 9.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 6px var(--accent-amber-glow);
+    }
+
+    .user-profile-widget {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-left: 12px;
+      border-left: 1px solid var(--border-subtle);
+    }
+
+    .user-avatar-box {
+      position: relative;
+    }
+
+    .user-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+      border: 2px solid var(--accent-amber);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: var(--accent-amber);
+      font-weight: 700;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+    }
+
+    .user-online-pip {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: var(--color-positive);
+      border: 2px solid var(--bg-panel);
+    }
+
+    .user-details {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-name-title {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-highlight);
+      line-height: 1.2;
+    }
+
+    .user-role-label {
+      font-size: 11px;
+      color: var(--accent-amber);
+      font-weight: 500;
+    }
+
+    /* ==========================================================================
+       MAIN CONTENT CANVAS
+       ========================================================================== */
+    .content-canvas {
+      padding: 30px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      max-width: 1600px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Section 1: Page Header */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      background: linear-gradient(180deg, rgba(22, 26, 32, 0.6) 0%, rgba(22, 26, 32, 0.2) 100%);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 24px 28px;
+    }
+
+    .page-header-info {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .page-header-pretitle {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--accent-amber);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .page-header-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text-highlight);
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .page-header-subtitle {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      max-width: 650px;
+    }
+
+    .btn-action-primary {
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+      color: #0D0F12;
+      border: none;
+      padding: 12px 22px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      box-shadow: 0 4px 18px var(--accent-amber-glow);
+      text-decoration: none;
+    }
+
+    .btn-action-primary:hover {
+      background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(245, 158, 11, 0.4);
+    }
+
+    .btn-action-primary:active {
+      transform: translateY(0);
+    }
+
+    /* Section 2: Podium / Top 3 Leaderboard Cards */
+    .podium-section {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .section-title-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-highlight);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-badge-info {
+      font-size: 11.5px;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .podium-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+    }
+
+    .podium-card {
+      background-color: var(--bg-panel);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-subtle);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-elevation);
+      transition: var(--transition-smooth);
+    }
+
+    .podium-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--border-light);
+    }
+
+    /* Rank Specific Podium Styles */
+    .podium-card.rank-1 {
+      border-color: var(--gold-border);
+      background: radial-gradient(circle at top right, rgba(255, 215, 0, 0.1) 0%, var(--bg-panel) 70%);
+    }
+    .podium-card.rank-1::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+    }
+
+    .podium-card.rank-2 {
+      border-color: var(--silver-border);
+      background: radial-gradient(circle at top right, rgba(192, 192, 192, 0.08) 0%, var(--bg-panel) 70%);
+    }
+    .podium-card.rank-2::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #E2E8F0, #94A3B8);
+    }
+
+    .podium-card.rank-3 {
+      border-color: var(--bronze-border);
+      background: radial-gradient(circle at top right, rgba(205, 127, 50, 0.08) 0%, var(--bg-panel) 70%);
+    }
+    .podium-card.rank-3::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #CD7F32, #B45309);
+    }
+
+    .podium-top-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .rank-pill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: var(--radius-pill);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .rank-1 .rank-pill-badge {
+      background: var(--gold-bg);
+      color: var(--gold);
+      border: 1px solid var(--gold-border);
+    }
+    .rank-2 .rank-pill-badge {
+      background: var(--silver-bg);
+      color: var(--silver);
+      border: 1px solid var(--silver-border);
+    }
+    .rank-3 .rank-pill-badge {
+      background: var(--bronze-bg);
+      color: var(--bronze);
+      border: 1px solid var(--bronze-border);
+    }
+
+    .tier-label-chip {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: var(--radius-pill);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tier-excellent {
+      background: var(--color-positive-bg);
+      color: var(--color-positive);
+      border: 1px solid var(--color-positive-border);
+    }
+
+    .tier-good {
+      background: var(--color-info-bg);
+      color: var(--color-info);
+      border: 1px solid var(--color-info-border);
+    }
+
+    .supplier-identity {
+      margin-bottom: 18px;
+    }
+
+    .supplier-name-heading {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-highlight);
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .supplier-id-code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .podium-score-display {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 14px;
+      padding: 14px;
+      background-color: var(--bg-card);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .large-score-num {
+      font-size: 38px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .rank-1 .large-score-num {
+      color: var(--gold);
+      text-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
+    }
+    .rank-2 .large-score-num {
+      color: var(--silver);
+    }
+    .rank-3 .large-score-num {
+      color: var(--bronze);
+    }
+
+    .score-denominator {
+      font-size: 15px;
+      color: var(--text-dim);
+      font-weight: 500;
+    }
+
+    .score-stars-box {
+      margin-left: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
+    .stars-group {
+      display: flex;
+      gap: 3px;
+      color: var(--accent-amber);
+      font-size: 13px;
+    }
+
+    .stars-group .star-empty {
+      color: var(--border-subtle);
+    }
+
+    .rating-numeric-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Podium Metric Badges */
+    .podium-metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .podium-metric-item {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 8px 6px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .metric-item-value {
+      font-size: 14px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .metric-item-value.positive {
+      color: var(--color-positive);
+    }
+    .metric-item-value.negative {
+      color: var(--color-negative);
+    }
+    .metric-item-value.neutral {
+      color: var(--text-main);
+    }
+
+    .metric-item-label {
+      font-size: 10px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    /* Section 3: Filter & Control Toolbar */
+    .filter-toolbar {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .search-box-wrapper {
+      position: relative;
+      flex: 1;
+      min-width: 280px;
+      max-width: 480px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      font-size: 14px;
+      pointer-events: none;
+    }
+
+    .input-search {
+      width: 100%;
+      background-color: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 10px 14px 10px 40px;
+      border-radius: var(--radius-md);
+      font-size: 13.5px;
+      transition: var(--transition-smooth);
+      outline: none;
+    }
+
+    .input-search:focus {
+      border-color: var(--accent-amber);
+      box-shadow: 0 0 0 3px var(--accent-amber-glow);
+    }
+
+    .input-search::placeholder {
+      color: var(--text-dim);
+    }
+
+    .controls-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .filter-label-text {
+      font-size: 12px;
+      color: var(--text-dim);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .select-dropdown {
+      background-color: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 9px 34px 9px 14px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      outline: none;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394A3B8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 14px;
+    }
+
+    .select-dropdown:focus {
+      border-color: var(--accent-amber);
+      box-shadow: 0 0 0 3px var(--accent-amber-glow);
+    }
+
+    .select-dropdown option {
+      background-color: var(--bg-panel);
+      color: var(--text-main);
+      padding: 8px;
+    }
+
+    .active-count-indicator {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      padding: 6px 12px;
+      background-color: var(--bg-card);
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--border-subtle);
+    }
+
+    /* Section 4: Supplier Ranking Data Table */
+    .table-container-card {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-elevation);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+      width: 100%;
+    }
+
+    .supplier-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13.5px;
+    }
+
+    .supplier-table thead {
+      background-color: #12151B;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .supplier-table th {
+      padding: 14px 18px;
+      font-weight: 600;
+      color: var(--text-dim);
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      white-space: nowrap;
+    }
+
+    .supplier-table th.th-numeric {
+      text-align: right;
+    }
+
+    .supplier-table th.th-center {
+      text-align: center;
+    }
+
+    .supplier-table tbody tr {
+      border-bottom: 1px solid rgba(42, 50, 67, 0.45);
+      transition: var(--transition-smooth);
+    }
+
+    .supplier-table tbody tr:hover {
+      background-color: var(--bg-card);
+    }
+
+    .supplier-table tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .supplier-table td {
+      padding: 16px 18px;
+      vertical-align: middle;
+      color: var(--text-main);
+    }
+
+    .supplier-table td.td-numeric {
+      text-align: right;
+    }
+
+    .supplier-table td.td-center {
+      text-align: center;
+    }
+
+    /* Column Styles */
+    .table-rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 13px;
+      font-family: 'JetBrains Mono', monospace;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+    }
+
+    .rank-top-1 {
+      background: var(--gold-bg);
+      color: var(--gold);
+      border-color: var(--gold-border);
+      box-shadow: 0 0 8px rgba(255, 215, 0, 0.2);
+    }
+    .rank-top-2 {
+      background: var(--silver-bg);
+      color: var(--silver);
+      border-color: var(--silver-border);
+    }
+    .rank-top-3 {
+      background: var(--bronze-bg);
+      color: var(--bronze);
+      border-color: var(--bronze-border);
+    }
+
+    .podium-logo-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 8px;
+    }
+    .podium-supplier-logo {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-card);
+      overflow: hidden;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px;
+    }
+    .podium-supplier-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: calc(var(--radius-md) - 2px);
+    }
+    .supplier-logo-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      padding: 2px;
+      transition: var(--transition-smooth);
+    }
+    .supplier-logo-badge:hover {
+      border-color: var(--accent-amber);
+      transform: scale(1.05);
+      box-shadow: 0 0 10px var(--accent-amber-glow);
+    }
+    .supplier-logo-badge img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: calc(var(--radius-md) - 2px);
+    }
+    .cell-supplier-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .cell-supplier-info {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .cell-supplier-name {
+      font-weight: 600;
+      color: var(--text-highlight);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cell-supplier-id {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: var(--text-dim);
+    }
+
+    /* Status Pills */
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: var(--radius-pill);
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+
+    .status-pill.active {
+      background-color: var(--color-positive-bg);
+      color: var(--color-positive);
+      border: 1px solid var(--color-positive-border);
+    }
+
+    .status-pill.inactive {
+      background-color: rgba(100, 116, 139, 0.15);
+      color: var(--text-dim);
+      border: 1px solid rgba(100, 116, 139, 0.3);
+    }
+
+    .status-dot-sm {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: currentColor;
+    }
+
+    /* Performance Score Cell */
+    .cell-score-bar-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-width: 110px;
+    }
+
+    .score-value-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .score-track {
+      width: 100%;
+      height: 6px;
+      background-color: var(--bg-input);
+      border-radius: var(--radius-pill);
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .score-fill {
+      height: 100%;
+      border-radius: var(--radius-pill);
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .score-fill.fill-green {
+      background: linear-gradient(90deg, #10B981, #34D399);
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+    }
+    .score-fill.fill-blue {
+      background: linear-gradient(90deg, #3B82F6, #60A5FA);
+    }
+    .score-fill.fill-amber {
+      background: linear-gradient(90deg, #F59E0B, #FBBF24);
+    }
+    .score-fill.fill-red {
+      background: linear-gradient(90deg, #EF4444, #F87171);
+    }
+
+    /* Rating Tier Badges */
+    .tier-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+    }
+
+    .tier-badge.tier-excellent {
+      background-color: var(--color-positive-bg);
+      color: var(--color-positive);
+      border: 1px solid var(--color-positive-border);
+    }
+    .tier-badge.tier-good {
+      background-color: var(--color-info-bg);
+      color: var(--color-info);
+      border: 1px solid var(--color-info-border);
+    }
+    .tier-badge.tier-average {
+      background-color: var(--color-average-bg);
+      color: var(--color-average);
+      border: 1px solid var(--color-average-border);
+    }
+    .tier-badge.tier-poor {
+      background-color: var(--color-negative-bg);
+      color: var(--color-negative);
+      border: 1px solid var(--color-negative-border);
+    }
+
+    /* Star Rating Cell */
+    .stars-cell {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      color: var(--accent-amber);
+      font-size: 12px;
+    }
+
+    .stars-cell .star-empty {
+      color: var(--border-subtle);
+    }
+
+    /* Action Badges */
+    .badge-positive-count {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 3px 8px;
+      border-radius: var(--radius-pill);
+      background-color: var(--color-positive-bg);
+      color: var(--color-positive);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--color-positive-border);
+    }
+
+    .badge-negative-count {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 3px 8px;
+      border-radius: var(--radius-pill);
+      background-color: var(--color-negative-bg);
+      color: var(--color-negative);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--color-negative-border);
+    }
+
+    .po-count-chip {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .btn-view-details {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: var(--radius-md);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: var(--transition-smooth);
+    }
+
+    .btn-view-details:hover {
+      border-color: var(--accent-amber);
+      color: var(--accent-amber);
+      background-color: rgba(245, 158, 11, 0.08);
+    }
+
+    .table-footer-bar {
+      padding: 14px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--border-subtle);
+      background-color: #12151B;
+      font-size: 12.5px;
+      color: var(--text-dim);
+    }
+
+    /* ==========================================================================
+       MODAL COMPONENT: RECORD SUPPLIER ACTION
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(13, 15, 18, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 20px;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-dialog {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 580px;
+      box-shadow: var(--shadow-modal);
+      transform: scale(0.94) translateY(10px);
+      transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border-top: 3px solid var(--accent-amber);
+    }
+
+    .modal-backdrop.open .modal-dialog {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .modal-title-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-md);
+      background-color: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: var(--accent-amber);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+    }
+
+    .modal-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-highlight);
+    }
+
+    .btn-modal-close {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 18px;
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition-smooth);
+    }
+
+    .btn-modal-close:hover {
+      background-color: var(--bg-card);
+      color: var(--text-highlight);
+    }
+
+    .modal-body {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      overflow-y: auto;
+      max-height: calc(85vh - 140px);
+    }
+
+    .modal-notice {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-left: 3px solid var(--accent-amber);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-size: 12.5px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .modal-notice i {
+      color: var(--accent-amber);
+      margin-top: 2px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .form-label {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .form-label-required {
+      color: var(--color-negative);
+      margin-left: 3px;
+    }
+
+    .form-control {
+      background-color: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      font-size: 13.5px;
+      outline: none;
+      transition: var(--transition-smooth);
+      width: 100%;
+    }
+
+    .form-control:focus {
+      border-color: var(--accent-amber);
+      box-shadow: 0 0 0 3px var(--accent-amber-glow);
+    }
+
+    select.form-control {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394A3B8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 14px;
+    }
+
+    /* Action Category Segmented Toggle */
+    .category-toggle-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .category-toggle-btn {
+      background-color: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 11px 16px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: var(--transition-smooth);
+    }
+
+    .category-toggle-btn:hover {
+      border-color: var(--border-light);
+      color: var(--text-highlight);
+    }
+
+    .category-toggle-btn.active.positive-mode {
+      background: var(--color-positive-bg);
+      border-color: var(--color-positive);
+      color: var(--color-positive);
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.2);
+    }
+
+    .category-toggle-btn.active.negative-mode {
+      background: var(--color-negative-bg);
+      border-color: var(--color-negative);
+      color: var(--color-negative);
+      box-shadow: 0 0 14px rgba(239, 68, 68, 0.2);
+    }
+
+    .score-impact-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      padding: 2px 7px;
+      border-radius: var(--radius-pill);
+      font-weight: 700;
+    }
+
+    .score-impact-positive {
+      background-color: var(--color-positive-bg);
+      color: var(--color-positive);
+      border: 1px solid var(--color-positive-border);
+    }
+
+    .score-impact-negative {
+      background-color: var(--color-negative-bg);
+      color: var(--color-negative);
+      border: 1px solid var(--color-negative-border);
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border-subtle);
+      background-color: #12151B;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      padding: 10px 18px;
+      border-radius: var(--radius-md);
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--border-light);
+      color: var(--text-highlight);
+      background-color: var(--bg-card);
+    }
+
+    .btn-save-action {
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+      border: none;
+      color: #0D0F12;
+      padding: 10px 22px;
+      border-radius: var(--radius-md);
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition-smooth);
+      box-shadow: 0 4px 14px var(--accent-amber-glow);
+    }
+
+    .btn-save-action:hover {
+      background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(245, 158, 11, 0.4);
+    }
+
+    /* Interactive Feedback Toast */
+    .toast-notification {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background-color: var(--bg-panel);
+      border: 1px solid var(--color-positive);
+      border-radius: var(--radius-md);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+      z-index: 2000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .toast-notification.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast-icon {
+      color: var(--color-positive);
+      font-size: 18px;
+    }
+
+    .toast-text-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .toast-title {
+      font-weight: 700;
+      font-size: 13.5px;
+      color: var(--text-highlight);
+    }
+
+    .toast-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* ==========================================================================
+       RESPONSIVE BREAKPOINTS
+       ========================================================================== */
+    @media (max-width: 1200px) {
+      .podium-grid {
+        grid-template-columns: 1fr;
+      }
+      .podium-card.rank-1 {
+        order: -1;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .sidebar {
+        width: 70px;
+      }
+      .brand-title, .brand-subtitle, .nav-text, .nav-badge, .nav-category-label, .sidebar-footer {
+        display: none;
+      }
+      .brand-container {
+        justify-content: center;
+        padding: 0;
+      }
+      .nav-link {
+        justify-content: center;
+        padding: 12px 0;
+      }
+      .app-main {
+        margin-left: 70px;
+      }
+      .top-bar {
+        padding: 0 16px;
+      }
+      .content-canvas {
+        padding: 20px 16px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .filter-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .search-box-wrapper {
+        max-width: 100%;
+      }
+      .controls-group {
+        justify-content: space-between;
+      }
+      .page-header {
+        padding: 18px;
+      }
+      .page-header-title {
+        font-size: 20px;
+      }
+    }
+
+    /* Enterprise Enhancements: Validation, Inactive Rows, Modals & Matrix */
+    .modal-dialog.modal-lg {
+      max-width: 880px;
+    }
+    .modal-dialog.modal-xl {
+      max-width: 1100px;
+    }
+
+    .field-error-msg {
+      color: #EF4444;
+      font-size: 11.5px;
+      font-weight: 500;
+      display: none;
+      margin-top: 4px;
+    }
+
+    .form-control.is-invalid {
+      border-color: #EF4444 !important;
+      background-color: rgba(239, 68, 68, 0.06) !important;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+    }
+
+    .alert-box {
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .alert-box-danger {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: #FCA5A5;
+    }
+
+    .alert-box-success {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #6EE7B7;
+    }
+
+    tr.supplier-row-inactive {
+      opacity: 0.55;
+      filter: grayscale(40%);
+      background: rgba(255, 255, 255, 0.015);
+    }
+
+    .podium-actions-bar {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .btn-podium-sm {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-size: 11.5px;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: var(--transition-smooth);
+    }
+    .btn-podium-sm:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-highlight);
+    }
+
+    /* Comparison & Linked Parts styling */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    .compare-table th {
+      background: var(--bg-card);
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-subtle);
+      white-space: nowrap;
+    }
+    .compare-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+      vertical-align: middle;
+    }
+    .compare-table tr:hover td {
+      background: var(--bg-card-hover);
+    }
+
+    .info-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      background: var(--bg-card);
+      padding: 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      margin-bottom: 18px;
+    }
+    .info-summary-item {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .info-summary-label {
+      font-size: 11px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    .info-summary-val {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==========================================================================
+       SIDEBAR NAVIGATION COMPONENT
+       Spring Boot MVC: Can be extracted as th:replace="~{fragments/sidebar :: sidebar}"
+       ========================================================================== -->
+  <aside class="sidebar" id="appSidebar">
+    <!-- Brand Logo & Identity -->
+    <a th:href="@{/}" href="/" class="brand-container" style="text-decoration: none; color: inherit;" title="Return to PartsHub Storefront Home">
+      <div class="brand-icon-box">
+        <i class="fa-solid fa-microchip"></i>
+      </div>
+      <div class="brand-text">
+        <div class="brand-title">
+          PartsHub
+          <span class="brand-version">v2.4</span>
+        </div>
+        <span class="brand-subtitle">Spare Parts ERP System</span>
+      </div>
+    </a>
+
+    <!-- Navigation Core Modules -->
+    <div class="sidebar-menu-wrapper">
+      <span class="nav-category-label">Core Modules</span>
+      <ul class="sidebar-menu" id="sidebar-menu-dynamic">
+        <!-- Dynamic nav items injected by auth.js -->
+      </ul>
+    </div>
+
+    <!-- Sidebar Footer / System Architecture Telemetry -->
+    <div class="sidebar-footer">
+      <div class="system-status-card">
+        <div class="status-row">
+          <div class="status-indicator">
+            <span class="pulse-dot"></span>
+            <span>Spring Boot MVC</span>
+          </div>
+          <span class="db-badge">v3.2.3</span>
+        </div>
+        <div class="status-row">
+          <span style="color: var(--text-dim); font-size: 10.5px;">MS SQL Server 2022</span>
+          <span style="color: var(--color-positive); font-weight: 600; font-size: 10.5px;">ONLINE</span>
+        </div>
+      </div>
+      <button type="button" class="sidebar-logout-btn" id="btn-sidebar-logout" title="Sign Out of Session">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        <span>Sign Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ==========================================================================
+       MAIN CONTENT CONTAINER
+       ========================================================================== -->
+  <main class="app-main">
+    
+    <!-- Top Bar Navigation Header -->
+    <header class="top-bar">
+      <!-- Breadcrumbs Trail -->
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a th:href="@{/}" href="/" title="Go to Storefront Home"><i class="fa-solid fa-house" style="font-size: 11px;"></i> Home</a>
+        <i class="fa-solid fa-chevron-right crumb-sep"></i>
+        <a href="supplier-ranking.html">Suppliers</a>
+        <i class="fa-solid fa-chevron-right crumb-sep"></i>
+        <span class="current">Performance & Ranking</span>
+      </nav>
+
+      <!-- Right Actions & Officer Profile -->
+      <div class="top-bar-actions">
+        <!-- Live Session Indicator -->
+        <div class="session-badge"><span class="pulse-dot" style="width:6px;height:6px;"></span><span id="topbar-session-label">Loading...</span>
+        </div>
+
+        <!-- Notification Bell -->
+        <button class="icon-button" title="System Alerts" aria-label="System Alerts">
+          <i class="fa-regular fa-bell"></i>
+          <span class="badge-counter">3</span>
+        </button>
+
+        <!-- User Profile Widget: Procurement Officer -->
+        <div class="user-profile-widget">
+          <div class="user-avatar-box">
+            <div class="user-avatar">
+              <span id="topbar-user-initials">--</span>
+            </div>
+            <span class="user-online-pip"></span>
+          </div><span id="topbar-role-badge" style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:99px;border:1px solid;margin-left:6px;display:none;"></span>
+          <div class="user-details">
+            <span class="user-name-title" id="topbar-user-name">Loading...</span>
+            <span class="user-role-label" id="topbar-user-role">Loading...</span>
+          </div>
+        </div>
+        <button type="button" class="btn-topbar-logout" id="btn-logout" title="Sign Out of Session">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Canvas -->
+    <div class="content-canvas">
+
+      <!-- ======================================================================
+           1. PAGE HEADER COMPONENT
+           ====================================================================== -->
+      <section class="page-header">
+        <div class="page-header-info">
+          <div class="page-header-pretitle">
+            <i class="fa-solid fa-ranking-star"></i>
+            Procurement Intelligence System
+          </div>
+          <h1 class="page-header-title">
+            Supplier Performance & Ranking
+          </h1>
+          <p class="page-header-subtitle">
+            Automated scoring and tier evaluations based on delivery accuracy, defect telemetry, and quality records processed via Microsoft SQL Server procedures.
+          </p>
+        </div>
+
+        <!-- Action Buttons: Add Supplier, Record Action & Compare Suppliers -->
+        <div class="page-header-cta" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <button type="button" class="btn-action-primary" id="btnOpenAddSupplierModal" onclick="openAddSupplierModal()">
+            <i class="fa-solid fa-plus"></i>
+            Add Supplier
+          </button>
+          <button type="button" class="btn-action-primary" style="background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); border: 1px solid var(--accent-amber);" id="btnOpenRecordModal" onclick="openModal()">
+            <i class="fa-solid fa-clipboard-check"></i>
+            Record Action
+          </button>
+          <button type="button" class="btn-action-primary" style="background: rgba(59, 130, 246, 0.15); color: var(--color-info); border: 1px solid rgba(59, 130, 246, 0.4);" id="btnOpenComparisonModal" onclick="openComparisonModal()">
+            <i class="fa-solid fa-code-compare"></i>
+            Compare Suppliers
+          </button>
+        </div>
+      </section>
+
+      <!-- ======================================================================
+           2. TOP 3 SUPPLIER LEADERBOARD (PODIUM CARDS)
+           ====================================================================== -->
+      <section class="podium-section" aria-label="Top 3 Supplier Leaderboard">
+        <div class="section-title-bar">
+          <div class="section-title">
+            <i class="fa-solid fa-trophy" style="color: var(--accent-amber);"></i>
+            Current Podium Leaders (Q3 FY2026)
+          </div>
+          <span class="section-badge-info">Automated Rolling 90-Day KPI Engine (Active Vendors Only)</span>
+        </div>
+
+        <div class="podium-grid" id="podiumGrid">
+          
+          <!-- Empty State when no active podium suppliers exist -->
+          <div th:if="${#lists.isEmpty(podiumSuppliers)}" class="podium-empty-state" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-dim); background: var(--bg-card); border-radius: var(--radius-md); border: 1px dashed var(--border-subtle);">
+            <i class="fa-solid fa-trophy" style="font-size: 32px; color: var(--text-muted); margin-bottom: 12px; display: block;"></i>
+            <div style="font-size: 15px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">No Active Ranked Suppliers</div>
+            <div style="font-size: 13px;">Register suppliers or record actions to populate the top 3 leaderboard.</div>
+          </div>
+
+          <!-- Dynamic Podium Leader Cards (Top 3) -->
+          <article th:each="s, stat : ${podiumSuppliers}" 
+                   class="podium-card" 
+                   th:classappend="${stat.index == 0 ? 'rank-1' : (stat.index == 1 ? 'rank-2' : 'rank-3')}">
+            <div class="podium-top-row">
+              <span class="rank-pill-badge">
+                <i th:class="${stat.index == 0 ? 'fa-solid fa-crown' : (stat.index == 1 ? 'fa-solid fa-medal' : 'fa-solid fa-award')}"></i>
+                <span th:text="${stat.index == 0 ? 'Rank #1 &bull; Gold' : (stat.index == 1 ? 'Rank #2 &bull; Silver' : 'Rank #3 &bull; Bronze')}">Rank #1 &bull; Gold</span>
+              </span>
+              <span class="tier-label-chip" 
+                    th:classappend="${s.score >= 90 ? 'tier-excellent' : (s.score >= 80 ? 'tier-good' : (s.score >= 60 ? 'tier-average' : 'tier-poor'))}"
+                    th:text="${s.tier != null ? s.tier : (s.score >= 90 ? 'Excellent' : (s.score >= 80 ? 'Good' : 'Average'))}">Excellent</span>
+            </div>
+
+            <div class="supplier-identity">
+              <div class="podium-logo-row">
+                <div class="podium-supplier-logo">
+                  <img th:src="@{'/images/suppliers/' + ${s.supplierName} + '.png'}" 
+                       th:alt="${s.supplierName}" 
+                       class="supplier-logo-img" 
+                       onerror="this.onerror=null; this.src='/images/placeholder.png';">
+                </div>
+                <div>
+                  <h3 class="supplier-name-heading" th:title="${s.supplierName}" th:text="${s.supplierName}">Tech Lanka Pvt Ltd</h3>
+                  <div class="supplier-id-code">
+                    <i class="fa-solid fa-barcode"></i>
+                    <span th:text="'ID: ' + ${s.supplierCode} + ' &bull; ' + (${s.category} ?: 'Hardware Vendor')">ID: SUP-LK-0101 &bull; Hardware Vendor</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="podium-score-display">
+              <div class="large-score-num" th:text="${s.score}">96</div>
+              <div class="score-denominator">/ 100</div>
+              <div class="score-stars-box">
+                <div class="stars-group">
+                  <i th:class="${s.score >= 20 ? 'fa-solid fa-star' : 'fa-regular fa-star star-empty'}"></i>
+                  <i th:class="${s.score >= 40 ? 'fa-solid fa-star' : 'fa-regular fa-star star-empty'}"></i>
+                  <i th:class="${s.score >= 60 ? 'fa-solid fa-star' : 'fa-regular fa-star star-empty'}"></i>
+                  <i th:class="${s.score >= 80 ? 'fa-solid fa-star' : 'fa-regular fa-star star-empty'}"></i>
+                  <i th:class="${s.score >= 95 ? 'fa-solid fa-star' : (s.score >= 90 ? 'fa-solid fa-star-half-stroke' : 'fa-regular fa-star star-empty')}"></i>
+                </div>
+                <span class="rating-numeric-label" th:text="${#numbers.formatDecimal(s.score / 20.0, 1, 1)} + ' Star Rating'">4.8 Star Rating</span>
+              </div>
+            </div>
+
+            <div class="podium-metrics-grid">
+              <div class="podium-metric-item">
+                <span class="metric-item-value positive" th:text="${s.onTimeRate != null ? s.onTimeRate + '%' : '98%'}">98%</span>
+                <span class="metric-item-label">On-Time</span>
+              </div>
+              <div class="podium-metric-item">
+                <span class="metric-item-value" style="color: var(--accent-amber);" th:text="${(s.leadTimeDays ?: 3) + 'd'}">3d</span>
+                <span class="metric-item-label">Lead Time</span>
+              </div>
+              <div class="podium-metric-item">
+                <span class="metric-item-value neutral" th:text="${s.ordersCompleted ?: 0}">142</span>
+                <span class="metric-item-label">Total POs</span>
+              </div>
+            </div>
+
+            <div class="podium-actions-bar">
+              <button type="button" class="btn-podium-sm" th:onclick="'viewSupplierDetails(' + ${s.id} + ')'" title="View Supplier Dossier & Linked Parts">
+                <i class="fa-regular fa-eye"></i> Details
+              </button>
+              <button type="button" class="btn-podium-sm" th:onclick="'editSupplier(' + ${s.id} + ')'" title="Edit Supplier Information">
+                <i class="fa-solid fa-pen-to-square"></i> Edit
+              </button>
+              <button type="button" class="btn-podium-sm" style="color: var(--color-negative);" th:onclick="'toggleSupplierStatus(' + ${s.id} + ', \'INACTIVE\')'" title="Deactivate Supplier">
+                <i class="fa-solid fa-ban"></i> Deactivate
+              </button>
+            </div>
+          </article>
+
+        </div>
+      </section>
+
+      <!-- ======================================================================
+           3. FILTER & CONTROL TOOLBAR
+           ====================================================================== -->
+      <section class="filter-toolbar" aria-label="Supplier Filter Toolbar">
+        <!-- Live Search Field -->
+        <div class="search-box-wrapper">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input 
+            type="text" 
+            id="searchInput" 
+            class="input-search" 
+            placeholder="Search supplier by name or ID (e.g., Tech Lanka, SUP-0101)..."
+            aria-label="Search supplier by name or ID"
+          >
+        </div>
+
+        <!-- Filter Dropdowns & Stats -->
+        <div class="controls-group">
+          <!-- Status Filter -->
+          <span class="filter-label-text">Status:</span>
+          <select id="statusFilter" class="select-dropdown" aria-label="Filter by Status">
+            <option value="ALL">All Statuses</option>
+            <option value="ACTIVE" selected>Active Only</option>
+            <option value="INACTIVE">Inactive Only</option>
+          </select>
+
+          <!-- Sort Dropdown -->
+          <span class="filter-label-text">Sort:</span>
+          <select id="sortSelector" class="select-dropdown" aria-label="Sort Suppliers">
+            <option value="score-desc" selected>Highest Score</option>
+            <option value="score-asc">Lowest Score</option>
+            <option value="orders-desc">Most Orders</option>
+            <option value="name-asc">Supplier Name (A-Z)</option>
+          </select>
+
+          <!-- Record Counter -->
+          <div class="active-count-indicator">
+            <span id="filteredCount" th:text="${suppliers != null ? suppliers.size() : 0}">0</span> of <span id="totalCount" th:text="${suppliers != null ? suppliers.size() : 0}">0</span> Suppliers
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================================
+           4. SUPPLIER RANKING DATA TABLE
+           Thymeleaf Binding Guide:
+             <tr th:each="supplier, stat : ${suppliers}">
+               <td th:text="${stat.count}">#</td>
+               ...
+           ====================================================================== -->
+      <section class="table-container-card" aria-label="Supplier Performance Table">
+        <div class="table-responsive">
+          <table class="supplier-table" id="supplierRankingTable">
+            <thead>
+              <tr>
+                <th style="width: 70px;" class="th-center">Rank</th>
+                <th>Supplier Details</th>
+                <th style="width: 110px;">Status</th>
+                <th style="width: 160px;">Performance Score</th>
+                <th style="width: 130px;">Rating Tier</th>
+                <th style="width: 120px;">Star Rating</th>
+                <th style="width: 80px;" class="th-center">Positives</th>
+                <th style="width: 80px;" class="th-center">Negatives</th>
+                <th style="width: 100px;" class="th-numeric">Total POs</th>
+                <th style="width: 120px;" class="th-center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="supplierTableBody">
+
+              <!-- Empty State when 0 suppliers exist in DB -->
+              <tr th:if="${#lists.isEmpty(suppliers)}">
+                <td colspan="10" style="text-align: center; padding: 40px; color: var(--text-dim);">
+                  <i class="fa-solid fa-inbox" style="font-size: 28px; color: var(--text-muted); margin-bottom: 8px; display: block;"></i>
+                  <div>0 registered hardware vendors in database.</div>
+                  <div style="font-size: 12px; margin-top: 4px;">Click <strong>Add Supplier</strong> above to register your first hardware vendor.</div>
+                </td>
+              </tr>
+
+              <!-- Real Dynamic Rows from Database Controller -->
+              <tr th:each="s, stat : ${suppliers}" 
+                  th:data-supplier-id="${s.supplierCode}" 
+                  th:data-status="${s.status}" 
+                  th:data-score="${s.score}" 
+                  th:data-orders="${s.ordersCompleted}" 
+                  th:data-name="${s.supplierName}"
+                  th:classappend="${s.isActive == false || s.status == 'INACTIVE' ? 'supplier-row-inactive' : ''}">
+                <td class="td-center">
+                  <span th:if="${stat.index == 0 and s.isActive}" class="table-rank-badge rank-top-1" title="Rank 1 - Gold Medalist">
+                    <i class="fa-solid fa-crown" style="font-size: 11px;"></i>
+                  </span>
+                  <span th:if="${stat.index == 1 and s.isActive}" class="table-rank-badge rank-top-2" title="Rank 2 - Silver Medalist">
+                    <i class="fa-solid fa-crown" style="font-size: 11px;"></i>
+                  </span>
+                  <span th:if="${stat.index == 2 and s.isActive}" class="table-rank-badge rank-top-3" title="Rank 3 - Bronze Medalist">
+                    <i class="fa-solid fa-crown" style="font-size: 11px;"></i>
+                  </span>
+                  <span th:if="${stat.index > 2 or !s.isActive}" class="table-rank-badge" th:text="${stat.index + 1}">4</span>
+                </td>
+                <td>
+                  <div class="cell-supplier-row">
+                    <div class="supplier-logo-badge">
+                      <img th:src="@{'/images/suppliers/' + ${s.supplierName} + '.png'}" 
+                           th:alt="${s.supplierName}" 
+                           onerror="this.onerror=null; this.src='/images/placeholder.png';">
+                    </div>
+                    <div class="cell-supplier-info">
+                      <span class="cell-supplier-name">
+                        <span th:text="${s.supplierName}">Tech Lanka Pvt Ltd</span>
+                        <i th:if="${s.score >= 90 and s.isActive}" class="fa-solid fa-circle-check" style="color: var(--color-positive); font-size: 12px;" title="Verified OEM Partner"></i>
+                      </span>
+                      <span class="cell-supplier-id" th:text="'ID: ' + ${s.supplierCode} + ' &bull; ' + (${s.category} ?: 'Hardware Vendor')">ID: SUP-LK-0101 &bull; Intel & AMD Authorized Distributor</span>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="status-pill" th:classappend="${s.isActive != false and s.status == 'ACTIVE' ? 'active' : 'inactive'}">
+                    <span class="status-dot-sm"></span>
+                    <span th:text="${s.isActive != false and s.status == 'ACTIVE' ? 'Active' : 'Deactivated'}">Active</span>
+                  </span>
+                </td>
+                <td>
+                  <div class="cell-score-bar-wrapper">
+                    <div class="score-value-row">
+                      <span th:style="${s.score >= 80 ? 'color: var(--color-positive); font-weight: 700;' : (s.score >= 60 ? 'color: var(--color-average); font-weight: 700;' : 'color: var(--color-negative); font-weight: 700;')}" th:text="${s.score}">96</span>
+                      <span style="color: var(--text-dim); font-size: 11px;">/ 100</span>
+                    </div>
+                    <div class="score-track">
+                      <div class="score-fill" 
+                           th:classappend="${s.score >= 80 ? 'fill-green' : (s.score >= 60 ? 'fill-amber' : 'fill-red')}" 
+                           th:style="'width: ' + ${s.score} + '%;'"></div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="tier-badge" 
+                        th:classappend="${s.score >= 90 ? 'tier-excellent' : (s.score >= 80 ? 'tier-good' : (s.score >= 60 ? 'tier-average' : 'tier-poor'))}"
+                        th:text="${s.tier != null ? s.tier : (s.score >= 90 ? 'Excellent' : (s.score >= 80 ? 'Good' : 'Average'))}">
+                    <i class="fa-solid fa-shield-halved"></i> Excellent
+                  </span>
+                </td>
+                <td>
+                  <div class="stars-cell" th:title="${#numbers.formatDecimal(s.score / 20.0, 1, 1)} + ' out of 5'">
+                    <i th:class="${s.score >= 20 ? 'fa-solid fa-star' : 'fa-regular fa-star star-empty'}"></i>
+                    <i th:class="${s.score >= 40 ? 'fa-solid fa-star' : 'fa-regular fa-star star-empty'}"></i>
+                    <i th:class="${s.score >= 60 ? 'fa-solid fa-star' : 'fa-regular fa-star star-empty'}"></i>
+                    <i th:class="${s.score >= 80 ? 'fa-solid fa-star' : 'fa-regular fa-star star-empty'}"></i>
+                    <i th:class="${s.score >= 95 ? 'fa-solid fa-star' : (s.score >= 90 ? 'fa-solid fa-star-half-stroke' : 'fa-regular fa-star star-empty')}"></i>
+                  </div>
+                </td>
+                <td class="td-center">
+                  <span class="badge-positive-count" th:text="${'+' + (s.score > 50 ? (s.score - 48) : 5)}">+48</span>
+                </td>
+                <td class="td-center">
+                  <span class="badge-negative-count" th:text="${'-' + (s.score < 100 ? (100 - s.score) / 6 : 0)}">-2</span>
+                </td>
+                <td class="td-numeric">
+                  <span class="po-count-chip" th:text="${s.ordersCompleted ?: 0}">142</span>
+                </td>
+                <td class="td-center">
+                  <div style="display: flex; gap: 5px; justify-content: center; flex-wrap: nowrap;">
+                    <button type="button" class="btn-view-details" style="padding: 5px 8px;" th:onclick="'viewSupplierDetails(' + ${s.id} + ')'" title="View Details & Linked Spare Parts"><i class="fa-regular fa-eye"></i> Parts</button>
+                    <button th:if="${s.isActive != false and s.status == 'ACTIVE'}" type="button" class="btn-action-trigger" style="padding: 5px 8px;" th:onclick="'openActionForSupplier(' + ${s.id} + ')'" title="Record Performance Action"><i class="fa-solid fa-plus"></i></button>
+                    <button type="button" class="btn-view-details" style="padding: 5px 8px;" th:onclick="'editSupplier(' + ${s.id} + ')'" title="Edit Supplier Details"><i class="fa-solid fa-pen-to-square"></i></button>
+                    <button th:if="${s.isActive != false and s.status == 'ACTIVE'}" type="button" class="btn-view-details" style="padding: 5px 8px; color: var(--color-negative); border-color: rgba(239,68,68,0.3);" th:onclick="'toggleSupplierStatus(' + ${s.id} + ', \'INACTIVE\')'" title="Deactivate Supplier (Soft Delete)"><i class="fa-solid fa-ban"></i></button>
+                    <button th:if="${s.isActive == false or s.status == 'INACTIVE'}" type="button" class="btn-view-details" style="padding: 5px 8px; color: var(--color-positive); border-color: rgba(16,185,129,0.3);" th:onclick="'toggleSupplierStatus(' + ${s.id} + ', \'ACTIVE\')'" title="Reactivate Supplier"><i class="fa-solid fa-check"></i></button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table Footer / Pagination Metadata -->
+        <div class="table-footer-bar">
+          <div>
+            Showing <strong style="color: var(--text-main);" id="tableCountDisplay" th:text="${suppliers != null ? suppliers.size() : 0}">0</strong> registered hardware vendors
+          </div>
+          <div style="display: flex; gap: 16px; align-items: center;">
+            <span>Evaluation Protocol: <strong>ISO-9001 Procurement Standard</strong></span>
+            <span>&bull;</span>
+            <span>Refreshed: <strong>Just Now</strong></span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ==========================================================================
+       5. MODAL POPUP: RECORD SUPPLIER ACTION
+       Spring Boot MVC Form:
+         <form th:action="@{/suppliers/actions/save}" th:object="${actionForm}" method="post">
+       ========================================================================== -->
+  <div class="modal-backdrop" id="recordActionModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-dialog">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-title-icon">
+            <i class="fa-solid fa-clipboard-check"></i>
+          </div>
+          <div>
+            <h2 class="modal-title" id="modalTitle">Record Supplier Action</h2>
+            <div style="font-size: 11px; color: var(--text-dim);">Enterprise Performance Event Logging</div>
+          </div>
+        </div>
+        <button type="button" class="btn-modal-close" id="btnCloseModal" aria-label="Close dialog">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Modal Form Body -->
+      <form id="recordActionForm" onsubmit="handleFormSubmit(event)">
+        <div class="modal-body">
+          
+          <!-- Informational Notice -->
+          <div class="modal-notice">
+            <i class="fa-solid fa-circle-info"></i>
+            <div>
+              Recorded actions dynamically recompute supplier performance scores and tier assignments within Microsoft SQL Server via automated trigger.
+            </div>
+          </div>
+
+          <!-- 1. Supplier Selector -->
+          <div class="form-group">
+            <label class="form-label" for="supplierSelect">
+              <span>Select Supplier <span class="form-label-required">*</span></span>
+              <span style="font-size: 11px; color: var(--text-dim);">Active Registry</span>
+            </label>
+            <select id="supplierSelect" class="form-control" required>
+              <option value="" disabled selected>-- Select a hardware supplier --</option>
+              <option value="SUP-LK-0101">Tech Lanka Pvt Ltd (SUP-LK-0101)</option>
+              <option value="SUP-LK-0245">PC World Suppliers (SUP-LK-0245)</option>
+              <option value="SUP-LK-0312">Colombo Micro Hub (SUP-LK-0312)</option>
+              <option value="SUP-LK-0518">Nanotech Hardware Distributors (SUP-LK-0518)</option>
+              <option value="SUP-LK-0089">ABC Computers (SUP-LK-0089)</option>
+              <option value="SUP-LK-0420">Silicon Lanka Components (SUP-LK-0420)</option>
+              <option value="SUP-LK-0677">Lanka Chipset Logistics (SUP-LK-0677)</option>
+              <option value="SUP-LK-0199">Apex Memory Systems (SUP-LK-0199)</option>
+            </select>
+          </div>
+
+          <!-- 2. Action Category Toggle (Positive / Negative) -->
+          <div class="form-group">
+            <label class="form-label">
+              <span>Action Category <span class="form-label-required">*</span></span>
+              <span id="scorePreviewBadge" class="score-impact-pill score-impact-positive">+5 Pts</span>
+            </label>
+            <div class="category-toggle-container">
+              <button 
+                type="button" 
+                class="category-toggle-btn active positive-mode" 
+                id="btnCategoryPositive"
+                onclick="setCategory('POSITIVE')"
+              >
+                <i class="fa-solid fa-circle-plus"></i>
+                Positive Action
+              </button>
+              <button 
+                type="button" 
+                class="category-toggle-btn" 
+                id="btnCategoryNegative"
+                onclick="setCategory('NEGATIVE')"
+              >
+                <i class="fa-solid fa-circle-minus"></i>
+                Negative Action
+              </button>
+            </div>
+            <input type="hidden" id="actionCategoryInput" value="POSITIVE">
+          </div>
+
+          <!-- 3. Action Name Selector with Pre-Configured Scores -->
+          <div class="form-group">
+            <label class="form-label" for="actionNameSelect">
+              <span>Performance Action Event <span class="form-label-required">*</span></span>
+              <span style="font-size: 11px; color: var(--accent-amber);">Weighted Score</span>
+            </label>
+            <select id="actionNameSelect" class="form-control" required onchange="handleActionNameChange()">
+              <!-- Dynamically populated based on Positive / Negative Category -->
+            </select>
+          </div>
+
+          <!-- 4. Description / PO Reference Input -->
+          <div class="form-group">
+            <label class="form-label" for="poReferenceInput">
+              <span>Description / PO Reference <span class="form-label-required">*</span></span>
+              <span style="font-size: 11px; color: var(--text-dim);">e.g. PO-2026-8891</span>
+            </label>
+            <input 
+              type="text" 
+              id="poReferenceInput" 
+              class="form-control" 
+              placeholder="e.g. PO-2026-9412: Verified batch of 50x Core i9 processors inspected on arrival" 
+              required
+            >
+          </div>
+
+          <!-- 5. Date Picker (Defaulting to Current Date) -->
+          <div class="form-group">
+            <label class="form-label" for="actionDateInput">
+              <span>Occurrence Date <span class="form-label-required">*</span></span>
+              <span style="font-size: 11px; color: var(--text-dim);">Procurement Log Date</span>
+            </label>
+            <input 
+              type="date" 
+              id="actionDateInput" 
+              class="form-control" 
+              required
+            >
+          </div>
+
+        </div>
+
+        <!-- Modal Footer Actions -->
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="btnCancelModal" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn-save-action">
+            <i class="fa-solid fa-floppy-disk"></i>
+            Save Action
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL POPUP: REGISTER / EDIT SUPPLIER
+       Full Spring Boot MVC & RESTful Form Binding with Validation & Duplicate Prevention
+       ========================================================================== -->
+  <div class="modal-backdrop" id="supplierModal" role="dialog" aria-modal="true" aria-labelledby="supplierModalTitle">
+    <div class="modal-dialog">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-title-icon" style="background: rgba(245, 158, 11, 0.15); color: var(--accent-amber);">
+            <i class="fa-solid fa-truck-field"></i>
+          </div>
+          <div>
+            <h2 class="modal-title" id="supplierModalTitle">Register New Supplier</h2>
+            <div style="font-size: 11px; color: var(--text-dim);">Hardware Vendor Registry & Procurement Contract</div>
+          </div>
+        </div>
+        <button type="button" class="btn-modal-close" id="btnCloseSupplierModal" onclick="closeSupplierModal()" aria-label="Close dialog">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Modal Form Body -->
+      <form id="supplierForm" onsubmit="handleSupplierSubmit(event)">
+        <input type="hidden" id="supplierEditId" name="id" value="">
+        <div class="modal-body">
+          
+          <!-- Duplicate / Validation Global Alert -->
+          <div id="supplierFormAlert" class="alert-box alert-box-danger" style="display: none;">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span id="supplierFormAlertText"></span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div class="form-group">
+              <label class="form-label" for="supplierNameInput">
+                <span>Supplier Name <span class="form-label-required">*</span></span>
+              </label>
+              <input 
+                type="text" 
+                id="supplierNameInput" 
+                name="supplierName"
+                class="form-control" 
+                placeholder="e.g. Asus ROG Technologies" 
+                required
+              >
+              <span class="field-error-msg" id="err-supplierName"></span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="supplierCodeInput">
+                <span>Supplier Code <span class="form-label-required">*</span></span>
+                <span style="font-size: 11px; color: var(--text-dim);">(Unique ID)</span>
+              </label>
+              <input 
+                type="text" 
+                id="supplierCodeInput" 
+                name="supplierCode"
+                class="form-control" 
+                placeholder="e.g. SUP-LK-0950" 
+                required
+              >
+              <span class="field-error-msg" id="err-supplierCode"></span>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div class="form-group">
+              <label class="form-label" for="supplierCategoryInput">
+                <span>Hardware Category <span class="form-label-required">*</span></span>
+              </label>
+              <select id="supplierCategoryInput" name="category" class="form-control" required>
+                <option value="CPUs & Motherboards">CPUs & Motherboards</option>
+                <option value="GPUs & Power Supplies">GPUs & Power Supplies</option>
+                <option value="Memory & Storage SSDs">Memory & Storage SSDs</option>
+                <option value="Cooling & Chassis">Cooling & Chassis</option>
+                <option value="Peripherals & Cables">Peripherals & Cables</option>
+                <option value="Discrete Electronics">Discrete Electronics</option>
+                <option value="OEM Processors">OEM Processors</option>
+                <option value="General Hardware">General Hardware</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="supplierStatusInput">
+                <span>Contract Status <span class="form-label-required">*</span></span>
+              </label>
+              <select id="supplierStatusInput" name="status" class="form-control" required>
+                <option value="ACTIVE" selected>ACTIVE (Authorized)</option>
+                <option value="INACTIVE">INACTIVE (Deactivated / Suspended)</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div class="form-group">
+              <label class="form-label" for="contactEmailInput">
+                <span>Contact Email <span class="form-label-required">*</span></span>
+              </label>
+              <input 
+                type="email" 
+                id="contactEmailInput" 
+                name="contactEmail"
+                class="form-control" 
+                placeholder="procurement@supplier.lk"
+                required
+              >
+              <span class="field-error-msg" id="err-contactEmail"></span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="contactPhoneInput">
+                <span>Contact Phone</span>
+              </label>
+              <input 
+                type="text" 
+                id="contactPhoneInput" 
+                name="contactPhone"
+                class="form-control" 
+                placeholder="+94 11 234 5678"
+              >
+              <span class="field-error-msg" id="err-contactPhone"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="supplierAddressInput">
+              <span>Business Address <span class="form-label-required">*</span></span>
+            </label>
+            <input 
+              type="text" 
+              id="supplierAddressInput" 
+              name="address"
+              class="form-control" 
+              placeholder="e.g. 45 Galle Road, Colombo 03, Western Province, Sri Lanka"
+              required
+            >
+            <span class="field-error-msg" id="err-address"></span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px;">
+            <div class="form-group">
+              <label class="form-label" for="supplierLeadTimeInput">
+                <span>Avg Lead Time (Days)</span>
+              </label>
+              <input 
+                type="number" 
+                id="supplierLeadTimeInput" 
+                name="leadTimeDays"
+                class="form-control" 
+                min="1" 
+                max="90" 
+                value="5"
+              >
+              <span class="field-error-msg" id="err-leadTimeDays"></span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="initialScoreInput">
+                <span>Score (0-100)</span>
+              </label>
+              <input 
+                type="number" 
+                id="initialScoreInput" 
+                name="score"
+                class="form-control" 
+                min="0" 
+                max="100" 
+                value="75"
+              >
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="ordersCompletedInput">
+                <span>Orders Completed</span>
+              </label>
+              <input 
+                type="number" 
+                id="ordersCompletedInput" 
+                name="ordersCompleted"
+                class="form-control" 
+                min="0" 
+                value="0"
+              >
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Modal Footer Actions -->
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="btnCancelSupplierModal" onclick="closeSupplierModal()">Cancel</button>
+          <button type="submit" class="btn-save-action" id="btnSubmitSupplier">
+            <i class="fa-solid fa-floppy-disk"></i>
+            Save Supplier
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL POPUP: SUPPLIER DETAILS & LINKED SPARE PARTS MANAGEMENT
+       ========================================================================== -->
+  <div class="modal-backdrop" id="supplierDetailsModal" role="dialog" aria-modal="true" aria-labelledby="detailsModalTitle">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-title-icon" style="background: rgba(59, 130, 246, 0.15); color: var(--color-info);">
+            <i class="fa-solid fa-boxes-stacked"></i>
+          </div>
+          <div>
+            <h2 class="modal-title" id="detailsModalTitle">Supplier Dossier & Linked Parts</h2>
+            <div style="font-size: 11px; color: var(--text-dim);" id="detailsModalSubtitle">Procurement Sourcing & Hardware Catalog</div>
+          </div>
+        </div>
+        <button type="button" class="btn-modal-close" onclick="closeDetailsModal()" aria-label="Close dialog">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" style="max-height: calc(88vh - 120px); overflow-y: auto;">
+        <!-- Supplier Snapshot Cards -->
+        <div class="info-summary-grid">
+          <div class="info-summary-item">
+            <span class="info-summary-label">Supplier Code</span>
+            <span class="info-summary-val font-mono" id="detailSupplierCode">--</span>
+          </div>
+          <div class="info-summary-item">
+            <span class="info-summary-label">Contract Status</span>
+            <span class="info-summary-val" id="detailStatusBadge">--</span>
+          </div>
+          <div class="info-summary-item">
+            <span class="info-summary-label">Rating Tier</span>
+            <span class="info-summary-val" id="detailTier">--</span>
+          </div>
+          <div class="info-summary-item">
+            <span class="info-summary-label">Performance Score</span>
+            <span class="info-summary-val" style="color: var(--accent-amber);" id="detailScore">-- / 100</span>
+          </div>
+          <div class="info-summary-item">
+            <span class="info-summary-label">Avg Lead Time</span>
+            <span class="info-summary-val" id="detailLeadTime">-- Days</span>
+          </div>
+          <div class="info-summary-item">
+            <span class="info-summary-label">On-Time Delivery</span>
+            <span class="info-summary-val" style="color: var(--color-positive);" id="detailOnTime">--%</span>
+          </div>
+          <div class="info-summary-item">
+            <span class="info-summary-label">Defect Rate</span>
+            <span class="info-summary-val" id="detailDefect">--%</span>
+          </div>
+          <div class="info-summary-item" style="grid-column: span 2;">
+            <span class="info-summary-label">Address</span>
+            <span class="info-summary-val" id="detailAddress" style="font-size: 12px; font-weight: 400;">--</span>
+          </div>
+        </div>
+
+        <!-- Linked Parts Table Section -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <h3 style="font-size: 14px; font-weight: 700; color: var(--text-highlight); display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-link" style="color: var(--accent-amber);"></i>
+            Linked Spare Parts & Quoted Supply Pricing (<span id="detailPartsCount">0</span>)
+          </h3>
+        </div>
+
+        <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; margin-bottom: 20px;">
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>Part / Item Name</th>
+                <th>SKU Code</th>
+                <th>Category</th>
+                <th>Supply Price (LKR)</th>
+                <th>Lead Time</th>
+                <th>Availability</th>
+                <th style="text-align: center;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="supplierPartsTableBody">
+              <tr>
+                <td colspan="7" style="text-align: center; color: var(--text-dim); padding: 24px;">Loading linked parts...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Link New Part Form Section -->
+        <div style="background: rgba(245, 158, 11, 0.04); border: 1px dashed rgba(245, 158, 11, 0.35); border-radius: var(--radius-md); padding: 16px;">
+          <h4 style="font-size: 13px; font-weight: 700; color: var(--accent-amber); margin-bottom: 12px; display: flex; align-items: center; gap: 7px;">
+            <i class="fa-solid fa-circle-plus"></i>
+            Link a Spare Part to this Supplier
+          </h4>
+          <form id="linkPartForm" onsubmit="handleLinkPartSubmit(event)">
+            <input type="hidden" id="linkSupplierId" value="">
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+              <div>
+                <label style="font-size: 11px; color: var(--text-dim); margin-bottom: 4px; display: block;">Part Name *</label>
+                <input type="text" id="linkPartName" class="form-control" placeholder="e.g. Corsair Vengeance 32GB DDR5" required>
+              </div>
+              <div>
+                <label style="font-size: 11px; color: var(--text-dim); margin-bottom: 4px; display: block;">SKU Code *</label>
+                <input type="text" id="linkSkuCode" class="form-control" placeholder="e.g. RAM-DDR5-32G" required>
+              </div>
+              <div>
+                <label style="font-size: 11px; color: var(--text-dim); margin-bottom: 4px; display: block;">Category</label>
+                <select id="linkCategory" class="form-control">
+                  <option value="CPUs & Motherboards">CPUs & Motherboards</option>
+                  <option value="GPUs & Power Supplies">GPUs & Power Supplies</option>
+                  <option value="Memory & Storage SSDs">Memory & Storage SSDs</option>
+                  <option value="Cooling & Chassis">Cooling & Chassis</option>
+                  <option value="Peripherals & Cables">Peripherals & Cables</option>
+                  <option value="Discrete Electronics">Discrete Electronics</option>
+                </select>
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1.5fr auto; gap: 10px; align-items: flex-end;">
+              <div>
+                <label style="font-size: 11px; color: var(--text-dim); margin-bottom: 4px; display: block;">Quoted Price (LKR) *</label>
+                <input type="number" id="linkSupplyPrice" class="form-control" placeholder="e.g. 42500" step="0.01" min="1" required>
+              </div>
+              <div>
+                <label style="font-size: 11px; color: var(--text-dim); margin-bottom: 4px; display: block;">Lead Time (Days)</label>
+                <input type="number" id="linkLeadTime" class="form-control" min="1" max="90" value="3">
+              </div>
+              <div>
+                <label style="font-size: 11px; color: var(--text-dim); margin-bottom: 4px; display: block;">Availability</label>
+                <select id="linkAvailability" class="form-control">
+                  <option value="IN_STOCK">In Stock (Immediate)</option>
+                  <option value="AVAILABLE_ON_ORDER">Available on Order</option>
+                  <option value="OUT_OF_STOCK">Out of Stock</option>
+                </select>
+              </div>
+              <button type="submit" class="btn-action-primary" style="white-space: nowrap; height: 38px;">
+                <i class="fa-solid fa-link"></i> Link Part
+              </button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="closeDetailsModal()">Close Dossier</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL POPUP: SUPPLIER PRICING & DELIVERY RELIABILITY COMPARISON MATRIX
+       Side-by-side benchmarking across suppliers for procurement officers
+       ========================================================================== -->
+  <div class="modal-backdrop" id="supplierComparisonModal" role="dialog" aria-modal="true" aria-labelledby="comparisonModalTitle">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-title-icon" style="background: rgba(59, 130, 246, 0.15); color: var(--color-info);">
+            <i class="fa-solid fa-scale-balanced"></i>
+          </div>
+          <div>
+            <h2 class="modal-title" id="comparisonModalTitle">Supplier Pricing & Delivery Reliability Comparison</h2>
+            <div style="font-size: 11px; color: var(--text-dim);">Side-by-side benchmarking of hardware vendors for Procurement Decision Making</div>
+          </div>
+        </div>
+        <button type="button" class="btn-modal-close" onclick="closeComparisonModal()" aria-label="Close dialog">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" style="max-height: calc(88vh - 120px); overflow-y: auto;">
+        
+        <!-- Filter and Notice -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+          <div class="modal-notice" style="flex: 1; margin: 0;">
+            <i class="fa-solid fa-circle-info"></i>
+            <div>
+              Compare quoted hardware pricing, fulfillment lead times, and historical on-time reliability rates across all authorized suppliers.
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <label style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Category:</label>
+            <select id="compareCategoryFilter" class="form-control" style="width: 220px;" onchange="loadComparisonData()">
+              <option value="ALL">All Hardware Categories</option>
+              <option value="CPUs & Motherboards">CPUs & Motherboards</option>
+              <option value="GPUs & Power Supplies">GPUs & Power Supplies</option>
+              <option value="Memory & Storage SSDs">Memory & Storage SSDs</option>
+              <option value="Cooling & Chassis">Cooling & Chassis</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Comparative Matrix Table -->
+        <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow-x: auto;">
+          <table class="compare-table" id="comparisonTable">
+            <thead>
+              <tr>
+                <th>Vendor / Code</th>
+                <th>Status</th>
+                <th>Score & Tier</th>
+                <th>Avg Lead Time</th>
+                <th>On-Time Rate %</th>
+                <th>Defect Rate %</th>
+                <th>Linked Spare Parts & Quoted Prices</th>
+                <th>Reliability Rating</th>
+                <th style="text-align: center;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="comparisonTableBody">
+              <tr>
+                <td colspan="9" style="text-align: center; color: var(--text-dim); padding: 30px;">Loading comparison metrics...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="closeComparisonModal()">Close Comparison</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-notification" id="feedbackToast" role="alert" aria-live="polite">
+    <i class="fa-solid fa-circle-check toast-icon"></i>
+    <div class="toast-text-group">
+      <span class="toast-title" id="toastTitle">Action Saved Successfully</span>
+      <span class="toast-desc" id="toastMessage">Supplier score and ranking re-calculated in database.</span>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       CLIENT-SIDE JAVASCRIPT LOGIC
+       Full interactivity: modal, category switching, live search, sorting, filtering
+       ========================================================================== -->
+  <script>
+    /**
+     * PartsHub Enterprise Supplier Ranking Controller
+     * Provides reactive client-side functionality matching backend expectations.
+     */
+
+    // Pre-configured Action Scoring Matrix
+    const ACTION_CATALOG = {
+      POSITIVE: [
+        { label: "On-time delivery (+5)", score: 5 },
+        { label: "Correct quantity delivered (+5)", score: 5 },
+        { label: "Good product quality (+4)", score: 4 },
+        { label: "Fast response (+3)", score: 3 },
+        { label: "Successful replacement (+3)", score: 3 }
+      ],
+      NEGATIVE: [
+        { label: "Late delivery (-5)", score: -5 },
+        { label: "Damaged products (-5)", score: -5 },
+        { label: "Missing quantity (-4)", score: -4 },
+        { label: "Wrong products delivered (-4)", score: -4 },
+        { label: "Unresponsive supplier (-3)", score: -3 }
+      ]
+    };
+
+    // DOM Elements Cache
+    const modalBackdrop = document.getElementById("recordActionModal");
+    const btnOpenModal = document.getElementById("btnOpenRecordModal");
+    const btnCloseModal = document.getElementById("btnCloseModal");
+    const btnCancelModal = document.getElementById("btnCancelModal");
+    const actionForm = document.getElementById("recordActionForm");
+    const actionNameSelect = document.getElementById("actionNameSelect");
+    const scorePreviewBadge = document.getElementById("scorePreviewBadge");
+    const actionCategoryInput = document.getElementById("actionCategoryInput");
+    const btnCategoryPositive = document.getElementById("btnCategoryPositive");
+    const btnCategoryNegative = document.getElementById("btnCategoryNegative");
+    const actionDateInput = document.getElementById("actionDateInput");
+
+    // Supplier Add/Edit Modal Elements Cache
+    const supplierModalBackdrop = document.getElementById("supplierModal");
+    const btnOpenAddSupplierModal = document.getElementById("btnOpenAddSupplierModal");
+    const btnCloseSupplierModal = document.getElementById("btnCloseSupplierModal");
+    const btnCancelSupplierModal = document.getElementById("btnCancelSupplierModal");
+    const supplierForm = document.getElementById("supplierForm");
+
+    const toast = document.getElementById("feedbackToast");
+    const searchInput = document.getElementById("searchInput");
+    const statusFilter = document.getElementById("statusFilter");
+    const sortSelector = document.getElementById("sortSelector");
+    const tableBody = document.getElementById("supplierTableBody");
+    const filteredCount = document.getElementById("filteredCount");
+    const totalCount = document.getElementById("totalCount");
+    const tableCountDisplay = document.getElementById("tableCountDisplay");
+
+    let supplierList = [];
+
+    // Initialize Page State
+    document.addEventListener("DOMContentLoaded", () => {
+      // Set default date to today
+      const today = new Date().toISOString().split('T')[0];
+      if (actionDateInput) actionDateInput.value = today;
+
+      // Populate default positive actions
+      populateActionOptions("POSITIVE");
+
+      // Setup Search and Filter Event Listeners
+      if (searchInput) searchInput.addEventListener("input", filterAndSortTable);
+      if (statusFilter) statusFilter.addEventListener("change", filterAndSortTable);
+      if (sortSelector) sortSelector.addEventListener("change", filterAndSortTable);
+
+      // Record Action Modal Triggers
+      if (btnOpenModal) btnOpenModal.addEventListener("click", openModal);
+      if (btnCloseModal) btnCloseModal.addEventListener("click", closeModal);
+      if (btnCancelModal) btnCancelModal.addEventListener("click", closeModal);
+
+      // Supplier Add/Edit Modal Triggers
+      if (btnOpenAddSupplierModal) btnOpenAddSupplierModal.addEventListener("click", openAddSupplierModal);
+      if (btnCloseSupplierModal) btnCloseSupplierModal.addEventListener("click", closeSupplierModal);
+      if (btnCancelSupplierModal) btnCancelSupplierModal.addEventListener("click", closeSupplierModal);
+
+      // Close modal on escape key or clicking backdrop
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          if (modalBackdrop && modalBackdrop.classList.contains("open")) closeModal();
+          if (supplierModalBackdrop && supplierModalBackdrop.classList.contains("open")) closeSupplierModal();
+        }
+      });
+
+      if (modalBackdrop) {
+        modalBackdrop.addEventListener("click", (e) => {
+          if (e.target === modalBackdrop) closeModal();
+        });
+      }
+
+      if (supplierModalBackdrop) {
+        supplierModalBackdrop.addEventListener("click", (e) => {
+          if (e.target === supplierModalBackdrop) closeSupplierModal();
+        });
+      }
+
+      loadSuppliers();
+    });
+
+    function loadSuppliers() {
+      fetch('/api/suppliers')
+        .then(res => res.json())
+        .then(data => {
+          supplierList = data;
+          populateSupplierDropdown(data);
+          renderPodium(data);
+          filterAndSortTable();
+        })
+        .catch(err => console.error("Failed to load suppliers:", err));
+    }
+
+    function populateSupplierDropdown(suppliers) {
+      const select = document.getElementById("supplierSelect");
+      if (!select) return;
+      select.innerHTML = '<option value="" disabled selected>-- Select an active hardware supplier --</option>';
+      suppliers.forEach(s => {
+        if (s.isActive !== false && s.status === 'ACTIVE') {
+          const opt = document.createElement("option");
+          opt.value = s.id;
+          opt.textContent = `${s.supplierName} (${s.supplierCode})`;
+          select.appendChild(opt);
+        }
+      });
+    }
+
+    function renderPodium(suppliers) {
+      const podiumGrid = document.getElementById("podiumGrid");
+      if (!podiumGrid) return;
+
+      // Exclude deactivated/inactive suppliers from the podium
+      const activeSuppliers = suppliers.filter(s => s.isActive !== false && s.status === 'ACTIVE');
+      activeSuppliers.sort((a, b) => (b.score || 0) - (a.score || 0));
+
+      const top3 = activeSuppliers.slice(0, 3);
+      if (top3.length === 0) {
+        podiumGrid.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-dim); background: var(--bg-card); border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+            <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; color: var(--accent-amber); margin-bottom: 8px;"></i>
+            <div>No active hardware suppliers currently eligible for podium ranking.</div>
+          </div>
+        `;
+        return;
+      }
+
+      const ranks = [
+        { rank: 1, class: "rank-1", title: "Rank #1 • Gold", icon: "fa-crown", tierClass: "tier-excellent", defaultTier: "Excellent" },
+        { rank: 2, class: "rank-2", title: "Rank #2 • Silver", icon: "fa-medal", tierClass: "tier-excellent", defaultTier: "Excellent" },
+        { rank: 3, class: "rank-3", title: "Rank #3 • Bronze", icon: "fa-award", tierClass: "tier-good", defaultTier: "Good" }
+      ];
+
+      podiumGrid.innerHTML = top3.map((s, idx) => {
+        const meta = ranks[idx] || ranks[2];
+        const starsCount = Math.min(5, Math.max(1, Math.round((s.score || 75) / 20)));
+        let starsHtml = '';
+        for (let i = 0; i < 5; i++) {
+          if (i < starsCount) starsHtml += '<i class="fa-solid fa-star"></i>';
+          else starsHtml += '<i class="fa-regular fa-star star-empty"></i>';
+        }
+
+        return `
+          <article class="podium-card ${meta.class}">
+            <div class="podium-top-row">
+              <span class="rank-pill-badge">
+                <i class="fa-solid ${meta.icon}"></i>
+                ${meta.title}
+              </span>
+              <span class="tier-label-chip ${meta.tierClass}">${escapeHtml(s.tier || meta.defaultTier)}</span>
+            </div>
+
+            <div class="supplier-identity">
+              <div class="podium-logo-row">
+                <div class="podium-supplier-logo">
+                  <img src="/images/suppliers/${encodeURIComponent(s.supplierName)}.png" alt="${escapeHtml(s.supplierName)}" class="supplier-logo-img" onerror="this.onerror=null; this.src='/images/placeholder.png';">
+                </div>
+                <div>
+                  <h3 class="supplier-name-heading" title="${escapeHtml(s.supplierName)}">${escapeHtml(s.supplierName)}</h3>
+                  <div class="supplier-id-code">
+                    <i class="fa-solid fa-barcode"></i>
+                    ID: ${escapeHtml(s.supplierCode)} &bull; ${escapeHtml(s.category || 'Hardware Vendor')}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="podium-score-display">
+              <div class="large-score-num">${s.score}</div>
+              <div class="score-denominator">/ 100</div>
+              <div class="score-stars-box">
+                <div class="stars-group">
+                  ${starsHtml}
+                </div>
+                <span class="rating-numeric-label">${(s.score / 20).toFixed(1)} Star Rating</span>
+              </div>
+            </div>
+
+            <div class="podium-metrics-grid">
+              <div class="podium-metric-item">
+                <span class="metric-item-value positive">${s.onTimeRate ? s.onTimeRate + '%' : '98%'}</span>
+                <span class="metric-item-label">On-Time</span>
+              </div>
+              <div class="podium-metric-item">
+                <span class="metric-item-value" style="color: var(--accent-amber);">${s.leadTimeDays || 3}d</span>
+                <span class="metric-item-label">Lead Time</span>
+              </div>
+              <div class="podium-metric-item">
+                <span class="metric-item-value neutral">${s.ordersCompleted || 0}</span>
+                <span class="metric-item-label">Total POs</span>
+              </div>
+            </div>
+
+            <div class="podium-actions-bar">
+              <button type="button" class="btn-podium-sm" onclick="viewSupplierDetails(${s.id})" title="View Supplier Dossier & Linked Parts">
+                <i class="fa-regular fa-eye"></i> Details
+              </button>
+              <button type="button" class="btn-podium-sm" onclick="editSupplier(${s.id})" title="Edit Supplier Information">
+                <i class="fa-solid fa-pen-to-square"></i> Edit
+              </button>
+              <button type="button" class="btn-podium-sm" style="color: var(--color-negative);" onclick="toggleSupplierStatus(${s.id}, 'INACTIVE')" title="Deactivate Supplier">
+                <i class="fa-solid fa-ban"></i> Deactivate
+              </button>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function renderSupplierTable(suppliers) {
+      tableBody.innerHTML = "";
+      suppliers.forEach((s, idx) => {
+        const rank = idx + 1;
+        const tr = document.createElement("tr");
+        tr.dataset.supplierId = s.supplierCode;
+        tr.dataset.status = s.status;
+        tr.dataset.score = s.score;
+        tr.dataset.orders = s.ordersCompleted || 0;
+        tr.dataset.name = s.supplierName;
+
+        const isActive = (s.isActive !== false && s.status === "ACTIVE");
+        if (!isActive) {
+          tr.classList.add("supplier-row-inactive");
+        }
+
+        let rankBadge = `<span class="table-rank-badge">${rank}</span>`;
+        if (rank === 1 && isActive) {
+          rankBadge = `<span class="table-rank-badge rank-top-1" title="Rank 1 - Gold Medalist"><i class="fa-solid fa-crown" style="font-size: 11px;"></i></span>`;
+        } else if (rank === 2 && isActive) {
+          rankBadge = `<span class="table-rank-badge rank-top-2" title="Rank 2 - Silver Medalist"><i class="fa-solid fa-crown" style="font-size: 11px;"></i></span>`;
+        } else if (rank === 3 && isActive) {
+          rankBadge = `<span class="table-rank-badge rank-top-3" title="Rank 3 - Bronze Medalist"><i class="fa-solid fa-crown" style="font-size: 11px;"></i></span>`;
+        }
+
+        let scoreColor = "var(--color-positive)";
+        let fillClass = "fill-green";
+        if (s.score < 60) {
+          scoreColor = "var(--color-negative)";
+          fillClass = "fill-red";
+        } else if (s.score < 80) {
+          scoreColor = "var(--color-average)";
+          fillClass = "fill-amber";
+        }
+
+        let tierBadgeClass = "tier-excellent";
+        if (s.score < 65) tierBadgeClass = "tier-critical";
+        else if (s.score < 80) tierBadgeClass = "tier-acceptable";
+        else if (s.score < 90) tierBadgeClass = "tier-good";
+
+        tr.innerHTML = `
+          <td class="td-center">${rankBadge}</td>
+          <td>
+            <div class="cell-supplier-row">
+              <div class="supplier-logo-badge">
+                <img src="/images/suppliers/${encodeURIComponent(s.supplierName)}.png" alt="${escapeHtml(s.supplierName)}" onerror="this.onerror=null; this.src='/images/placeholder.png';">
+              </div>
+              <div class="cell-supplier-info">
+                <span class="cell-supplier-name">
+                  ${escapeHtml(s.supplierName)}
+                  ${s.score >= 90 && isActive ? '<i class="fa-solid fa-circle-check" style="color: var(--color-positive); font-size: 12px;" title="Verified OEM Partner"></i>' : ''}
+                </span>
+                <span class="cell-supplier-id">ID: ${escapeHtml(s.supplierCode)} &bull; ${escapeHtml(s.category || 'Hardware Vendor')}</span>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="status-pill ${isActive ? 'active' : 'inactive'}">
+              <span class="status-dot-sm"></span>
+              ${isActive ? 'Active' : 'Deactivated'}
+            </span>
+          </td>
+          <td>
+            <div class="cell-score-bar-wrapper">
+              <div class="score-value-row">
+                <span style="color: ${scoreColor}; font-weight: 700;">${s.score}</span>
+                <span style="color: var(--text-dim); font-size: 11px;">/ 100</span>
+              </div>
+              <div class="score-track">
+                <div class="score-fill ${fillClass}" style="width: ${s.score}%;"></div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="tier-badge ${tierBadgeClass}">
+              <i class="fa-solid fa-shield-halved"></i>
+              ${escapeHtml(s.tier || 'Standard')}
+            </span>
+          </td>
+          <td class="td-numeric font-mono">${s.ordersCompleted || 0}</td>
+          <td class="td-numeric font-mono" style="color: ${s.onTimeRate >= 95 ? 'var(--color-positive)' : 'var(--text-main)'};">${s.onTimeRate || 95}%</td>
+          <td class="td-numeric font-mono" style="color: ${s.defectRate <= 2 ? 'var(--color-positive)' : 'var(--color-negative)'};">${s.defectRate || 1}%</td>
+          <td class="td-center">
+            <div style="display: flex; gap: 5px; justify-content: center; flex-wrap: nowrap;">
+              <button class="btn-view-details" style="padding: 5px 8px;" onclick="viewSupplierDetails(${s.id})" title="View Details & Linked Spare Parts"><i class="fa-regular fa-eye"></i> Parts</button>
+              ${isActive ? `<button class="btn-action-trigger" style="padding: 5px 8px;" onclick="openActionForSupplier(${s.id})" title="Record Performance Action"><i class="fa-solid fa-plus"></i> Action</button>` : ''}
+              <button class="btn-view-details" style="padding: 5px 8px;" onclick="editSupplier(${s.id})" title="Edit Supplier Details"><i class="fa-solid fa-pen-to-square"></i></button>
+              ${isActive ? 
+                `<button class="btn-view-details" style="padding: 5px 8px; color: var(--color-negative); border-color: rgba(239,68,68,0.3);" onclick="toggleSupplierStatus(${s.id}, 'INACTIVE')" title="Deactivate Supplier (Soft Delete)"><i class="fa-solid fa-ban"></i></button>` :
+                `<button class="btn-view-details" style="padding: 5px 8px; color: var(--color-positive); border-color: rgba(16,185,129,0.3);" onclick="toggleSupplierStatus(${s.id}, 'ACTIVE')" title="Reactivate Supplier"><i class="fa-solid fa-check"></i></button>`
+              }
+            </div>
+          </td>
+        `;
+        tableBody.appendChild(tr);
+      });
+
+      if (filteredCount) filteredCount.textContent = suppliers.length;
+      if (totalCount) totalCount.textContent = supplierList.length;
+      if (tableCountDisplay) tableCountDisplay.textContent = suppliers.length;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    function openActionForSupplier(id) {
+      const select = document.getElementById("supplierSelect");
+      if (select) select.value = id;
+      openModal();
+    }
+
+    function toggleSupplierStatus(id, newStatus) {
+      fetch(`/api/suppliers/${id}/toggle-status`, {
+        method: 'PUT'
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to change supplier status");
+        return res.json();
+      })
+      .then(s => {
+        const actionWord = s.status === 'ACTIVE' ? 'Reactivated' : 'Deactivated';
+        showToast(`Supplier ${actionWord}`, `"${s.supplierName}" is now marked as ${s.status}.`);
+        loadSuppliers();
+      })
+      .catch(err => {
+        alert("Failed to update supplier status: " + err.message);
+      });
+    }
+
+    function clearSupplierErrors() {
+      const errSpans = document.querySelectorAll(".field-error-msg");
+      errSpans.forEach(span => {
+        span.textContent = "";
+        span.style.display = "none";
+      });
+      const inputs = document.querySelectorAll("#supplierModal .form-control");
+      inputs.forEach(input => input.classList.remove("is-invalid"));
+      const alertBox = document.getElementById("supplierFormAlert");
+      if (alertBox) {
+        alertBox.style.display = "none";
+        document.getElementById("supplierFormAlertText").textContent = "";
+      }
+    }
+
+    function openSupplierModal() {
+      clearSupplierErrors();
+      const modal = document.getElementById("supplierModal");
+      if (modal) {
+        modal.classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
+    }
+
+    function closeSupplierModal() {
+      const modal = document.getElementById("supplierModal");
+      if (modal) {
+        modal.classList.remove("open");
+        document.body.style.overflow = "";
+      }
+      const form = document.getElementById("supplierForm");
+      if (form) form.reset();
+      const editId = document.getElementById("supplierEditId");
+      if (editId) editId.value = "";
+      clearSupplierErrors();
+    }
+
+    function openAddSupplierModal() {
+      const editId = document.getElementById("supplierEditId");
+      if (editId) editId.value = "";
+      document.getElementById("supplierModalTitle").textContent = "Register New Supplier";
+      document.getElementById("supplierNameInput").value = "";
+      document.getElementById("supplierCodeInput").value = "SUP-LK-" + String(Math.floor(1000 + Math.random() * 9000));
+      document.getElementById("supplierCategoryInput").value = "CPUs & Motherboards";
+      document.getElementById("supplierStatusInput").value = "ACTIVE";
+      document.getElementById("contactEmailInput").value = "";
+      document.getElementById("contactPhoneInput").value = "";
+      document.getElementById("supplierAddressInput").value = "";
+      document.getElementById("supplierLeadTimeInput").value = "5";
+      document.getElementById("initialScoreInput").value = "75";
+      document.getElementById("ordersCompletedInput").value = "0";
+      openSupplierModal();
+    }
+
+    function editSupplier(id) {
+      clearSupplierErrors();
+      fetch(`/api/suppliers/${id}`)
+        .then(res => {
+          if (!res.ok) throw new Error("Could not load supplier details");
+          return res.json();
+        })
+        .then(s => {
+          document.getElementById("supplierEditId").value = s.id;
+          document.getElementById("supplierModalTitle").textContent = "Edit Supplier Details";
+          document.getElementById("supplierNameInput").value = s.supplierName || "";
+          document.getElementById("supplierCodeInput").value = s.supplierCode || "";
+          document.getElementById("supplierCategoryInput").value = s.category || "General Hardware";
+          document.getElementById("supplierStatusInput").value = s.status || "ACTIVE";
+          document.getElementById("contactEmailInput").value = s.contactEmail || "";
+          document.getElementById("contactPhoneInput").value = s.contactPhone || "";
+          document.getElementById("supplierAddressInput").value = s.address || "";
+          document.getElementById("supplierLeadTimeInput").value = s.leadTimeDays || 5;
+          document.getElementById("initialScoreInput").value = s.score != null ? s.score : 75;
+          document.getElementById("ordersCompletedInput").value = s.ordersCompleted != null ? s.ordersCompleted : 0;
+          openSupplierModal();
+        })
+        .catch(err => alert("Failed to fetch supplier details: " + err.message));
+    }
+
+    function handleSupplierSubmit(event) {
+      event.preventDefault();
+      clearSupplierErrors();
+
+      const editId = document.getElementById("supplierEditId").value;
+      const statusVal = document.getElementById("supplierStatusInput").value;
+
+      const payload = {
+        supplierName: document.getElementById("supplierNameInput").value.trim(),
+        supplierCode: document.getElementById("supplierCodeInput").value.trim(),
+        category: document.getElementById("supplierCategoryInput").value,
+        status: statusVal,
+        isActive: (statusVal === "ACTIVE"),
+        contactEmail: document.getElementById("contactEmailInput").value.trim(),
+        contactPhone: document.getElementById("contactPhoneInput").value.trim(),
+        address: document.getElementById("supplierAddressInput").value.trim(),
+        leadTimeDays: parseInt(document.getElementById("supplierLeadTimeInput").value) || 5,
+        score: parseInt(document.getElementById("initialScoreInput").value) || 75,
+        ordersCompleted: parseInt(document.getElementById("ordersCompletedInput").value) || 0
+      };
+
+      const url = editId ? `/api/suppliers/${editId}` : '/api/suppliers';
+      const method = editId ? 'PUT' : 'POST';
+
+      fetch(url, {
+        method: method,
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(async res => {
+        const data = await res.json();
+        if (!res.ok) {
+          // Validation error mapping or duplicate conflict
+          if (data.fieldErrors) {
+            Object.keys(data.fieldErrors).forEach(field => {
+              const errSpan = document.getElementById("err-" + field);
+              if (errSpan) {
+                errSpan.textContent = data.fieldErrors[field];
+                errSpan.style.display = "block";
+              }
+              const inputField = document.querySelector(`[name="${field}"]`);
+              if (inputField) inputField.classList.add("is-invalid");
+            });
+          }
+          if (data.duplicate || data.error) {
+            const alertBox = document.getElementById("supplierFormAlert");
+            if (alertBox) {
+              alertBox.style.display = "flex";
+              document.getElementById("supplierFormAlertText").textContent = data.error || "A supplier with this identifier already exists.";
+            }
+          }
+          throw new Error(data.error || "Save failed");
+        }
+        return data;
+      })
+      .then(saved => {
+        closeSupplierModal();
+        showToast(
+          editId ? "Supplier Updated" : "Supplier Registered", 
+          `"${saved.supplierName}" successfully saved in database.`
+        );
+        loadSuppliers();
+      })
+      .catch(err => {
+        console.warn("Validation or duplicate error:", err.message);
+      });
+    }
+
+    /**
+     * Supplier Details Dossier & Linked Parts Management
+     */
+    function viewSupplierDetails(supplierId) {
+      fetch(`/api/suppliers/${supplierId}`)
+        .then(res => {
+          if (!res.ok) throw new Error("Failed to load supplier dossier");
+          return res.json();
+        })
+        .then(s => {
+          document.getElementById("detailsModalTitle").textContent = `${s.supplierName}`;
+          document.getElementById("detailSupplierCode").textContent = s.supplierCode || '--';
+          
+          const isActive = (s.isActive !== false && s.status === 'ACTIVE');
+          document.getElementById("detailStatusBadge").innerHTML = `
+            <span class="status-pill ${isActive ? 'active' : 'inactive'}">
+              <span class="status-dot-sm"></span> ${isActive ? 'Active' : 'Deactivated'}
+            </span>
+          `;
+          document.getElementById("detailTier").textContent = s.tier || 'Tier 3 - Silver';
+          document.getElementById("detailScore").textContent = `${s.score} / 100`;
+          document.getElementById("detailLeadTime").textContent = `${s.leadTimeDays || 5} Days`;
+          document.getElementById("detailOnTime").textContent = `${s.onTimeRate || 95}%`;
+          document.getElementById("detailDefect").textContent = `${s.defectRate || 1}%`;
+          document.getElementById("detailAddress").textContent = s.address || 'Colombo, Western Province, Sri Lanka';
+
+          document.getElementById("linkSupplierId").value = s.id;
+
+          // Load linked parts
+          loadSupplierParts(s.id);
+
+          const modal = document.getElementById("supplierDetailsModal");
+          if (modal) {
+            modal.classList.add("open");
+            document.body.style.overflow = "hidden";
+          }
+        })
+        .catch(err => alert("Error loading supplier details: " + err.message));
+    }
+
+    function closeDetailsModal() {
+      const modal = document.getElementById("supplierDetailsModal");
+      if (modal) {
+        modal.classList.remove("open");
+        document.body.style.overflow = "";
+      }
+    }
+
+    function loadSupplierParts(supplierId) {
+      const tbody = document.getElementById("supplierPartsTableBody");
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-dim); padding: 18px;">Loading parts catalog...</td></tr>`;
+
+      fetch(`/api/suppliers/${supplierId}/parts`)
+        .then(res => res.json())
+        .then(parts => {
+          document.getElementById("detailPartsCount").textContent = parts.length;
+          if (parts.length === 0) {
+            tbody.innerHTML = `
+              <tr>
+                <td colspan="7" style="text-align: center; color: var(--text-dim); padding: 22px;">
+                  No hardware spare parts currently linked to this supplier. Use the form below to link parts.
+                </td>
+              </tr>
+            `;
+            return;
+          }
+
+          tbody.innerHTML = parts.map(p => `
+            <tr>
+              <td style="font-weight: 600; color: var(--text-highlight);">${escapeHtml(p.partName)}</td>
+              <td class="font-mono" style="font-size: 11.5px; color: var(--accent-amber);">${escapeHtml(p.skuCode)}</td>
+              <td><span style="font-size: 11px; background: rgba(255,255,255,0.05); padding: 2px 7px; border-radius: 4px;">${escapeHtml(p.category || 'General')}</span></td>
+              <td class="font-mono" style="font-weight: 600;">LKR ${Number(p.supplyPrice).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+              <td class="font-mono">${p.leadTimeDays || 3} days</td>
+              <td>
+                <span class="status-pill active" style="font-size: 10.5px;">${escapeHtml(p.availabilityStatus || 'IN_STOCK')}</span>
+              </td>
+              <td style="text-align: center;">
+                <button type="button" class="btn-view-details" style="padding: 3px 8px; color: var(--color-negative); border-color: rgba(239,68,68,0.3);" onclick="unlinkSupplierPart(${supplierId}, ${p.id})" title="Unlink Part">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </td>
+            </tr>
+          `).join('');
+        })
+        .catch(err => {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--color-negative); padding: 15px;">Failed to load linked parts.</td></tr>`;
+        });
+    }
+
+    function handleLinkPartSubmit(event) {
+      event.preventDefault();
+      const supplierId = document.getElementById("linkSupplierId").value;
+      if (!supplierId) return;
+
+      const payload = {
+        partName: document.getElementById("linkPartName").value.trim(),
+        skuCode: document.getElementById("linkSkuCode").value.trim(),
+        category: document.getElementById("linkCategory").value,
+        supplyPrice: parseFloat(document.getElementById("linkSupplyPrice").value),
+        leadTimeDays: parseInt(document.getElementById("linkLeadTime").value) || 3,
+        availabilityStatus: document.getElementById("linkAvailability").value
+      };
+
+      fetch(`/api/suppliers/${supplierId}/parts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to link part to supplier");
+        return res.json();
+      })
+      .then(saved => {
+        showToast("Hardware Part Linked", `"${saved.partName}" is now linked to this supplier.`);
+        document.getElementById("linkPartForm").reset();
+        document.getElementById("linkLeadTime").value = "3";
+        loadSupplierParts(supplierId);
+      })
+      .catch(err => alert(err.message));
+    }
+
+    function unlinkSupplierPart(supplierId, partId) {
+      if (!confirm("Are you sure you want to unlink this spare part from the supplier?")) return;
+
+      fetch(`/api/suppliers/${supplierId}/parts/${partId}`, {
+        method: 'DELETE'
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to unlink part");
+        return res.json();
+      })
+      .then(() => {
+        showToast("Part Unlinked", "Spare part unlinked from supplier catalog.");
+        loadSupplierParts(supplierId);
+      })
+      .catch(err => alert(err.message));
+    }
+
+    /**
+     * Side-by-Side Pricing & Delivery Reliability Comparison Matrix
+     */
+    function openComparisonModal() {
+      const modal = document.getElementById("supplierComparisonModal");
+      if (modal) {
+        modal.classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
+      loadComparisonData();
+    }
+
+    function closeComparisonModal() {
+      const modal = document.getElementById("supplierComparisonModal");
+      if (modal) {
+        modal.classList.remove("open");
+        document.body.style.overflow = "";
+      }
+    }
+
+    function loadComparisonData() {
+      const cat = document.getElementById("compareCategoryFilter").value;
+      const tbody = document.getElementById("comparisonTableBody");
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--text-dim); padding: 30px;">Compiling supplier reliability matrix...</td></tr>`;
+
+      Promise.all([
+        fetch('/api/suppliers').then(r => r.json()),
+        fetch(`/api/suppliers/parts/comparison?category=${encodeURIComponent(cat)}`).then(r => r.json())
+      ])
+      .then(([suppliers, parts]) => {
+        // Group parts by supplierId
+        const partsBySupplier = {};
+        parts.forEach(p => {
+          if (!partsBySupplier[p.supplierId]) partsBySupplier[p.supplierId] = [];
+          partsBySupplier[p.supplierId].push(p);
+        });
+
+        // Sort active suppliers first, then by score desc
+        const sorted = [...suppliers].sort((a, b) => {
+          if (a.isActive === b.isActive) {
+            return (b.score || 0) - (a.score || 0);
+          }
+          return a.isActive ? -1 : 1;
+        });
+
+        if (sorted.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--text-dim); padding: 30px;">No suppliers found.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = sorted.map((s, idx) => {
+          const sParts = partsBySupplier[s.id] || [];
+          const isActive = (s.isActive !== false && s.status === 'ACTIVE');
+          
+          let partsSummary = '<span style="color: var(--text-dim); font-size: 11px;">No parts linked</span>';
+          if (sParts.length > 0) {
+            partsSummary = sParts.slice(0, 3).map(p => 
+              `<div style="font-size: 11.5px; margin-bottom: 2px;">
+                <strong>${escapeHtml(p.partName)}:</strong> LKR ${Number(p.supplyPrice).toLocaleString()} <span style="color: var(--text-dim);">(${p.leadTimeDays || 3}d)</span>
+              </div>`
+            ).join('');
+            if (sParts.length > 3) {
+              partsSummary += `<span style="font-size: 10.5px; color: var(--accent-amber);">+ ${sParts.length - 3} more parts</span>`;
+            }
+          }
+
+          // Reliability index calculated from score and on-time rate
+          const onTimeNum = parseFloat(s.onTimeRate) || 95;
+          const defectNum = parseFloat(s.defectRate) || 1;
+          const reliabilityIndex = ((s.score * 0.6) + (onTimeNum * 0.4) - (defectNum * 2)).toFixed(1);
+
+          return `
+            <tr style="${!isActive ? 'opacity: 0.55; filter: grayscale(50%);' : ''}">
+              <td>
+                <div style="font-weight: 700; color: var(--text-highlight);">${escapeHtml(s.supplierName)}</div>
+                <div class="font-mono" style="font-size: 11px; color: var(--text-dim);">${escapeHtml(s.supplierCode)}</div>
+              </td>
+              <td>
+                <span class="status-pill ${isActive ? 'active' : 'inactive'}" style="font-size: 11px;">
+                  ${isActive ? 'Active' : 'Inactive'}
+                </span>
+              </td>
+              <td>
+                <div style="font-weight: 700; color: ${s.score >= 85 ? 'var(--color-positive)' : 'var(--accent-amber)'};">${s.score} / 100</div>
+                <span style="font-size: 10.5px; color: var(--text-dim);">${escapeHtml(s.tier || 'Standard')}</span>
+              </td>
+              <td class="font-mono" style="font-weight: 600; color: ${(s.leadTimeDays || 5) <= 3 ? 'var(--color-positive)' : 'var(--text-main)'};">
+                ${s.leadTimeDays || 5} days
+              </td>
+              <td class="font-mono" style="font-weight: 600; color: ${onTimeNum >= 95 ? 'var(--color-positive)' : 'var(--accent-amber)'};">
+                ${onTimeNum}%
+              </td>
+              <td class="font-mono" style="font-weight: 600; color: ${defectNum <= 1.5 ? 'var(--color-positive)' : 'var(--color-negative)'};">
+                ${defectNum}%
+              </td>
+              <td>
+                ${partsSummary}
+              </td>
+              <td>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <div style="font-weight: 700; color: ${reliabilityIndex >= 85 ? 'var(--color-positive)' : 'var(--color-info)'}; font-size: 13px;">${reliabilityIndex}</div>
+                  <span style="font-size: 10px; color: var(--text-dim);">Index</span>
+                </div>
+              </td>
+              <td style="text-align: center;">
+                <button type="button" class="btn-view-details" style="padding: 4px 10px;" onclick="closeComparisonModal(); viewSupplierDetails(${s.id});">
+                  <i class="fa-solid fa-list-check"></i> Dossier
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      })
+      .catch(err => {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--color-negative); padding: 25px;">Failed to compile matrix: ${err.message}</td></tr>`;
+      });
+    }
+
+    /**
+     * Open & Close Record Action Modal Helpers
+     */
+    function openModal() {
+      modalBackdrop.classList.add("open");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeModal() {
+      modalBackdrop.classList.remove("open");
+      document.body.style.overflow = "";
+      actionForm.reset();
+      const today = new Date().toISOString().split('T')[0];
+      if (actionDateInput) actionDateInput.value = today;
+      setCategory("POSITIVE");
+    }
+
+    /**
+     * Action Category Switcher (Positive / Negative)
+     */
+    function setCategory(category) {
+      actionCategoryInput.value = category;
+
+      if (category === "POSITIVE") {
+        btnCategoryPositive.className = "category-toggle-btn active positive-mode";
+        btnCategoryNegative.className = "category-toggle-btn";
+        scorePreviewBadge.className = "score-impact-pill score-impact-positive";
+      } else {
+        btnCategoryPositive.className = "category-toggle-btn";
+        btnCategoryNegative.className = "category-toggle-btn active negative-mode";
+        scorePreviewBadge.className = "score-impact-pill score-impact-negative";
+      }
+
+      populateActionOptions(category);
+    }
+
+    /**
+     * Populate Action Name Dropdown with Pre-Configured Scores
+     */
+    function populateActionOptions(category) {
+      actionNameSelect.innerHTML = "";
+      const actions = ACTION_CATALOG[category];
+
+      actions.forEach((item, index) => {
+        const option = document.createElement("option");
+        option.value = item.label;
+        option.textContent = item.label;
+        option.dataset.score = item.score;
+        if (index === 0) option.selected = true;
+        actionNameSelect.appendChild(option);
+      });
+
+      handleActionNameChange();
+    }
+
+    /**
+     * Update Score Preview Badge when selection changes
+     */
+    function handleActionNameChange() {
+      const selectedOption = actionNameSelect.options[actionNameSelect.selectedIndex];
+      if (!selectedOption) return;
+
+      const score = parseInt(selectedOption.dataset.score, 10);
+      if (score > 0) {
+        scorePreviewBadge.textContent = `+${score} Pts`;
+        scorePreviewBadge.className = "score-impact-pill score-impact-positive";
+      } else {
+        scorePreviewBadge.textContent = `${score} Pts`;
+        scorePreviewBadge.className = "score-impact-pill score-impact-negative";
+      }
+    }
+
+    /**
+     * Record Action Form Submission Handler
+     */
+    function handleFormSubmit(event) {
+      event.preventDefault();
+
+      const supplierSelect = document.getElementById("supplierSelect");
+      const supplierId = supplierSelect.value;
+      if (!supplierId) {
+        alert("Please select a supplier");
+        return;
+      }
+      const supplierName = supplierSelect.options[supplierSelect.selectedIndex].text;
+      const actionName = actionNameSelect.value;
+      const poRef = document.getElementById("poReferenceInput").value;
+      const selectedScore = parseInt(actionNameSelect.options[actionNameSelect.selectedIndex].dataset.score, 10);
+      const actionDate = actionDateInput.value;
+
+      const actionPayload = {
+        actionCategory: actionCategoryInput.value,
+        actionName: actionName,
+        scoreImpact: selectedScore,
+        poReference: poRef,
+        actionDate: actionDate
+      };
+
+      fetch(`/api/suppliers/${supplierId}/actions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(actionPayload)
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to record action in database");
+        return res.json();
+      })
+      .then(updated => {
+        closeModal();
+        showToast(
+          "Supplier Action Logged", 
+          `Recorded "${actionName}" for ${supplierName}. New score: ${updated.score} pts (${updated.tier}).`
+        );
+        loadSuppliers();
+      })
+      .catch(err => {
+        alert("Error logging action: " + err.message);
+      });
+    }
+
+    /**
+     * Toast Notification Trigger
+     */
+    function showToast(title, message) {
+      const toastTitle = document.getElementById("toastTitle");
+      const toastMessage = document.getElementById("toastMessage");
+
+      if (toastTitle) toastTitle.textContent = title;
+      if (toastMessage) toastMessage.textContent = message;
+
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 4200);
+    }
+
+    /**
+     * Table Search, Filter, and Sort Engine
+     */
+    function filterAndSortTable() {
+      const query = (searchInput.value || "").trim().toLowerCase();
+      const status = statusFilter.value;
+      const sortMode = sortSelector.value;
+
+      let filtered = supplierList.filter(s => {
+        const name = (s.supplierName || "").toLowerCase();
+        const code = (s.supplierCode || "").toLowerCase();
+        const matchesQuery = !query || name.includes(query) || code.includes(query);
+        const matchesStatus = (status === "ALL") || (s.status === status);
+        return matchesQuery && matchesStatus;
+      });
+
+      filtered.sort((a, b) => {
+        if (sortMode === "score-desc") return (b.score || 0) - (a.score || 0);
+        if (sortMode === "score-asc") return (a.score || 0) - (b.score || 0);
+        if (sortMode === "orders-desc") return (b.ordersCompleted || 0) - (a.ordersCompleted || 0);
+        if (sortMode === "name-asc") return (a.supplierName || "").localeCompare(b.supplierName || "");
+        return (b.score || 0) - (a.score || 0);
+      });
+
+      renderSupplierTable(filtered);
+    }
+  </script>
+
+  <!-- Role-Based Auth Manager -->
+  <script src="auth.js"></script>
+  <script>
+    // Initialize role-based nav & topbar, guard access
+    document.addEventListener('DOMContentLoaded', function() {
+      PartsHub.initPage('suppliers');
+    });
+  </script>
+
+  <script th:if="${openAddModal}">
+    window.addEventListener('load', function() {
+      if (typeof openAddSupplierModal === 'function') openAddSupplierModal();
+    });
+  </script>
+  <script th:if="${editSupplierId != null}">
+    window.addEventListener('load', function() {
+      if (typeof editSupplier === 'function') editSupplier([[${editSupplierId}]]);
+    });
+  </script>
+</body>
+</html>
+
